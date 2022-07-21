@@ -59,7 +59,7 @@ public class Node {
 
             }
             //Set the node vote
-//            System.out.println("I voted: " + nodeVote);
+            System.out.println("I voted: " + nodeVote);
             DataStorage.Quorum.getVotes().remove(0);
             DataStorage.Quorum.getVotes().add(nodeVote);
 
@@ -109,6 +109,10 @@ public class Node {
 //MINE: 1 TXN per block
 
     public void proposeBlock() {
+        //This value is 5. Why?
+        System.out.println("Quorum votes");
+        System.out.println(DataStorage.Quorum.getVotes().toString());
+
         //If the node vote has a "false" ...
         if (DataStorage.Quorum.getVotes().contains(false)) {
             System.out.println("Block validation failed - Attempting to remove Bad TXs and rebroadcast for validaton\n");
@@ -170,7 +174,7 @@ public class Node {
     }
 
 
-//Original
+//Original: only propagated the last new block to the network
 
 //    public void getLongestChain() {
 //
@@ -204,7 +208,7 @@ public class Node {
 //
 //    }
 
-//Mine
+//Mine: propagates all new blocks (1 per transaction (60) to the chain)
 
     public void getLongestChain() {
 

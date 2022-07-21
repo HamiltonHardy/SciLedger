@@ -12,7 +12,10 @@ public class Quorum {
 
     //Determine number of Quorum members desired
     private static final int NUM = 10;
-    private ArrayList<Boolean> votes = new ArrayList<Boolean>(Arrays.asList(new Boolean[5]));
+
+    //Original Votes array is size 5. Why?
+    //I changed to 10 to match the quorum size
+    private ArrayList<Boolean> votes = new ArrayList<Boolean>(Arrays.asList(new Boolean[10]));
     private ArrayList<Node> QuroumGroup = new ArrayList<>();
 
     //Constructor
@@ -45,27 +48,27 @@ public class Quorum {
 
 
 
-    //This function returns an ArrayList of Quorum members from the Network Node list
-    public void getHashQuorum(String hash) {
-
-        ArrayList<Node> quorum = new ArrayList<>();
-        long seed = stringToSeed(hash); //convert hash string to long
-        Random rand = new Random(seed); //seed with converted hash string
-
-        //long seed = stringToSeed(DataStorage.GenBlock.getHash()); //Test with consistent seed to check results
-
-        //Add specified number of random nodes to Quorum group
-        for (int i = 0; i < NUM; i++) {
-            Node node = DataStorage.Nodes.get(rand.nextInt(DataStorage.Nodes.size()));
-            //Ensure no duplicate nodes in list
-            while (quorum.contains(node)) {
-                node = DataStorage.Nodes.get(rand.nextInt(DataStorage.Nodes.size()));
-            }
-            quorum.add(node);
-        }
-        this.QuroumGroup = quorum;
-        //return quorum;
-    }
+//    //This function returns an ArrayList of Quorum members from the Network Node list
+//    public void getHashQuorum(String hash) {
+//
+//        ArrayList<Node> quorum = new ArrayList<>();
+//        long seed = stringToSeed(hash); //convert hash string to long
+//        Random rand = new Random(seed); //seed with converted hash string
+//
+//        //long seed = stringToSeed(DataStorage.GenBlock.getHash()); //Test with consistent seed to check results
+//
+//        //Add specified number of random nodes to Quorum group
+//        for (int i = 0; i < NUM; i++) {
+//            Node node = DataStorage.Nodes.get(rand.nextInt(DataStorage.Nodes.size()));
+//            //Ensure no duplicate nodes in list
+//            while (quorum.contains(node)) {
+//                node = DataStorage.Nodes.get(rand.nextInt(DataStorage.Nodes.size()));
+//            }
+//            quorum.add(node);
+//        }
+//        this.QuroumGroup = quorum;
+//        //return quorum;
+//    }
 
 
     //Getters and Setters

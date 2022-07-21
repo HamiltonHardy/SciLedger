@@ -235,41 +235,41 @@ public class DataStorage {
 
     //***** EXPERIMENTS *****//
     //Experiment to test quorum distribution using last block hash as seed (compare to java random)
-    static void hashDistributionExp() throws InterruptedException, IOException {
-        File file = new File("QuorumCounts.csv");
-        if (!file.exists()) {
-            file.createNewFile();
-        }
-
-        PrintWriter pw = new PrintWriter(new FileOutputStream(new File("QuorumCounts.csv"), true));
-        int[] quorumCounts = new int[50];
-        Quorum = new Quorum();
-
-        for (int x = 0; x < 1000; x++) {  //Number of Trials
-
-            for (int i = 0; i < 1000; i++) { //Number Quorum Generations - log how many times node was selected
-                //Thread.sleep(1); //Add a millisecond to change timestamp for increase hash randomness
-                //Generate Block and to Get Quorum based on Block Hash
-                Nodes.get(0).proposeBlock();
-                Quorum.getHashQuorum(Nodes.get(0).getBlockchain().get(Nodes.get(0).getBlockchain().size() - 1).getHash());
-
-                //Log the nodes that were selected for the quorum
-                for (int j = 0; j < Quorum.getQuroumGroup().size(); j++) {
-                    quorumCounts[Quorum.getQuroumGroup().get(j).getNodeID() - 1] += 1;
-
-                }
-            }
-
-            //Record results
-            for (int count : quorumCounts) { //print to screen and file
-                //System.out.println(count);
-                pw.print(count + ",");
-            }
-            pw.println(); //add new line for next run
-            quorumCounts = new int[50];  //reset array counts back to zero
-        }
-        pw.close();
-    }
+//    static void hashDistributionExp() throws InterruptedException, IOException {
+//        File file = new File("QuorumCounts.csv");
+//        if (!file.exists()) {
+//            file.createNewFile();
+//        }
+//
+//        PrintWriter pw = new PrintWriter(new FileOutputStream(new File("QuorumCounts.csv"), true));
+//        int[] quorumCounts = new int[50];
+//        Quorum = new Quorum();
+//
+//        for (int x = 0; x < 1000; x++) {  //Number of Trials
+//
+//            for (int i = 0; i < 1000; i++) { //Number Quorum Generations - log how many times node was selected
+//                //Thread.sleep(1); //Add a millisecond to change timestamp for increase hash randomness
+//                //Generate Block and to Get Quorum based on Block Hash
+//                Nodes.get(0).proposeBlock();
+//                Quorum.getHashQuorum(Nodes.get(0).getBlockchain().get(Nodes.get(0).getBlockchain().size() - 1).getHash());
+//
+//                //Log the nodes that were selected for the quorum
+//                for (int j = 0; j < Quorum.getQuroumGroup().size(); j++) {
+//                    quorumCounts[Quorum.getQuroumGroup().get(j).getNodeID() - 1] += 1;
+//
+//                }
+//            }
+//
+//            //Record results
+//            for (int count : quorumCounts) { //print to screen and file
+//                //System.out.println(count);
+//                pw.print(count + ",");
+//            }
+//            pw.println(); //add new line for next run
+//            quorumCounts = new int[50];  //reset array counts back to zero
+//        }
+//        pw.close();
+//    }
 
     //Experiment to test quorum distribution of java.util random (compare to block hash generation)
     static void randomDistributionExp() throws InterruptedException, IOException {
