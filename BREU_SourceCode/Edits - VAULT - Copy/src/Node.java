@@ -128,6 +128,7 @@ public class Node {
         }
         // If node vote is good (block is good) create new block from the mempool
         else {  //Block is good, add Block to local ledger, clear MemPool
+            System.out.println("(before) CURRENT BLOCKCHAIN SIZE " + this.blockchain.size());
             System.out.println("MEMPOOL SIZE: " + memPool.size());
             for (Transaction transaction : this.memPool){
                 //Create ArrayList<Transaction> for a single transaction
@@ -137,7 +138,7 @@ public class Node {
                 this.blockchain.add(new Block(singleTransaction, this.blockchain.get(this.blockchain.size() - 1)
                         .getHash(), this.blockchain.size() + 1, DataStorage.Quorum.getVotes()));
 
-                System.out.println("Successfully added Block. Blockchain length: " + this.blockchain.size());
+//                System.out.println("Successfully added Block. Blockchain length: " + this.blockchain.size());
             }
 
             this.memPool.clear();
@@ -168,7 +169,45 @@ public class Node {
 
     }
 
+
+//Original
+
+//    public void getLongestChain() {
+//
+//
+//        int maxID = this.nodeID;
+//        for (Node node : DataStorage.Nodes) {  //Find node with longest blockchain
+//            if (node.getBlockchain().size() > this.blockchain.size()) {
+//                maxID = node.getNodeID();
+//            }
+//        }
+//
+//        if (maxID != this.nodeID) { //Make sure longest chain is not self
+//            //check that quorum voted true
+//            if(!DataStorage.Nodes.get(maxID - 1)
+//                    .getBlockchain().get(DataStorage.Nodes.get(maxID - 1)
+//                            .getBlockchain().size() - 1).getQVotes()
+//                    .contains(false))
+//            {
+//                //Quorum Signature succesfully validated, clear mempool and add latest block to local ledger
+//                this.blockchain.add(DataStorage.Nodes.get(maxID - 1)
+//                        .getBlockchain().get(DataStorage.Nodes.get(maxID - 1).getBlockchain().size() - 1));
+//
+//                //*note* in reality we want to remove only mempool transactions that are already in the blockchain
+//                //for scalability experiment, mempools will always match, so just clear mempool.
+//                this.memPool.clear();
+//            }
+//
+//
+//
+//        }
+//
+//    }
+
+//Mine
+
     public void getLongestChain() {
+
 
         int maxID = this.nodeID;
         for (Node node : DataStorage.Nodes) {  //Find node with longest blockchain
@@ -184,9 +223,19 @@ public class Node {
                             .getBlockchain().size() - 1).getQVotes()
                     .contains(false))
             {
-                //Quorum Signature succesfully validated, clear mempool and add latest block to local ledger
-                this.blockchain.add(DataStorage.Nodes.get(maxID - 1)
-                        .getBlockchain().get(DataStorage.Nodes.get(maxID - 1).getBlockchain().size() - 1));
+
+//                int blockchainSizeDifference = DataStorage.Nodes.get(maxID - 1).getBlockchain().size() - this.blockchain.size();
+//                System.out.println("Current node BC size " + this.blockchain.size());
+//                System.out.println("Longest BC size " + DataStorage.Nodes.get(maxID - 1).getBlockchain().size());
+//                System.out.println("Difference " + blockchainSizeDifference);
+
+                //Quorum Signature succesfully validated, clear mempool and add latest blocks to local ledger
+                //Start index at the size of the non-updated blockchain
+                //End one before the size of the updated (larger) blockchain
+                for(int i = this.blockchain.size(); i<DataStorage.Nodes.get(maxID - 1).getBlockchain().size(); i++){
+                    this.blockchain.add(DataStorage.Nodes.get(maxID - 1)
+                            .getBlockchain().get(i));
+                }
 
                 //*note* in reality we want to remove only mempool transactions that are already in the blockchain
                 //for scalability experiment, mempools will always match, so just clear mempool.
