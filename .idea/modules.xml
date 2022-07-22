@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/BREU_SourceCode/Edits - VAULT - Copy/Edits - VAULT - Copy.iml" filepath="$PROJECT_DIR$/BREU_SourceCode/Edits - VAULT - Copy/Edits - VAULT - Copy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BREU_SourceCode/Experimenting - GEEKS FOR GEEKS - Copy/Experimenting - GEEKS FOR GEEKS - Copy.iml" filepath="$PROJECT_DIR$/BREU_SourceCode/Experimenting - GEEKS FOR GEEKS - Copy/Experimenting - GEEKS FOR GEEKS - Copy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BREU_SourceCode/GEEKS FOR GEEKS/GEEKS FOR GEEKS.iml" filepath="$PROJECT_DIR$/BREU_SourceCode/GEEKS FOR GEEKS/GEEKS FOR GEEKS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/SciLedger.iml" filepath="$PROJECT_DIR$/.idea/SciLedger.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BREU_SourceCode/Threads/Threads.iml" filepath="$PROJECT_DIR$/BREU_SourceCode/Threads/Threads.iml" />
+      <module fileurl="file://$PROJECT_DIR$/BREU_SourceCode/VAULT/VAULT.iml" filepath="$PROJECT_DIR$/BREU_SourceCode/VAULT/VAULT.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WorkflowsAndMerkleTrees/WorkflowsAndMerkleTrees.iml" filepath="$PROJECT_DIR$/WorkflowsAndMerkleTrees/WorkflowsAndMerkleTrees.iml" />
+    </modules>
+  </component>
+</project>
