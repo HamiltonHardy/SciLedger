@@ -23,6 +23,9 @@ public class randomizeGen {
         }
     }
 
+    public static void test(){
+        workflow w = new workflow(1,null,null);
+    }
     public static void main(String[] args) {
         generate();
         System.out.println(workflows);

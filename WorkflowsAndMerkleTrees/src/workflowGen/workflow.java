@@ -71,8 +71,10 @@ public class workflow {
         // Start by adding all the hashes of the transactions as leaves of the
         // tree.
         for (workflowGen.task task : this.workflow) {
+            System.out.println(task.hash());
             tree.add(task.hash());
         }
+        System.out.println();
         int levelOffset = 0; // Offset in the list where the currently processed
         // level starts.
         // Step through each level, stopping when we reach the root (levelSize
@@ -85,6 +87,7 @@ public class workflow {
                 // transactions.
                 int right = Math.min(left + 1, levelSize - 1);
                 String tleft = tree.get(levelOffset + left);
+
                 String tright = tree.get(levelOffset + right);
                 tree.add(genTreeHash(tleft + tright));
             }
