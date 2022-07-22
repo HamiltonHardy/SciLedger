@@ -16,11 +16,12 @@ import java.util.Date;
 //Mine
 public class Transaction {
     private String wID;
+    private String tID;
+    public String validStatus;
     private String  pTID;
-    private String pWID;
+    private String merkleRoot;
 
     private int uID;
-    private String tID;
     private String data;
     private long timeStamp;
 
@@ -29,16 +30,20 @@ public class Transaction {
 
     //Constructor
     public Transaction(int uID, ArrayList<String> provenanceData) {
-        this.tID = createtID();
+//        this.tID = createtID();
         this.timeStamp = new Date().getTime();
         this.uID = uID;
-        this.data = ("TxDataStub - uID: ").concat(String.valueOf(uID)
-                .concat(" / tID: ").concat(tID).concat(" / Time: ").concat(String.valueOf(timeStamp)));
 
 
         this.wID = provenanceData.get(0);
-        this.pTID = provenanceData.get(1);
-        this.pWID = provenanceData.get(2);
+        this.tID = provenanceData.get(1);
+        this.validStatus = provenanceData.get(2);
+        this.pTID = provenanceData.get(3);
+        this.merkleRoot = provenanceData.get(4);
+
+        this.data = ("TxDataStub - uID: ").concat(String.valueOf(uID)
+                .concat(" / tID: ").concat(tID).concat(" / Time: ").concat(String.valueOf(timeStamp)));
+
     }
 
 
@@ -73,6 +78,40 @@ public class Transaction {
     public void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
     }
+
+    public void setwID(String wID) {
+        this.wID = wID;
+    }
+
+    public String getwID() {
+        return wID;
+    }
+
+    public void setMerkleRoot(String merkleRoot) {
+        this.merkleRoot = merkleRoot;
+    }
+
+    public String getMerkleRoot() {
+        return merkleRoot;
+    }
+
+    public void setpTID(String pTID) {
+        this.pTID = pTID;
+    }
+
+    public String getpTID() {
+        return pTID;
+    }
+
+    public void setValidStatus(String validStatus) {
+        this.validStatus = validStatus;
+    }
+
+    public String getValidStatus() {
+        return validStatus;
+    }
+
+
 
 
     public static String createtID() {

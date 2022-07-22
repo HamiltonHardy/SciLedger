@@ -28,7 +28,7 @@ public class DataStorage {
         final double QUORUM_THRESHOLD = .8;
 
         ArrayList<String> dummyProvenanceData = new ArrayList<>();
-        for(int i = 0; i< 3; i++){
+        for(int i = 0; i< 5; i++){
             dummyProvenanceData.add("0");
         }
 
@@ -49,7 +49,14 @@ public class DataStorage {
 //        }
 
 //        scalability(1000, 50);
-        scalability(NUM_NODES, NUM_BLOCKS, QUORUM_SIZE, QUORUM_THRESHOLD);
+
+        ArrayList<String> provenanceData = new ArrayList<>();
+        provenanceData.add("wID");
+        provenanceData.add("tID");
+        provenanceData.add("validStatus");
+        provenanceData.add("pTID");
+        provenanceData.add("merkleRoot");
+        scalability(NUM_NODES, NUM_BLOCKS, QUORUM_SIZE, QUORUM_THRESHOLD, provenanceData);
 
 
 
@@ -131,11 +138,8 @@ public class DataStorage {
 
     //MINE: Scalability Experiment
     //Removed tps completely
-    static void scalability(int numNodes, int numBlocks, int quorumSize, double quorumThreshold) throws InterruptedException {
-        ArrayList<String> provenanceData = new ArrayList<>();
-        provenanceData.add("wID");
-        provenanceData.add("pTID");
-        provenanceData.add("pWID");
+    static void scalability(int numNodes, int numBlocks, int quorumSize, double quorumThreshold, ArrayList<String> provenanceData) throws InterruptedException {
+
 
         //Create Nodes
         for (int i = 0; i < numNodes; i++) {

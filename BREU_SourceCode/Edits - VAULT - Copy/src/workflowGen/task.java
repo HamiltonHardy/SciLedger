@@ -50,10 +50,10 @@ public class task {
     public String toString() {
         StringBuilder str = new StringBuilder(this.workflowID + "\n" + this.taskID + "\n" + this.invalidated + "\n");
         for (Integer integer : this.idxParent) {
-            str.append(integer + "\n");
+            str.append(integer + ", ");
         }
         if(this.tree!=null){
-            str.append(this.tree);
+            str.append("\n" + this.tree);
         }
         return str.toString();
     }
