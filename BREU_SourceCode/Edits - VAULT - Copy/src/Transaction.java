@@ -19,8 +19,6 @@ public class Transaction {
 
     //Constructor
     public Transaction(int nodeID) {
-        System.out.println("TRANSACTION Constructor");
-
         this.TxID = createTxID();
         this.timeStamp = new Date().getTime();
         this.nodeID = nodeID;

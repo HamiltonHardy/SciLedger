@@ -40,7 +40,7 @@ public class DataStorage {
 //        }
 
 //        scalability(1000, 50);
-        scalability(1000, 2);
+        scalability(1000);
 
 
 
@@ -121,9 +121,9 @@ public class DataStorage {
 //    }
 
     //MINE: Scalability Experiment
-    //Left num blocks at 50, changed tps in the function call to 1
-    static void scalability(int numNodes, int tps) throws InterruptedException {
-        int numBlocks = 1; //Number of blocks to create for tests
+    //Removed tps completely
+    static void scalability(int numNodes) throws InterruptedException {
+        int numBlocks = 5; //Number of blocks to create for tests
 
         //Create Nodes
         for (int i = 0; i < numNodes; i++) {
@@ -131,7 +131,7 @@ public class DataStorage {
         }
         connectNetwork();
         printNetworkConnections();
-        System.out.println("NumNodes: " + numNodes + " TPS: " + tps);
+        System.out.println("NumNodes: " + numNodes + " Blocks: " + numBlocks);
 
         //Number of Blocks to create for tests
         for (int i = 0; i < numBlocks; i++) {
@@ -141,19 +141,17 @@ public class DataStorage {
             long qDuration = (QCreation - start);  //divide by 1000000 to get milliseconds.
             //Print 1
             System.out.println("Begin---------------------");
-            System.out.print(qDuration);
+            System.out.print("Quorum creation duration: " + qDuration);
             //broadcast #tps for #seconds
 
             long broadcastStart = System.currentTimeMillis();
-            for (int j = 0; j < tps; j++) { //2. Target # transactions per block/tps
-                //Thread.sleep(sleep);
-                System.out.println("CREATE TRANSACTION");
-                Nodes.get(j).broadcastTransaction(Nodes.get(j).createTransaction());
-            }
+
+            Nodes.get(0).broadcastTransaction(Nodes.get(0).createTransaction());
+
             long broadcastEnd = System.currentTimeMillis();
             long bDuration = (broadcastEnd - broadcastStart);
             //Print 2
-            System.out.print("," + bDuration);
+            System.out.println(", broadcast transactions duration: "  + bDuration);
 
             long validationStart = System.currentTimeMillis();
 
@@ -170,7 +168,7 @@ public class DataStorage {
             long validationEnd = System.currentTimeMillis();
             long vDuration = (validationEnd - validationStart);
             //Print 3
-            System.out.println("," + vDuration);
+            System.out.println(", validation duration: " + vDuration);
             System.out.println("Middle---------------------");
 
             //Propse block and append all Nodes' ledgers
@@ -179,13 +177,13 @@ public class DataStorage {
             long blockEnd = System.currentTimeMillis();
             long blockDuration = (blockEnd - blockStart);
             //Print 4
-            System.out.print(blockDuration);
+            System.out.print(", Add block duration: " + blockDuration);
 
             //total time
             long endTime = System.currentTimeMillis();
             long totalTime = (endTime - start);
             //Print 5
-            System.out.println("," + totalTime);
+            System.out.println(", total time: " + totalTime);
             System.out.println("END---------------------");
             System.out.println();
 
