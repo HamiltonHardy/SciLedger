@@ -28,8 +28,8 @@ public class Node {
 
     // ***** FUNCTIONS *****//
 
-    public Transaction createTransaction() {
-        Transaction tx = new Transaction(this.nodeID);
+    public Transaction createTransaction(ArrayList<String> provenanceData) {
+        Transaction tx = new Transaction(this.nodeID, provenanceData);
         return tx;
     }
 
@@ -47,7 +47,7 @@ public class Node {
             for (Transaction tx : this.memPool) {
                 boolean txIsFound = false;
                 for (int j = 0; j < DataStorage.Nodes.size(); j++) {
-                    if (tx.getNodeID() == DataStorage.Nodes.get(j).getNodeID()) {
+                    if (tx.getuID() == DataStorage.Nodes.get(j).getNodeID()) {
                         txIsFound = true;
                     }
 
@@ -184,12 +184,13 @@ public class Node {
         }
         double percentBadVotes = badVoteCount/DataStorage.Quorum.getVotes().size();
 
+        //Check whether threshold is met
         if (percentBadVotes > quorumThreshold) {
             System.out.println("Block validation failed - Attempting to remove Bad TXs and rebroadcast for validaton\n");
 
             //search through mempool and check for invalid transactions (i.e. nodes not members of the network - invalid nodeID)
             for (int i = 0; i < this.memPool.size(); i++) {
-                if ((this.memPool.get(i).getNodeID() > DataStorage.Nodes.size()) || (this.memPool.get(i).getNodeID() < 1)) {
+                if ((this.memPool.get(i).getuID() > DataStorage.Nodes.size()) || (this.memPool.get(i).getuID() < 1)) {
                     //bad transaction found, Call on quorum to remove bad transaction and revalidate new block
                     for (Node node : DataStorage.Quorum.getQuroumGroup()) {
                         node.getMemPool().remove(i);
@@ -208,6 +209,8 @@ public class Node {
                 //Create ArrayList<Transaction> for a single transaction
                 ArrayList<Transaction> singleTransaction = new ArrayList<>();
                 singleTransaction.add(transaction);
+
+                System.out.println("Transaction Data: " + transaction.getData());
 
                 this.blockchain.add(new Block(singleTransaction, this.blockchain.get(this.blockchain.size() - 1)
                         .getHash(), this.blockchain.size() + 1, DataStorage.Quorum.getVotes()));

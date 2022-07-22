@@ -25,7 +25,7 @@ public class Block {
         }
         this.timeStamp = new Date().getTime();
 
-        if (TXs.get(0).getNodeID() == -1) {
+        if (TXs.get(0).getuID() == -1) {
             this.previousHash = "0";
             //tx.setData("GENESIS BLOCK");// = "Genesis Block";
         } else {

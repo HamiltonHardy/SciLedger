@@ -27,8 +27,13 @@ public class DataStorage {
         final int QUORUM_SIZE = 10;
         final double QUORUM_THRESHOLD = .8;
 
+        ArrayList<String> dummyProvenanceData = new ArrayList<>();
+        for(int i = 0; i< 3; i++){
+            dummyProvenanceData.add("0");
+        }
+
         //Need initial genesis block
-        GenBlockTXs.add(new Transaction(-1));
+        GenBlockTXs.add(new Transaction(-1, dummyProvenanceData));
         GenBlock = new Block(GenBlockTXs, "0", 1, GenQuorum);
 
 
@@ -127,6 +132,10 @@ public class DataStorage {
     //MINE: Scalability Experiment
     //Removed tps completely
     static void scalability(int numNodes, int numBlocks, int quorumSize, double quorumThreshold) throws InterruptedException {
+        ArrayList<String> provenanceData = new ArrayList<>();
+        provenanceData.add("wID");
+        provenanceData.add("pTID");
+        provenanceData.add("pWID");
 
         //Create Nodes
         for (int i = 0; i < numNodes; i++) {
@@ -149,7 +158,7 @@ public class DataStorage {
 
             long broadcastStart = System.currentTimeMillis();
 
-            Nodes.get(0).broadcastTransaction(Nodes.get(0).createTransaction());
+            Nodes.get(0).broadcastTransaction(Nodes.get(0).createTransaction(provenanceData));
 
             long broadcastEnd = System.currentTimeMillis();
             long bDuration = (broadcastEnd - broadcastStart);
