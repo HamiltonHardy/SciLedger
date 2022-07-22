@@ -57,4 +57,23 @@ public class task {
         }
         return str.toString();
     }
+
+    public ArrayList<String> toProvenanceData(){
+        //0: workflowID, 1: taskID, 2: invalid, 3: parentTaskIDs, 4: merkleTree
+        ArrayList<String> provenanceData = new ArrayList<>();
+        provenanceData.add(this.workflowID);
+        provenanceData.add(this.taskID);
+        provenanceData.add(this.invalidated);
+
+        String parentTaskIDs = "null";
+        if (this.idxParent != null){
+            parentTaskIDs = this.idxParent.toString();
+        }
+        provenanceData.add(parentTaskIDs);
+
+        String merkleRoot = this.tree.get(this.tree.size()-1);
+        provenanceData.add(merkleRoot);
+
+        return provenanceData;
+    }
 }

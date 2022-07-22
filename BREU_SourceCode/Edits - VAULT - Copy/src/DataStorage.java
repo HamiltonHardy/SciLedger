@@ -1,4 +1,8 @@
 
+import workflowGen.randomizeGen;
+import workflowGen.task;
+import workflowGen.workflow;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -50,13 +54,8 @@ public class DataStorage {
 
 //        scalability(1000, 50);
 
-        ArrayList<String> provenanceData = new ArrayList<>();
-        provenanceData.add("wID");
-        provenanceData.add("tID");
-        provenanceData.add("validStatus");
-        provenanceData.add("pTID");
-        provenanceData.add("merkleRoot");
-        scalability(NUM_NODES, NUM_BLOCKS, QUORUM_SIZE, QUORUM_THRESHOLD, provenanceData);
+
+        scalability(NUM_NODES, NUM_BLOCKS, QUORUM_SIZE, QUORUM_THRESHOLD);
 
 
 
@@ -138,7 +137,7 @@ public class DataStorage {
 
     //MINE: Scalability Experiment
     //Removed tps completely
-    static void scalability(int numNodes, int numBlocks, int quorumSize, double quorumThreshold, ArrayList<String> provenanceData) throws InterruptedException {
+    static void scalability(int numNodes, int numBlocks, int quorumSize, double quorumThreshold) throws InterruptedException {
 
 
         //Create Nodes
@@ -150,62 +149,70 @@ public class DataStorage {
         System.out.println("NumNodes: " + numNodes + " Blocks: " + numBlocks);
 
         //Number of Blocks to create for tests
-        for (int i = 0; i < numBlocks; i++) {
-            long start = System.currentTimeMillis();
-            Quorum = new Quorum(quorumSize);          //1.Create Quroum
-            long QCreation = System.currentTimeMillis();
-            long qDuration = (QCreation - start);  //divide by 1000000 to get milliseconds.
-            //Print 1
-            System.out.println("Begin---------------------");
-            System.out.print("Quorum creation duration: " + qDuration);
-            //broadcast #tps for #seconds
+        //create workflows
+        randomizeGen randomizeGen = new randomizeGen();
+        ArrayList<workflow> workflows = randomizeGen.getWorkflows();
 
-            long broadcastStart = System.currentTimeMillis();
+        for (int i = 0; i<workflows.size(); i++){
+            ArrayList<task> workflow = workflows.get(i).getWorkflow();
+            for(int j = 0; j < workflow.size(); i++) {
+                ArrayList<String> provenanceData = workflow.get(j).toProvenanceData();
 
-            Nodes.get(0).broadcastTransaction(Nodes.get(0).createTransaction(provenanceData));
+                long start = System.currentTimeMillis();
+                Quorum = new Quorum(quorumSize);          //1.Create Quroum
+                long QCreation = System.currentTimeMillis();
+                long qDuration = (QCreation - start);  //divide by 1000000 to get milliseconds.
+                //Print 1
+                System.out.println("Begin---------------------");
+                System.out.print("Quorum creation duration: " + qDuration);
+                //broadcast #tps for #seconds
 
-            long broadcastEnd = System.currentTimeMillis();
-            long bDuration = (broadcastEnd - broadcastStart);
-            //Print 2
-            System.out.println(", broadcast transactions duration: "  + bDuration);
+                long broadcastStart = System.currentTimeMillis();
 
-            long validationStart = System.currentTimeMillis();
+                Nodes.get(0).broadcastTransaction(Nodes.get(0).createTransaction(provenanceData));
 
-            //Insert New transaction to Quorum Mempools to simulate syncing of mempools
-//            for (Node Q : DataStorage.Quorum.getQuroumGroup()) {
-//                Q.getMemPool().add(new Transaction(Q.getNodeID()));
-//            }
+                long broadcastEnd = System.currentTimeMillis();
+                long bDuration = (broadcastEnd - broadcastStart);
+                //Print 2
+                System.out.println(", broadcast transactions duration: " + bDuration);
+
+                long validationStart = System.currentTimeMillis();
+
+                //Insert New transaction to Quorum Mempools to simulate syncing of mempools
+                //            for (Node Q : DataStorage.Quorum.getQuroumGroup()) {
+                //                Q.getMemPool().add(new Transaction(Q.getNodeID()));
+                //            }
 
 
-            for (Node node : Nodes) {  //3. Validate Transactions
+                for (Node node : Nodes) {  //3. Validate Transactions
 
-                node.validateBlock();
+                    node.validateBlock();
+                }
+                long validationEnd = System.currentTimeMillis();
+                long vDuration = (validationEnd - validationStart);
+                //Print 3
+                System.out.println(", validation duration: " + vDuration);
+                System.out.println("Middle---------------------");
+
+                //Propse block and append all Nodes' ledgers
+                long blockStart = System.currentTimeMillis();
+
+                System.out.println(Quorum.getQuroumGroup().size());
+
+                Quorum.getQuroumGroup().get(0).proposeBlock(quorumThreshold);  //4. Broadcast Block and propogate ledgers
+                long blockEnd = System.currentTimeMillis();
+                long blockDuration = (blockEnd - blockStart);
+                //Print 4
+                System.out.print(", Add block duration: " + blockDuration);
+
+                //total time
+                long endTime = System.currentTimeMillis();
+                long totalTime = (endTime - start);
+                //Print 5
+                System.out.println(", total time: " + totalTime);
+                System.out.println("END---------------------");
+                System.out.println();
             }
-            long validationEnd = System.currentTimeMillis();
-            long vDuration = (validationEnd - validationStart);
-            //Print 3
-            System.out.println(", validation duration: " + vDuration);
-            System.out.println("Middle---------------------");
-
-            //Propse block and append all Nodes' ledgers
-            long blockStart = System.currentTimeMillis();
-
-            System.out.println(Quorum.getQuroumGroup().size());
-
-            Quorum.getQuroumGroup().get(0).proposeBlock(quorumThreshold);  //4. Broadcast Block and propogate ledgers
-            long blockEnd = System.currentTimeMillis();
-            long blockDuration = (blockEnd - blockStart);
-            //Print 4
-            System.out.print(", Add block duration: " + blockDuration);
-
-            //total time
-            long endTime = System.currentTimeMillis();
-            long totalTime = (endTime - start);
-            //Print 5
-            System.out.println(", total time: " + totalTime);
-            System.out.println("END---------------------");
-            System.out.println();
-
             //System.out.println();
         }
 

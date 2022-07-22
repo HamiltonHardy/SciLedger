@@ -25,7 +25,7 @@ public class workflow {
     public void genRandWorkflow(int wf, String startPoint, String startPointWorkFlow) {
 
         Random rand = new Random();
-        int wSize = rand.nextInt(maxWSize / 2) + 3;
+        int wSize = rand.nextInt(maxWSize) + 3;
         int branchCount = (int) (wSize * PERBRANCH) + 1;
         int counter = 1;
         int randIdx;
@@ -100,5 +100,9 @@ public class workflow {
             str.append(task + "\n");
         }
         return str.toString();
+    }
+
+    public ArrayList<task> getWorkflow() {
+        return workflow;
     }
 }
