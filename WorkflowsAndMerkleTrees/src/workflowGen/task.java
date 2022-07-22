@@ -4,7 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 
 public class task {
@@ -22,10 +21,6 @@ public class task {
 
     public String getTaskID() {
         return taskID;
-    }
-
-    public ArrayList<Integer> getIdxParent() {
-        return idxParent;
     }
 
     public void addIdxParent(int parent) {
