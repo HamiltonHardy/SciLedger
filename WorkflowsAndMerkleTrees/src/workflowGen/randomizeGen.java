@@ -1,9 +1,5 @@
 package workflowGen;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+
 import java.util.Random;
 import java.util.*;
 
@@ -23,9 +19,6 @@ public class randomizeGen {
         }
     }
 
-    public static void test(){
-        workflow w = new workflow(1,null,null);
-    }
     public static void main(String[] args) {
         generate();
         System.out.println(workflows);

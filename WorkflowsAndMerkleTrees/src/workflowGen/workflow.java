@@ -9,11 +9,11 @@ import java.util.Base64;
 import java.util.Random;
 
 public class workflow {
-    ArrayList<task> workflow = new ArrayList<>();
-    final int maxWSize = 10;
+    final int MAXWFSIZE = 10;
     final double PERBRANCH = 0.3;
-    task forNextWf;
 
+    task forNextWf;
+    ArrayList<task> workflow = new ArrayList<>();
     public workflow(int wfNum, String stpt, String spwf) {
         genRandWorkflow(wfNum, stpt, spwf);
     }
@@ -25,12 +25,12 @@ public class workflow {
     public void genRandWorkflow(int wf, String startPoint, String startPointWorkFlow) {
 
         Random rand = new Random();
-        int wSize = rand.nextInt(maxWSize / 2) + 3;
+        int wSize = rand.nextInt(MAXWFSIZE -3) + 3;
         int branchCount = (int) (wSize * PERBRANCH) + 1;
         int counter = 1;
         int randIdx;
 
-
+        //Add Linear Tasks
         addTask(new gentask("w" + wf, "gen", startPointWorkFlow, startPoint));
         addTask(new task("w" + wf, "t1", false, new ArrayList<>(Arrays.asList(0))));
         while (counter < wSize) {
@@ -39,6 +39,7 @@ public class workflow {
         }
         int linear = counter;
 
+        //Add Branching Tasks
         for (int i = 0; i < branchCount; i++) {
             randIdx = rand.nextInt(linear - 2) + 1;
             addTask(new task("w" + wf, "t" + (counter + 1), false, new ArrayList<>(Arrays.asList(randIdx))));
@@ -51,6 +52,7 @@ public class workflow {
             task merge = this.workflow.get(rand.nextInt(linear - 1 - randIdx) + randIdx + 2);
             merge.addIdxParent(counter);
         }
+        //get random task for next workflow branch
         forNextWf = this.workflow.get((int) (Math.random() * workflow.size()));
     }
 
