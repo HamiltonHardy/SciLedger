@@ -173,10 +173,18 @@ public class Node {
      * For ever node, make sure they have the updated chain after adding all 60 blocks
      */
     //MINE #2 : 1 TXN per block AND ...
-    public void proposeBlock() {
+    public void proposeBlock(double quorumThreshold) {
 
         //If the node vote has a "false" ...
-        if (DataStorage.Quorum.getVotes().contains(false)) {
+        int badVoteCount = 0;
+        for(Boolean vote : DataStorage.Quorum.getVotes()){
+            if(!vote){
+                badVoteCount ++;
+            }
+        }
+        double percentBadVotes = badVoteCount/DataStorage.Quorum.getVotes().size();
+
+        if (percentBadVotes > quorumThreshold) {
             System.out.println("Block validation failed - Attempting to remove Bad TXs and rebroadcast for validaton\n");
 
             //search through mempool and check for invalid transactions (i.e. nodes not members of the network - invalid nodeID)
@@ -188,7 +196,7 @@ public class Node {
                         node.validateBlock();
 
                     }
-                    this.proposeBlock();
+                    this.proposeBlock(quorumThreshold);
                 }
             }
         }

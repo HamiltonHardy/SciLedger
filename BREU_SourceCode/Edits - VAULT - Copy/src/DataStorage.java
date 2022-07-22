@@ -11,18 +11,22 @@ import java.util.Random;
  * @author Justin Gazsi
  */
 public class DataStorage {
-
     static ArrayList<Transaction> GenBlockTXs = new ArrayList<Transaction>();
 
-    static int NUM_NODES = 30;                                              //Number of Nodes in Network
     public static ArrayList<Node> Nodes = new ArrayList<Node>();            //Network of Nodes
     public static Block GenBlock;// = new Block(new Transaction(-1), "0", 1);  //Genesis Block
     public static Quorum Quorum; //= new Quorum();                             //Class to generate Quorum
     //public static ArrayList<Node> QuorumGroup;                              //Create List to Hold Quorum
     public static ArrayList<Boolean> GenQuorum = new ArrayList<Boolean>();
 
+
     //MAIN DRIVER
     public static void main(String[] args) throws InterruptedException, IOException {
+        final int NUM_NODES = 1000; //Number of nodes in the network
+        final int NUM_BLOCKS = 5; //Number of blocks/transactions/workflow tasks
+        final int QUORUM_SIZE = 10;
+        final double QUORUM_THRESHOLD = .8;
+
         //Need initial genesis block
         GenBlockTXs.add(new Transaction(-1));
         GenBlock = new Block(GenBlockTXs, "0", 1, GenQuorum);
@@ -40,7 +44,7 @@ public class DataStorage {
 //        }
 
 //        scalability(1000, 50);
-        scalability(1000);
+        scalability(NUM_NODES, NUM_BLOCKS, QUORUM_SIZE, QUORUM_THRESHOLD);
 
 
 
@@ -122,8 +126,7 @@ public class DataStorage {
 
     //MINE: Scalability Experiment
     //Removed tps completely
-    static void scalability(int numNodes) throws InterruptedException {
-        int numBlocks = 5; //Number of blocks to create for tests
+    static void scalability(int numNodes, int numBlocks, int quorumSize, double quorumThreshold) throws InterruptedException {
 
         //Create Nodes
         for (int i = 0; i < numNodes; i++) {
@@ -136,7 +139,7 @@ public class DataStorage {
         //Number of Blocks to create for tests
         for (int i = 0; i < numBlocks; i++) {
             long start = System.currentTimeMillis();
-            Quorum = new Quorum();          //1.Create Quroum
+            Quorum = new Quorum(quorumSize);          //1.Create Quroum
             long QCreation = System.currentTimeMillis();
             long qDuration = (QCreation - start);  //divide by 1000000 to get milliseconds.
             //Print 1
@@ -173,7 +176,10 @@ public class DataStorage {
 
             //Propse block and append all Nodes' ledgers
             long blockStart = System.currentTimeMillis();
-            Quorum.getQuroumGroup().get(0).proposeBlock();  //4. Broadcast Block and propogate ledgers
+
+            System.out.println(Quorum.getQuroumGroup().size());
+
+            Quorum.getQuroumGroup().get(0).proposeBlock(quorumThreshold);  //4. Broadcast Block and propogate ledgers
             long blockEnd = System.currentTimeMillis();
             long blockDuration = (blockEnd - blockStart);
             //Print 4
@@ -346,7 +352,7 @@ public class DataStorage {
 //    }
 
     //Experiment to test quorum distribution of java.util random (compare to block hash generation)
-    static void randomDistributionExp() throws InterruptedException, IOException {
+    static void randomDistributionExp(int quorumSize) throws InterruptedException, IOException {
         File file = new File("RandomCounts.csv");
         if (!file.exists()) {
             file.createNewFile();
@@ -355,7 +361,7 @@ public class DataStorage {
         PrintWriter pw = new PrintWriter(new FileOutputStream(new File("RandomCounts.csv"), true));
 
         int[] randomCounts = new int[50];
-        Quorum = new Quorum();
+        Quorum = new Quorum(quorumSize);
 
         for (int x = 0; x < 1000; x++) {  //Number of Trials
 

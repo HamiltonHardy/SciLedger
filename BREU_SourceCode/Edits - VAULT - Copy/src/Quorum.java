@@ -11,16 +11,19 @@ import java.util.Random;
 public class Quorum {
 
     //Determine number of Quorum members desired
-    private static final int NUM = 10;
+//    private static final int NUM = 10;
 
     //Original Votes array is size 5. Why?
     //I changed to 10 to match the quorum size
-    private ArrayList<Boolean> votes = new ArrayList<Boolean>(Arrays.asList(new Boolean[10]));
+    private ArrayList<Boolean> votes;
     private ArrayList<Node> QuroumGroup = new ArrayList<>();
+    private int quorumSize;
 
     //Constructor
-    public Quorum() {
+    public Quorum(int quorumSize) {
+        this.quorumSize = quorumSize;
         getRandomQuorum();
+        this.votes = new ArrayList<Boolean>(Arrays.asList(new Boolean[this.quorumSize]));
         Collections.fill(votes, Boolean.FALSE);
     }
 
@@ -33,7 +36,7 @@ public class Quorum {
         Random rand = new Random();
 
         //Add specified number of random nodes to Quorum group
-        for (int i = 0; i < NUM; i++) {
+        for (int i = 0; i < this.quorumSize; i++) {
             Node node = DataStorage.Nodes.get(rand.nextInt(DataStorage.Nodes.size()));
             //Ensure no duplicate nodes in list
             while (quorum.contains(node)) {
