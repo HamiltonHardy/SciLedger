@@ -1,5 +1,6 @@
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -32,13 +33,17 @@ public class Node {
         return tx;
     }
 
+    /**
+     * If node is in the quorum, for each transaction in the mempool check the nodeID to validate. Vote true if all good and vote false if even one is bad. Make sure transactions are in all the mempools, if not sync.
+     */
     public void validateBlock() {
-
         boolean nodeVote = true;
         //Check if node is in Quorum
         if (DataStorage.Quorum.getQuroumGroup().contains(this)) {
             //System.out.print("I am node: " + this.nodeID + " \tI am in the quorum - ");
             //For each transaction in the mempool, if the transactionID is one of the nodeIDs then it is "found" meaning it is good
+//            System.out.println("Validate Block Mempool: " + Arrays.toString(this.memPool.toArray()));
+            System.out.println("Validate Block MEMPOOL SIZE: " + this.memPool.size());
             for (Transaction tx : this.memPool) {
                 boolean txIsFound = false;
                 for (int j = 0; j < DataStorage.Nodes.size(); j++) {
@@ -53,6 +58,9 @@ public class Node {
                 //Check if transactions are in node mempools, if not mempools need to be synged, broadcast to other mempools
                 for (Node node: DataStorage.Quorum.getQuroumGroup()) {
                     if (!node.getMemPool().contains(tx)) {
+//                        System.out.println("PRINT TRANSACTION vs Mempool");
+//                        System.out.println(tx);
+//                        System.out.println(Arrays.toString(node.getMemPool().toArray()));
                         node.getMemPool().add(tx);
                     }
                 }
@@ -105,13 +113,67 @@ public class Node {
 //
 //    }
 
+////MINE #1 : 1 TXN per block
+//
+//    public void proposeBlock() {
+//        //This value is 5. Why?
+//        System.out.println("Quorum votes");
+//        System.out.println(DataStorage.Quorum.getVotes().toString());
+//
+//        //If the node vote has a "false" ...
+//        if (DataStorage.Quorum.getVotes().contains(false)) {
+//            System.out.println("Block validation failed - Attempting to remove Bad TXs and rebroadcast for validaton\n");
+//
+//            //search through mempool and check for invalid transactions (i.e. nodes not members of the network - invalid nodeID)
+//            for (int i = 0; i < this.memPool.size(); i++) {
+//                if ((this.memPool.get(i).getNodeID() > DataStorage.Nodes.size()) || (this.memPool.get(i).getNodeID() < 1)) {
+//                    //bad transaction found, Call on quorum to remove bad transaction and revalidate new block
+//                    for (Node node : DataStorage.Quorum.getQuroumGroup()) {
+//                        node.getMemPool().remove(i);
+//                        node.validateBlock();
+//
+//                    }
+//                    this.proposeBlock();
+//                }
+//            }
+//        }
+//        // If node vote is good (block is good) create new block from the mempool
+//        else {  //Block is good, add Block to local ledger, clear MemPool
+//            System.out.println("(before) CURRENT BLOCKCHAIN SIZE " + this.blockchain.size());
+//            System.out.println("Propose Block MEMPOOL SIZE: " + memPool.size());
+//            for (Transaction transaction : this.memPool){
+//                //Create ArrayList<Transaction> for a single transaction
+//                ArrayList<Transaction> singleTransaction = new ArrayList<>();
+//                singleTransaction.add(transaction);
+//
+//                this.blockchain.add(new Block(singleTransaction, this.blockchain.get(this.blockchain.size() - 1)
+//                        .getHash(), this.blockchain.size() + 1, DataStorage.Quorum.getVotes()));
+//
+////                System.out.println("Successfully added Block. Blockchain length: " + this.blockchain.size());
+//            }
+//
+//            this.memPool.clear();
+//
+//            //Broadcast block to network (node now has longest chain) Nodes check if block in longest chain has valid Quorum Signature
+//            for (Node node : DataStorage.Nodes) {
+//                node.getLongestChain();
+//            }
+//            System.out.println("CURRENT BLOCKCHAIN SIZE " + this.blockchain.size());
+//            System.out.println(this.blockchain.toString());
+//
+//        }
+//    }
 
-//MINE: 1 TXN per block
-
+    /**
+     * Checks whether the votes overall have any "false". If yes, check the entire mempool for invalid transactions
+     * (nodeID no good) and when one is found remove it from the mempool of each quorum member. Call validate block
+     * on each node and then call propose block again
+     *
+     * If no bad votes, for ever transaction in the mempool, add a new block for only that transaction. Clear the mempool
+     * For ever node, make sure they have the updated chain after adding all 60 blocks
+     */
+    //MINE #2 : 1 TXN per block AND ...
     public void proposeBlock() {
-        //This value is 5. Why?
-        System.out.println("Quorum votes");
-        System.out.println(DataStorage.Quorum.getVotes().toString());
 
         //If the node vote has a "false" ...
         if (DataStorage.Quorum.getVotes().contains(false)) {
@@ -133,7 +195,7 @@ public class Node {
         // If node vote is good (block is good) create new block from the mempool
         else {  //Block is good, add Block to local ledger, clear MemPool
             System.out.println("(before) CURRENT BLOCKCHAIN SIZE " + this.blockchain.size());
-            System.out.println("MEMPOOL SIZE: " + memPool.size());
+            System.out.println("Propose Block MEMPOOL SIZE: " + memPool.size());
             for (Transaction transaction : this.memPool){
                 //Create ArrayList<Transaction> for a single transaction
                 ArrayList<Transaction> singleTransaction = new ArrayList<>();
@@ -156,6 +218,7 @@ public class Node {
 
         }
     }
+
 
     //Function to broadcast transaction through network
     public void broadcastTransaction(Transaction tx) {

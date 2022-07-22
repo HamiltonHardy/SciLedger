@@ -39,15 +39,91 @@ public class DataStorage {
 //            }
 //        }
 
-        scalability(1000, 50);
+//        scalability(1000, 50);
+        scalability(1000, 2);
 
 
 
     } //end main driver
 
-    //Scalability Experiment
+//Original
+
+//    //Scalability Experiment
+//    static void scalability(int numNodes, int tps) throws InterruptedException {
+//        int numBlocks = 50; //Number of blocks to create for tests
+//
+//        //Create Nodes
+//        for (int i = 0; i < numNodes; i++) {
+//            Nodes.add(new Node());
+//        }
+//        connectNetwork();
+//        printNetworkConnections();
+//        System.out.println("NumNodes: " + numNodes + " TPS: " + tps);
+//
+//        //Number of Blocks to create for tests
+//        for (int i = 0; i < numBlocks; i++) {
+//            long start = System.currentTimeMillis();
+//            Quorum = new Quorum();          //1.Create Quroum
+//            long QCreation = System.currentTimeMillis();
+//            long qDuration = (QCreation - start);  //divide by 1000000 to get milliseconds.
+//            //Print 1
+//            System.out.println("Begin---------------------");
+//            System.out.print(qDuration);
+//            //broadcast #tps for #seconds
+//
+//            long broadcastStart = System.currentTimeMillis();
+//            for (int j = 0; j < tps; j++) { //2. Target # transactions per block/tps
+//                //Thread.sleep(sleep);
+//                Nodes.get(j).broadcastTransaction(Nodes.get(j).createTransaction());
+//            }
+//            long broadcastEnd = System.currentTimeMillis();
+//            long bDuration = (broadcastEnd - broadcastStart);
+//            //Print 2
+//            System.out.print("," + bDuration);
+//
+//            long validationStart = System.currentTimeMillis();
+//
+//            //Insert New transaction to Quorum Mempools to simulate syncing of mempools
+//            for (Node Q : DataStorage.Quorum.getQuroumGroup()) {
+//                Q.getMemPool().add(new Transaction(Q.getNodeID()));
+//            }
+//
+//
+//            for (Node node : Nodes) {  //3. Validate Transactions
+//
+//                node.validateBlock();
+//            }
+//            long validationEnd = System.currentTimeMillis();
+//            long vDuration = (validationEnd - validationStart);
+//            //Print 3
+//            System.out.println("," + vDuration);
+//            System.out.println("Middle---------------------");
+//
+//            //Propse block and append all Nodes' ledgers
+//            long blockStart = System.currentTimeMillis();
+//            Quorum.getQuroumGroup().get(0).proposeBlock();  //4. Broadcast Block and propogate ledgers
+//            long blockEnd = System.currentTimeMillis();
+//            long blockDuration = (blockEnd - blockStart);
+//            //Print 4
+//            System.out.print(blockDuration);
+//
+//            //total time
+//            long endTime = System.currentTimeMillis();
+//            long totalTime = (endTime - start);
+//            //Print 5
+//            System.out.println("," + totalTime);
+//            System.out.println("END---------------------");
+//            System.out.println();
+//
+//            //System.out.println();
+//        }
+//
+//    }
+
+    //MINE: Scalability Experiment
+    //Left num blocks at 50, changed tps in the function call to 1
     static void scalability(int numNodes, int tps) throws InterruptedException {
-        int numBlocks = 50; //Number of blocks to create for tests
+        int numBlocks = 1; //Number of blocks to create for tests
 
         //Create Nodes
         for (int i = 0; i < numNodes; i++) {
@@ -71,6 +147,7 @@ public class DataStorage {
             long broadcastStart = System.currentTimeMillis();
             for (int j = 0; j < tps; j++) { //2. Target # transactions per block/tps
                 //Thread.sleep(sleep);
+                System.out.println("CREATE TRANSACTION");
                 Nodes.get(j).broadcastTransaction(Nodes.get(j).createTransaction());
             }
             long broadcastEnd = System.currentTimeMillis();
@@ -81,9 +158,9 @@ public class DataStorage {
             long validationStart = System.currentTimeMillis();
 
             //Insert New transaction to Quorum Mempools to simulate syncing of mempools
-            for (Node Q : DataStorage.Quorum.getQuroumGroup()) {
-                Q.getMemPool().add(new Transaction(Q.getNodeID()));
-            }
+//            for (Node Q : DataStorage.Quorum.getQuroumGroup()) {
+//                Q.getMemPool().add(new Transaction(Q.getNodeID()));
+//            }
 
 
             for (Node node : Nodes) {  //3. Validate Transactions
@@ -116,7 +193,6 @@ public class DataStorage {
         }
 
     }
-
     //***** FUNCTIONS *****//
     //Function for printing blockchains of each network node
     static void printBlockchainInfo() {
