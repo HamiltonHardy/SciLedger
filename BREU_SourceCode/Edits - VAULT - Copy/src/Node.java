@@ -43,7 +43,7 @@ public class Node {
             //System.out.print("I am node: " + this.nodeID + " \tI am in the quorum - ");
             //For each transaction in the mempool, if the transactionID is one of the nodeIDs then it is "found" meaning it is good
 //            System.out.println("Validate Block Mempool: " + Arrays.toString(this.memPool.toArray()));
-            System.out.println("Validate Block MEMPOOL SIZE: " + this.memPool.size());
+//            System.out.println("Validate Block MEMPOOL SIZE: " + this.memPool.size());
             for (Transaction tx : this.memPool) {
                 boolean txIsFound = false;
                 for (int j = 0; j < DataStorage.Nodes.size(); j++) {
@@ -67,7 +67,7 @@ public class Node {
 
             }
             //Set the node vote
-            System.out.println("I voted: " + nodeVote);
+//            System.out.println("I voted: " + nodeVote);
             DataStorage.Quorum.getVotes().remove(0);
             DataStorage.Quorum.getVotes().add(nodeVote);
 
@@ -204,13 +204,13 @@ public class Node {
         // If node vote is good (block is good) create new block from the mempool
         else {  //Block is good, add Block to local ledger, clear MemPool
             System.out.println("(before) CURRENT BLOCKCHAIN SIZE " + this.blockchain.size());
-            System.out.println("Propose Block MEMPOOL SIZE: " + memPool.size());
+//            System.out.println("Propose Block MEMPOOL SIZE: " + memPool.size());
             for (Transaction transaction : this.memPool){
                 //Create ArrayList<Transaction> for a single transaction
                 ArrayList<Transaction> singleTransaction = new ArrayList<>();
                 singleTransaction.add(transaction);
 
-                System.out.println("Transaction Data: " + transaction.getData());
+                System.out.println("Transaction Provenance tID, wID: " + transaction.gettID() + ", " + transaction.getwID() );
 
                 this.blockchain.add(new Block(singleTransaction, this.blockchain.get(this.blockchain.size() - 1)
                         .getHash(), this.blockchain.size() + 1, DataStorage.Quorum.getVotes()));
@@ -225,7 +225,7 @@ public class Node {
                 node.getLongestChain();
             }
             System.out.println("CURRENT BLOCKCHAIN SIZE " + this.blockchain.size());
-            System.out.println(this.blockchain.toString());
+//            System.out.println(this.blockchain.toString());
 
         }
     }

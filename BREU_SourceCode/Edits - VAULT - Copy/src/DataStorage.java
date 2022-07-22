@@ -155,7 +155,7 @@ public class DataStorage {
 
         for (int i = 0; i<workflows.size(); i++){
             ArrayList<task> workflow = workflows.get(i).getWorkflow();
-            for(int j = 0; j < workflow.size(); i++) {
+            for(int j = 0; j < workflow.size(); j++) {
                 ArrayList<String> provenanceData = workflow.get(j).toProvenanceData();
 
                 long start = System.currentTimeMillis();
