@@ -1,71 +1,32 @@
 package workflowGen;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.util.*;
 
 public class randomizeGen {
     static int maxWorkflows =10;
-    static int maxWSize = 10;
-    static double PERBRANCH = 0.3;
-    static ArrayList<Integer> startPoint = new ArrayList<>(maxWorkflows);
-    static ArrayList<ArrayList<task>> workflows = new ArrayList<>();
+
+    static String startPoint;
+    static ArrayList<workflow> workflows = new ArrayList<>();
 
     public static void generate(){
-        workflows.add(genRandWorkflow(0,null,null));
+        workflows.add(new workflow(0,null,null));
         Random rand = new Random();
         for(int i=1; i<maxWorkflows; i++) {
-            int randWf = rand.nextInt((i));
-            workflows.add(genRandWorkflow(i,rand.nextInt(startPoint.get(randWf))+1,randWf));
+            workflow w = new workflow(i,startPoint,String.valueOf(rand.nextInt(i)));
+            workflows.add(w);
+            startPoint = w.forNextWf.getTaskID();
         }
     }
-    // Function to generate random graph
-    public static ArrayList<task> genRandWorkflow(int wf, Integer stpt, Integer stwf) {
-
-        Random rand = new Random();
-        int wSize = rand.nextInt(maxWSize/2) + 3;
-        int branchCount = (int)(wSize* PERBRANCH) + 1;
-        int counter = 1;
-        int randIdx;
-        ArrayList<task> workflow = new ArrayList<>();
-
-        workflow.add(new gentask("w" + wf, "gen", String.valueOf(stwf),String.valueOf(stpt)));
-        workflow.add(new task("w" + wf, "t1", false, new ArrayList<>(Arrays.asList(0))));
-        while (counter < wSize) {
-            workflow.add(new task("w" + wf, "t" + (counter +1), false, new ArrayList<>(Arrays.asList(counter))));
-            counter++;
-        }
-        int linear = counter;
-
-         for(int i = 0; i< branchCount; i++){
-             randIdx = rand.nextInt(linear-2)+1;
-                 workflow.add(new task("w" + wf, "t" + (counter +1), false, new ArrayList<>(Arrays.asList(randIdx))));
-                 counter++;
-                int branchLen = rand.nextInt(4);
-                for(int j=0; j<branchLen; j++){
-                    workflow.add(new task("w" + wf, "t" + (counter +1), false, new ArrayList<>(Arrays.asList(counter))));
-                    counter++;
-                }
-                task merge = workflow.get(rand.nextInt(linear-1-randIdx)+randIdx+2);
-                merge.addIdxParent(counter);
-         }
-        startPoint.add(counter);
-        return workflow;
-
-    }
-
-
 
     public static void main(String[] args) {
-        Runtime run = Runtime.getRuntime();
-        try {
-            Process process = Runtime.getRuntime().exec(new String[]{"gnome-terminal","sudo","docker","exec","-it","sawtooth-shell-default", "bash"});
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         generate();
         System.out.println(workflows);
 
-        //
 
     }
 
