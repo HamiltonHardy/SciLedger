@@ -10,10 +10,10 @@ import java.util.Base64;
 public class task {
     private String workflowID;
     private String taskID;
-    private boolean invalidated;
+    private String invalidated;
     private ArrayList<Integer> idxParent;
     private ArrayList<String> tree;
-    public task(String workflowID, String taskID, boolean invalidated, ArrayList<Integer> idxParent){
+    public task(String workflowID, String taskID, String invalidated, ArrayList<Integer> idxParent){
         this.workflowID = workflowID;
         this.taskID = taskID;
         this.invalidated = invalidated;

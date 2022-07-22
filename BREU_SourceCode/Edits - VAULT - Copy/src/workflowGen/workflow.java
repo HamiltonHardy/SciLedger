@@ -32,20 +32,20 @@ public class workflow {
 
 
         addTask(new gentask("w" + wf, "gen", startPointWorkFlow, startPoint));
-        addTask(new task("w" + wf, "t1", false, new ArrayList<>(Arrays.asList(0))));
+        addTask(new task("w" + wf, "t1", "false", new ArrayList<>(Arrays.asList(0))));
         while (counter < wSize) {
-            addTask(new task("w" + wf, "t" + (counter + 1), false, new ArrayList<>(Arrays.asList(counter))));
+            addTask(new task("w" + wf, "t" + (counter + 1), "false", new ArrayList<>(Arrays.asList(counter))));
             counter++;
         }
         int linear = counter;
 
         for (int i = 0; i < branchCount; i++) {
             randIdx = rand.nextInt(linear - 2) + 1;
-            addTask(new task("w" + wf, "t" + (counter + 1), false, new ArrayList<>(Arrays.asList(randIdx))));
+            addTask(new task("w" + wf, "t" + (counter + 1), "false", new ArrayList<>(Arrays.asList(randIdx))));
             counter++;
             int branchLen = rand.nextInt(4);
             for (int j = 0; j < branchLen; j++) {
-                addTask(new task("w" + wf, "t" + (counter + 1), false, new ArrayList<>(Arrays.asList(counter))));
+                addTask(new task("w" + wf, "t" + (counter + 1), "false", new ArrayList<>(Arrays.asList(counter))));
                 counter++;
             }
             task merge = this.workflow.get(rand.nextInt(linear - 1 - randIdx) + randIdx + 2);

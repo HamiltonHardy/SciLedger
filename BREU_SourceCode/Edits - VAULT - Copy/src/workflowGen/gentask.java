@@ -10,7 +10,7 @@ public class gentask extends task{
     private String pTID;
 
     public gentask(String workflowID, String taskID, String pWID, String pTID) {
-        super(workflowID, taskID, false, null);
+        super(workflowID, taskID, "false", null);
         this.workflowID = workflowID;
         this.taskID=taskID;
         this.pWID = pWID;
