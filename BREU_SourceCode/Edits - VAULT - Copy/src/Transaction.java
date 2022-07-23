@@ -4,7 +4,7 @@ import java.util.Date;
 
 /**
  * Transaction Class: Creates the transactions that are submitted to the quorum. Each transaction corresponds to
- * an individual workflow task.
+ * an individual workflow task and the transaction essentially holds the provenance record information.
  */
 
 public class Transaction {
@@ -35,24 +35,12 @@ public class Transaction {
         return USER_ID;
     }
 
-    public Timestamp getTIMESTAMP() {
-        return TIMESTAMP;
-    }
-
     public String getWORKFLOW_ID() {
         return WORKFLOW_ID;
     }
 
     public String getTASK_ID() {
         return TASK_ID;
-    }
-
-    public String getVALID_STATUS() {
-        return VALID_STATUS;
-    }
-
-    public String getPARENT_TASK_ID() {
-        return PARENT_TASK_ID;
     }
 
     public String getMERKLE_ROOT() {

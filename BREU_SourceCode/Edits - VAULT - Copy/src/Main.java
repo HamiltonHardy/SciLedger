@@ -11,14 +11,11 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- *
- * @author Justin Gazsi
+ * Main Class:
  */
 public class Main {
-    static ArrayList<Transaction> genesisBlockTXs = new ArrayList<Transaction>();
-
     public static ArrayList<Node> NETWORK = new ArrayList<>();
-    public static Block genesisBlock;
+    public static Block GENESIS_BLOCK;
     public static Quorum quorum;
     public static ArrayList<Boolean> genesisQuorum = new ArrayList<Boolean>();
     private final int NETWORK_SIZE = 1000;
@@ -27,7 +24,6 @@ public class Main {
 
     /**
      * Driver to run experiments
-     * @param args
      */
     public static void main(String[] args){
         //Create a "dummy" arraylist to use as the provenance data for the genesis block
@@ -37,9 +33,10 @@ public class Main {
         }
 
         //Create the genesis block's "dummy" transaction
-        genesisBlockTXs.add(new Transaction(-1, dummyProvenanceData));
+        ArrayList<Transaction> genesisBlockTransactionList = new ArrayList<>();
+        genesisBlockTransactionList.add(new Transaction(-1, dummyProvenanceData));
         //Create the genesis block
-        genesisBlock = new Block(genesisBlockTXs, "0", 1, genesisQuorum);
+        GENESIS_BLOCK = new Block(genesisBlockTransactionList, "0", 1, genesisQuorum);
 
         //Run Experiments
         Main main = new Main();
@@ -52,8 +49,6 @@ public class Main {
      * TODO
      */
     private void scalability(){
-
-
         //Create Nodes
         for (int i = 0; i < this.NETWORK_SIZE; i++) {
             NETWORK.add(new Node());
@@ -120,6 +115,13 @@ public class Main {
                 System.out.println();
             }
         }
+
+    }
+
+    /**
+     * TODO
+     */
+    static void merkleExperiment(){
 
     }
 

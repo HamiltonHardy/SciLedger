@@ -18,9 +18,8 @@ public class Node {
      */
     public Node(){
         this.NODE_ID = Main.NETWORK.size() + 1;
-        this.BLOCKCHAIN.add(Main.genesisBlock);
+        this.BLOCKCHAIN.add(Main.GENESIS_BLOCK);
     }
-
 
     /**
      * Takes the arraylist of provenance data and makes a transaction out of it

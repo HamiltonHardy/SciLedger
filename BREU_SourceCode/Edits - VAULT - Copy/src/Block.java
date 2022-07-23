@@ -5,8 +5,6 @@ import java.util.Date;
  * Block Class: Creates the blocks that are committed to the block chain
  */
 public class Block {
-
-    //Blocks contain previous hash and data of transaction
     private String hash;
     private String previousHash;
     private Transaction transaction;
@@ -46,34 +44,9 @@ public class Block {
         return QVotes;
     }
 
-
-    public ArrayList<Transaction> getTxList() {
-        return txList;
-    }
-
-
-    public int getBlockNum() {
-        return blockNum;
-    }
-
     public String getHash() {
         return hash;
     }
-
-
-    public String getPreviousHash() {
-        return previousHash;
-    }
-
-    public Transaction getTransaction() {
-        return transaction;
-    }
-
-
-    public long getTimeStamp() {
-        return timeStamp;
-    }
-
 
     //Function to calculate Hash
     public String calculateHash() {
