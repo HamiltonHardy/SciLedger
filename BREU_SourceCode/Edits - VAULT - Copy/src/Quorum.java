@@ -31,16 +31,16 @@ public class Quorum {
     public void getRandomQuorum() {
         ArrayList<Node> quorum = new ArrayList<>();
 
-        //long seed = stringToSeed(DataStorage.GenBlock.getHash());
+        //long seed = stringToSeed(Main.GenBlock.getHash());
         //long seed = stringToSeed(hash);
         Random rand = new Random();
 
         //Add specified number of random nodes to Quorum group
         for (int i = 0; i < this.quorumSize; i++) {
-            Node node = DataStorage.Nodes.get(rand.nextInt(DataStorage.Nodes.size()));
+            Node node = Main.Nodes.get(rand.nextInt(Main.Nodes.size()));
             //Ensure no duplicate nodes in list
             while (quorum.contains(node)) {
-                node = DataStorage.Nodes.get(rand.nextInt(DataStorage.Nodes.size()));
+                node = Main.Nodes.get(rand.nextInt(Main.Nodes.size()));
             }
             quorum.add(node);
         }
@@ -58,14 +58,14 @@ public class Quorum {
 //        long seed = stringToSeed(hash); //convert hash string to long
 //        Random rand = new Random(seed); //seed with converted hash string
 //
-//        //long seed = stringToSeed(DataStorage.GenBlock.getHash()); //Test with consistent seed to check results
+//        //long seed = stringToSeed(Main.GenBlock.getHash()); //Test with consistent seed to check results
 //
 //        //Add specified number of random nodes to Quorum group
 //        for (int i = 0; i < NUM; i++) {
-//            Node node = DataStorage.Nodes.get(rand.nextInt(DataStorage.Nodes.size()));
+//            Node node = Main.Nodes.get(rand.nextInt(Main.Nodes.size()));
 //            //Ensure no duplicate nodes in list
 //            while (quorum.contains(node)) {
-//                node = DataStorage.Nodes.get(rand.nextInt(DataStorage.Nodes.size()));
+//                node = Main.Nodes.get(rand.nextInt(Main.Nodes.size()));
 //            }
 //            quorum.add(node);
 //        }
