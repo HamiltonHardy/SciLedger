@@ -26,17 +26,16 @@ public class Main {
      * Driver to run experiments
      */
     public static void main(String[] args){
+        //Create an empty arraylist to use as the parent hashes for the genesis block
+        ArrayList<String> genesisParentHashes = new ArrayList<>();
         //Create a "dummy" arraylist to use as the provenance data for the genesis block
         ArrayList<String> dummyProvenanceData = new ArrayList<>();
         for(int i = 0; i< 5; i++){
             dummyProvenanceData.add("-1");
         }
 
-        //Create the genesis block's "dummy" transaction
-        ArrayList<Transaction> genesisBlockTransactionList = new ArrayList<>();
-        genesisBlockTransactionList.add(new Transaction(-1, dummyProvenanceData));
         //Create the genesis block
-        GENESIS_BLOCK = new Block(genesisBlockTransactionList, "0", 1, genesisQuorum);
+        GENESIS_BLOCK = new Block(new Transaction(-1, dummyProvenanceData), genesisParentHashes, 1, genesisQuorum);
 
         //Run Experiments
         Main main = new Main();
@@ -87,7 +86,7 @@ public class Main {
 
                 for (Node node : NETWORK) {  //3. Validate Transactions
 
-                    node.validateBlock();
+                    node.validateTransactions();
                 }
                 long validationEnd = System.currentTimeMillis();
                 long vDuration = (validationEnd - validationStart);
@@ -98,9 +97,10 @@ public class Main {
                 //Propse block and append all NETWORK' ledgers
                 long blockStart = System.currentTimeMillis();
 
-                System.out.println(quorum.getNETWORK().size());
+                System.out.println(quorum.getNODES().size());
+                System.out.println(quorum.getNODES());
 
-                quorum.getNETWORK().get(0).proposeBlock(this.QUORUM_THRESHOLD);  //4. Broadcast Block and propogate ledgers
+                quorum.getNODES().get(0).proposeBlock(this.QUORUM_THRESHOLD);  //4. Broadcast Block and propogate ledgers
                 long blockEnd = System.currentTimeMillis();
                 long blockDuration = (blockEnd - blockStart);
                 //Print 4

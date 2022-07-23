@@ -10,11 +10,12 @@ public class Node {
     private final int NODE_ID;
     private final ArrayList<Block> BLOCKCHAIN = new ArrayList<>();
     private final ArrayList<Node> PEERS = new ArrayList<>();
-    private final ArrayList<Transaction> MEM_POOL = new ArrayList<>();
+    private final ArrayList<Transaction> PENDING_TRANSACTIONS = new ArrayList<>();
 
     /**
      * Constructor: Assigns an ID to the node and creates the starting blockchain for the node
-     * which consists of only the genesis block.
+     * which consists of only the genesis block. The ID of the node is just what number it is in the network.
+     * ex. 1st block = 1, 2nd block = 2...
      */
     public Node(){
         this.NODE_ID = Main.NETWORK.size() + 1;
@@ -24,48 +25,40 @@ public class Node {
     /**
      * Takes the arraylist of provenance data and makes a transaction out of it
      * @param provenanceData The information about the workflow task
-     * @return A Transaction
+     * @return The resulting Transaction object
      */
     public Transaction createTransaction(ArrayList<String> provenanceData) {
         return new Transaction(this.NODE_ID, provenanceData);
     }
 
-//    /**
-//     * If node is in the quorum, for each transaction in the mempool check the nodeID to validate. Vote true if all good and vote false if even one is bad. Make sure transactions are in all the mempools, if not sync.
-//     */
-
     /**
-     *
+     *TODO: Is there a more efficient way to check the nodes in the network? Do we ever remove nodes, so could we just check the size and make sure Id is less?
+     * Do we need to broadcast? And do we need to remove the first vote?
      */
-    public void validateBlock() {
-        boolean nodeVote = true;
-        if (Main.quorum.getNETWORK().contains(this)) {
-            for (Transaction tx : this.MEM_POOL) {
-                boolean txIsFound = false;
-                for (int j = 0; j < Main.NETWORK.size(); j++) {
-                    if (tx.getUSER_ID() == Main.NETWORK.get(j).getNODE_ID()) {
-                        txIsFound = true;
-                    }
-
-                }
-                if (!txIsFound) {
-                    nodeVote = false; //Bad transaction found! Do not vote for the block
-                }
-                //Check if transactions are in node mempools, if not mempools need to be synged, broadcast to other mempools
-                for (Node node : Main.quorum.getNETWORK()) {
-                    if (!node.getMEM_POOL().contains(tx)) {
-                        node.getMEM_POOL().add(tx);
+    public void validateTransactions() {
+        //Ensure node is a member of the quorum
+        if (Main.quorum.getNODES().contains(this)) {
+            for (Transaction transaction : this.PENDING_TRANSACTIONS) {
+//                System.out.println("NODE ID: " + transaction.getUSER_ID());
+                //A transaction is valid if the node ID is a node in the network. Vote is true for valid, false for invalid.
+                boolean vote = false;
+                for (Node node : Main.NETWORK) {
+                    if(node.getNODE_ID() == transaction.getUSER_ID()) {
+                        vote = true;
+                        break;
                     }
                 }
-
+                //Check if the transaction is pending for the rest of the quorum, if not broadcast transaction
+                for (Node quorumNode : Main.quorum.getNODES()) {
+                    if (!quorumNode.getPENDING_TRANSACTIONS().contains(transaction)) {
+                        quorumNode.getPENDING_TRANSACTIONS().add(transaction);
+                    }
+                }
+                //?
+                Main.quorum.getVOTES().remove(0);
+                Main.quorum.getVOTES().add(vote);
             }
-            //Set the node vote
-//            System.out.println("I voted: " + nodeVote);
-            Main.quorum.getVOTES().remove(0);
-            Main.quorum.getVOTES().add(nodeVote);
-
         }
-
     }
 
 
@@ -86,25 +79,26 @@ public class Node {
     public void proposeBlock(double quorumThreshold) {
 
         //If the node vote has a "false" ...
-        int badVoteCount = 0;
+        int transactionRejectionCount = 0;
         for (Boolean vote : Main.quorum.getVOTES()) {
             if (!vote) {
-                badVoteCount++;
+                transactionRejectionCount++;
             }
         }
-        double percentBadVotes = badVoteCount / Main.quorum.getSIZE();
+        System.out.println(transactionRejectionCount + " : " + Main.quorum.getSIZE());
+        double percentRejected = (double)transactionRejectionCount / (double)Main.quorum.getSIZE();
 
         //Check whether threshold is met
-        if (percentBadVotes > quorumThreshold) {
-            System.out.println("Block validation failed - Attempting to remove Bad TXs and rebroadcast for validaton\n");
+        if (percentRejected > quorumThreshold) {
+            System.out.println("Block validation failed - Attempting to remove Bad TXs and rebroadcast for validaton\n Rejected " + percentRejected);
 
             //search through mempool and check for invalid transactions (i.e. NETWORK not members of the network - invalid nodeID)
-            for (int i = 0; i < this.MEM_POOL.size(); i++) {
-                if ((this.MEM_POOL.get(i).getUSER_ID() > Main.NETWORK.size()) || (this.MEM_POOL.get(i).getUSER_ID() < 1)) {
+            for (int i = 0; i < this.PENDING_TRANSACTIONS.size(); i++) {
+                if ((this.PENDING_TRANSACTIONS.get(i).getUSER_ID() > Main.NETWORK.size()) || (this.PENDING_TRANSACTIONS.get(i).getUSER_ID() < 1)) {
                     //bad transaction found, Call on quorum to remove bad transaction and revalidate new block
-                    for (Node node : Main.quorum.getNETWORK()) {
-                        node.getMEM_POOL().remove(i);
-                        node.validateBlock();
+                    for (Node node : Main.quorum.getNODES()) {
+                        node.getPENDING_TRANSACTIONS().remove(i);
+                        node.validateTransactions();
 
                     }
                     this.proposeBlock(quorumThreshold);
@@ -114,20 +108,16 @@ public class Node {
         // If node vote is good (block is good) create new block from the mempool
         else {  //Block is good, add Block to local ledger, clear MemPool
             System.out.println("(before) CURRENT BLOCKCHAIN SIZE " + this.BLOCKCHAIN.size());
-            for (Transaction transaction : this.MEM_POOL) {
-                //Create ArrayList<Transaction> for a single transaction
-                ArrayList<Transaction> singleTransaction = new ArrayList<>();
-                singleTransaction.add(transaction);
-
-                System.out.println("Transaction Provenance tID, workflowID: " + transaction.getTASK_ID() + ", " + transaction.getWORKFLOW_ID());
-
-                this.BLOCKCHAIN.add(new Block(singleTransaction, this.BLOCKCHAIN.get(this.BLOCKCHAIN.size() - 1)
-                        .getHash(), this.BLOCKCHAIN.size() + 1, Main.quorum.getVOTES()));
+            for (Transaction transaction : this.PENDING_TRANSACTIONS) {
+                ArrayList<String> hashes = new ArrayList<>();
+                hashes.add(this.BLOCKCHAIN.get(this.BLOCKCHAIN.size() - 1)
+                        .getHASH());
+                this.BLOCKCHAIN.add(new Block(transaction, hashes , this.BLOCKCHAIN.size() + 1, Main.quorum.getVOTES()));
 
 //                System.out.println("Successfully added Block. Blockchain length: " + this.blockchain.size());
             }
 
-            this.MEM_POOL.clear();
+            this.PENDING_TRANSACTIONS.clear();
 
             //Broadcast block to network (node now has longest chain) Nodes check if block in longest chain has valid Quorum Signature
             for (Node node : Main.NETWORK) {
@@ -148,13 +138,13 @@ public class Node {
      */
     public void broadcastTransaction(Transaction tx) {
 
-        if (!this.MEM_POOL.contains(tx)) {
-            this.MEM_POOL.add(tx);
+        if (!this.PENDING_TRANSACTIONS.contains(tx)) {
+            this.PENDING_TRANSACTIONS.add(tx);
         }
         //broadcast transaction to connected PEERS
         for (Node peer : this.PEERS) {
-            if (!peer.getMEM_POOL().contains(tx)) {
-                peer.getMEM_POOL().add(tx);
+            if (!peer.getPENDING_TRANSACTIONS().contains(tx)) {
+                peer.getPENDING_TRANSACTIONS().add(tx);
                 peer.broadcastTransaction(tx); //peers recursively propogate through network
             }
         }
@@ -165,8 +155,6 @@ public class Node {
      *
      */
     public void getLongestChain() {
-
-
         int maxID = this.NODE_ID;
         for (Node node : Main.NETWORK) {  //Find node with longest BLOCKCHAIN
             if (node.getBLOCKCHAIN().size() > this.BLOCKCHAIN.size()) {
@@ -178,10 +166,10 @@ public class Node {
             //check that quorum voted true
             if (!Main.NETWORK.get(maxID - 1)
                     .getBLOCKCHAIN().get(Main.NETWORK.get(maxID - 1)
-                            .getBLOCKCHAIN().size() - 1).getQVotes()
+                            .getBLOCKCHAIN().size() - 1).getVOTES()
                     .contains(false)) {
 
-                //Quorum Signature succesfully validated, clear MEM_POOL and add latest blocks to local ledger
+                //Quorum Signature succesfully validated, clear PENDING_TRANSACTIONS and add latest blocks to local ledger
                 //Start index at the size of the non-updated blockchain
                 //End one before the size of the updated (larger) blockchain
                 for (int i = this.BLOCKCHAIN.size(); i < Main.NETWORK.get(maxID - 1).getBLOCKCHAIN().size(); i++) {
@@ -189,9 +177,9 @@ public class Node {
                             .getBLOCKCHAIN().get(i));
                 }
 
-                //*note* in reality we want to remove only MEM_POOL transactions that are already in the blockchain
-                //for scalability experiment, MEM_POOLs will always match, so just clear MEM_POOL.
-                this.MEM_POOL.clear();
+                //*note* in reality we want to remove only PENDING_TRANSACTIONS transactions that are already in the blockchain
+                //for scalability experiment, PENDING_TRANSACTIONSs will always match, so just clear PENDING_TRANSACTIONS.
+                this.PENDING_TRANSACTIONS.clear();
             }
 
 
@@ -199,8 +187,8 @@ public class Node {
 
     }
 
-    public ArrayList<Transaction> getMEM_POOL() {
-        return MEM_POOL;
+    public ArrayList<Transaction> getPENDING_TRANSACTIONS() {
+        return PENDING_TRANSACTIONS;
     }
 
     public int getNODE_ID() {

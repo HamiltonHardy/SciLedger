@@ -34,16 +34,4 @@ public class Transaction {
     public int getUSER_ID() {
         return USER_ID;
     }
-
-    public String getWORKFLOW_ID() {
-        return WORKFLOW_ID;
-    }
-
-    public String getTASK_ID() {
-        return TASK_ID;
-    }
-
-    public String getMERKLE_ROOT() {
-        return MERKLE_ROOT;
-    }
 }

@@ -1,3 +1,4 @@
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -5,55 +6,37 @@ import java.util.Date;
  * Block Class: Creates the blocks that are committed to the block chain
  */
 public class Block {
-    private String hash;
-    private String previousHash;
-    private Transaction transaction;
-    private ArrayList<Transaction> txList = new ArrayList<Transaction>();
-    private long timeStamp;
-    private int blockNum;
-    private ArrayList<Boolean> QVotes;
+    private final String HASH;
+    private final ArrayList<String> PARENT_HASHES;
+    private final Transaction TRANSACTION;
+    private final Timestamp TIMESTAMP;
+    private final int ID;
+    private final ArrayList<Boolean> VOTES;
 
+
+    public Block(Transaction transaction, ArrayList<String> parentHashes, int ID, ArrayList<Boolean> votes) {
+        this.TRANSACTION = transaction;
+        this.TIMESTAMP = new Timestamp(new Date().getTime());
+        this.PARENT_HASHES = parentHashes;
+        this.ID = ID;
+        this.VOTES = votes;
+        this.HASH = calculateHash();
+
+    }
     /**
-     *
-     * @param TXs
-     * @param prevHash
-     * @param blockNum
-     * @param QVotes
+     * TODO
+     * @return the hash of the current block
      */
-    public Block(ArrayList<Transaction> TXs, String prevHash, int blockNum, ArrayList<Boolean> QVotes) {
-        //this.transaction = tx;
-        for (Transaction tx: TXs) {
-            this.txList.add(tx);
-        }
-        this.timeStamp = new Date().getTime();
-
-        if (TXs.get(0).getUSER_ID() == -1) {
-            this.previousHash = "0";
-            //tx.setData("GENESIS BLOCK");// = "Genesis Block";
-        } else {
-            //this.previousHash = DataStorage.publicBlockchain.(size() - 1).hash;
-            this.previousHash = prevHash;
-        }
-        this.QVotes = QVotes;
-        this.blockNum = blockNum;
-        this.hash = calculateHash();
-
-    }
-
-    public ArrayList<Boolean> getQVotes() {
-        return QVotes;
-    }
-
-    public String getHash() {
-        return hash;
-    }
-
-    //Function to calculate Hash
     public String calculateHash() {
-        //Calling crypt class
-        String hash = crypt.sha256(txList + Long.toString(timeStamp) + blockNum + previousHash );
-        return hash;
+        return crypt.sha256(this.TRANSACTION + this.TIMESTAMP.toString() + this.ID + this.PARENT_HASHES);
     }
 
+    public String getHASH() {
+        return HASH;
+    }
+
+    public ArrayList<Boolean> getVOTES() {
+        return VOTES;
+    }
 }
 

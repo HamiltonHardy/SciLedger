@@ -4,6 +4,8 @@ import java.security.MessageDigest;
 
 /**
  * From Geeks For Geeks: https://www.geeksforgeeks.org/implementation-of-blockchain-in-java/
+ *
+ * Generates hash strings using the SHA256 algorithm
  */
 public class crypt {
 

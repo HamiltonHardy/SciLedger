@@ -10,7 +10,7 @@ import java.util.Random;
  */
 public class Quorum {
     private final int SIZE;
-    private final ArrayList<Node> NETWORK;
+    private final ArrayList<Node> NODES;
     private final ArrayList<Boolean> VOTES;
 
     /**
@@ -20,23 +20,22 @@ public class Quorum {
 
     public Quorum(int quorumSize) {
         this.SIZE = quorumSize;
-        this.NETWORK = selectQuorum();
+        this.NODES = selectQuorum();
         this.VOTES = new ArrayList<>(Arrays.asList(new Boolean[this.SIZE]));
         Collections.fill(this.VOTES, Boolean.FALSE);
     }
 
     /**
      * Randomly selects the quorum members.
-     * @return Arraylist containing the nodes in the quorum.
+     * @return Arraylist containing the nodes selected for the quorum.
      */
     public ArrayList<Node> selectQuorum() {
         ArrayList<Node> quorum = new ArrayList<>();
         Random rand = new Random();
 
         for (int i = 0; i < this.SIZE; i++) {
-
             Node node = Main.NETWORK.get(rand.nextInt(Main.NETWORK.size()));
-            //Ensure no duplicate nodes in list
+            //Chooses a new node if the originally selected node is already in the quorum
             while (quorum.contains(node)) {
                 node = Main.NETWORK.get(rand.nextInt(Main.NETWORK.size()));
             }
@@ -49,8 +48,8 @@ public class Quorum {
         return VOTES;
     }
 
-    public ArrayList<Node> getNETWORK() {
-        return NETWORK;
+    public ArrayList<Node> getNODES() {
+        return NODES;
     }
     public int getSIZE(){
         return SIZE;
