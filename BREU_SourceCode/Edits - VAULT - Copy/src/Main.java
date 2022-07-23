@@ -17,27 +17,28 @@ import java.util.Random;
 public class Main {
     static ArrayList<Transaction> genesisBlockTXs = new ArrayList<Transaction>();
 
-    public static ArrayList<Node> Nodes = new ArrayList<Node>();            //Network of Nodes
-    public static Block genesisBlock;// = new Block(new Transaction(-1), "0", 1);  //Genesis Block
-    public static Quorum quorum;                             //Class to generate Quorum
+    public static ArrayList<Node> NETWORK = new ArrayList<>();
+    public static Block genesisBlock;
+    public static Quorum quorum;
     public static ArrayList<Boolean> genesisQuorum = new ArrayList<Boolean>();
-    private final int NUM_NODES = 1000; //Number of nodes in the network
-    private final int NUM_BLOCKS = 5; //Number of blocks/transactions/workflow tasks
+    private final int NETWORK_SIZE = 1000;
     private final int QUORUM_SIZE = 10;
     private final double QUORUM_THRESHOLD = .8;
 
-
-    //MAIN DRIVER
-    public static void main(String[] args) throws InterruptedException, IOException {
-
-
+    /**
+     * Driver to run experiments
+     * @param args
+     */
+    public static void main(String[] args){
+        //Create a "dummy" arraylist to use as the provenance data for the genesis block
         ArrayList<String> dummyProvenanceData = new ArrayList<>();
         for(int i = 0; i< 5; i++){
-            dummyProvenanceData.add("0");
+            dummyProvenanceData.add("-1");
         }
 
-        //Need initial genesis block
+        //Create the genesis block's "dummy" transaction
         genesisBlockTXs.add(new Transaction(-1, dummyProvenanceData));
+        //Create the genesis block
         genesisBlock = new Block(genesisBlockTXs, "0", 1, genesisQuorum);
 
         //Run Experiments
@@ -45,16 +46,19 @@ public class Main {
         main.scalability();
     }
 
-    //MINE: Scalability Experiment
+    //----------Experiments----------//
+
+    /**
+     * TODO
+     */
     private void scalability(){
 
 
         //Create Nodes
-        for (int i = 0; i < this.NUM_NODES; i++) {
-            Nodes.add(new Node());
+        for (int i = 0; i < this.NETWORK_SIZE; i++) {
+            NETWORK.add(new Node());
         }
         connectNetwork();
-        printNetworkConnections();
 
         //Number of Blocks to create for tests
         //create workflows
@@ -77,7 +81,7 @@ public class Main {
 
                 long broadcastStart = System.currentTimeMillis();
 
-                Nodes.get(0).broadcastTransaction(Nodes.get(0).createTransaction(provenanceData));
+                NETWORK.get(0).broadcastTransaction(NETWORK.get(0).createTransaction(provenanceData));
 
                 long broadcastEnd = System.currentTimeMillis();
                 long bDuration = (broadcastEnd - broadcastStart);
@@ -86,7 +90,7 @@ public class Main {
 
                 long validationStart = System.currentTimeMillis();
 
-                for (Node node : Nodes) {  //3. Validate Transactions
+                for (Node node : NETWORK) {  //3. Validate Transactions
 
                     node.validateBlock();
                 }
@@ -96,12 +100,12 @@ public class Main {
                 System.out.println(", validation duration: " + vDuration);
                 System.out.println("Middle---------------------");
 
-                //Propse block and append all Nodes' ledgers
+                //Propse block and append all NETWORK' ledgers
                 long blockStart = System.currentTimeMillis();
 
-                System.out.println(quorum.getNODES().size());
+                System.out.println(quorum.getNETWORK().size());
 
-                quorum.getNODES().get(0).proposeBlock(this.QUORUM_THRESHOLD);  //4. Broadcast Block and propogate ledgers
+                quorum.getNETWORK().get(0).proposeBlock(this.QUORUM_THRESHOLD);  //4. Broadcast Block and propogate ledgers
                 long blockEnd = System.currentTimeMillis();
                 long blockDuration = (blockEnd - blockStart);
                 //Print 4
@@ -115,64 +119,34 @@ public class Main {
                 System.out.println("END---------------------");
                 System.out.println();
             }
-            //System.out.println();
         }
 
     }
 
+    /**
+     * TODO
+     */
     static void connectNetwork() {
         Random rand = new Random();
 
-        for (Node node : Nodes) {
+        for (Node node : NETWORK) {
             int count = rand.nextInt(2) + 9;  //Random connection to peers
             //int count = 10;  //Random connection to peers
             //System.out.println(count);
 
             //While # of peers is less than desired size, get a random peer to connect to
-            while (node.getPeers().size() < count) {
-                Node peer = Nodes.get(rand.nextInt(Nodes.size()));
+            while (node.getPEERS().size() < count) {
+                Node peer = NETWORK.get(rand.nextInt(NETWORK.size()));
 
                 //Peer must not be in list already and peer must not equal itself, or must try to get new peer
-                while (node.getPeers().contains(peer) || (node.getNodeID() == peer.getNodeID())) {
-                    peer = Nodes.get(rand.nextInt(Nodes.size()));
+                while (node.getPEERS().contains(peer) || (node.getNODE_ID() == peer.getNODE_ID())) {
+                    peer = NETWORK.get(rand.nextInt(NETWORK.size()));
                 }
                 //Connect to listen to peers
                 node.addPeer(peer);
                 //peer.addPeer(node);  //for two-way connection
             }
-            //Uncomment below to see full history of peer connections as they are created
-            //printNetworkConnections();
         }
-    }
-
-    //Function to print peer connections
-    static void printNetworkConnections() {
-        int min = 10, max = 0, sum = 0, avg;
-        for (int i = 0; i < Nodes.size(); i++) {
-            sum += Nodes.get(i).getPeers().size();
-            if (Nodes.get(i).getPeers().size() < min) {
-                min = Nodes.get(i).getPeers().size();
-            }
-            if (Nodes.get(i).getPeers().size() > max) {
-                max = Nodes.get(i).getPeers().size();
-            }
-        }
-
-        avg = sum / Nodes.size();
-
-        System.out.println("");
-        System.out.println("Peer Connection List");
-        System.out.println("CONNECTIONS: Min: " + min + " Max: " + max + " Avg: " + avg);
-        System.out.println("--------------------");
-
-//        for (Node n : Nodes) {
-//            System.out.print("NodeID: " + n.getNodeID() + " - Peers: ");
-//            for (int i = 0; i < n.getPeers().size(); i++) {
-//                System.out.print(n.getPeers().get(i).getNodeID() + " ");
-//            }
-//            System.out.println();
-//        }
-        System.out.println();
     }
 
 

@@ -24,7 +24,6 @@ public class Transaction {
     public Transaction(int userID, ArrayList<String> provenanceData) {
         this.USER_ID = userID;
         this.TIMESTAMP = new Timestamp(new Date().getTime());
-
         this.WORKFLOW_ID = provenanceData.get(0);
         this.TASK_ID = provenanceData.get(1);
         this.VALID_STATUS = provenanceData.get(2);

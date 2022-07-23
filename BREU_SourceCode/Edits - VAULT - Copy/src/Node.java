@@ -1,51 +1,50 @@
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
 
 /**
- *
  * Node Class: Creates the nodes that make up the blockchain network.
  */
 
 public class Node {
 
-    private final int nodeID;
-    private final ArrayList<Block> blockchain = new ArrayList<>();
-    private final ArrayList<Node> peers = new ArrayList<>();
-    private final ArrayList<Transaction> memPool = new ArrayList<>();
+    private final int NODE_ID;
+    private final ArrayList<Block> BLOCKCHAIN = new ArrayList<>();
+    private final ArrayList<Node> PEERS = new ArrayList<>();
+    private final ArrayList<Transaction> MEM_POOL = new ArrayList<>();
 
     /**
      * Constructor: Assigns an ID to the node and creates the starting blockchain for the node
      * which consists of only the genesis block.
      */
     public Node(){
-        this.nodeID = Main.Nodes.size() + 1;
-        this.blockchain.add(Main.genesisBlock);
+        this.NODE_ID = Main.NETWORK.size() + 1;
+        this.BLOCKCHAIN.add(Main.genesisBlock);
     }
 
-    // ***** FUNCTIONS *****//
-
-    public Transaction createTransaction(ArrayList<String> provenanceData) {
-        Transaction tx = new Transaction(this.nodeID, provenanceData);
-        return tx;
-    }
 
     /**
-     * If node is in the quorum, for each transaction in the mempool check the nodeID to validate. Vote true if all good and vote false if even one is bad. Make sure transactions are in all the mempools, if not sync.
+     * Takes the arraylist of provenance data and makes a transaction out of it
+     * @param provenanceData The information about the workflow task
+     * @return A Transaction
+     */
+    public Transaction createTransaction(ArrayList<String> provenanceData) {
+        return new Transaction(this.NODE_ID, provenanceData);
+    }
+
+//    /**
+//     * If node is in the quorum, for each transaction in the mempool check the nodeID to validate. Vote true if all good and vote false if even one is bad. Make sure transactions are in all the mempools, if not sync.
+//     */
+
+    /**
+     *
      */
     public void validateBlock() {
         boolean nodeVote = true;
-        //Check if node is in Quorum
-        if (Main.quorum.getNODES().contains(this)) {
-            //System.out.print("I am node: " + this.nodeID + " \tI am in the quorum - ");
-            //For each transaction in the mempool, if the transactionID is one of the nodeIDs then it is "found" meaning it is good
-//            System.out.println("Validate Block Mempool: " + Arrays.toString(this.memPool.toArray()));
-//            System.out.println("Validate Block MEMPOOL SIZE: " + this.memPool.size());
-            for (Transaction tx : this.memPool) {
+        if (Main.quorum.getNETWORK().contains(this)) {
+            for (Transaction tx : this.MEM_POOL) {
                 boolean txIsFound = false;
-                for (int j = 0; j < Main.Nodes.size(); j++) {
-                    if (tx.getUSER_ID() == Main.Nodes.get(j).getNodeID()) {
+                for (int j = 0; j < Main.NETWORK.size(); j++) {
+                    if (tx.getUSER_ID() == Main.NETWORK.get(j).getNODE_ID()) {
                         txIsFound = true;
                     }
 
@@ -54,12 +53,9 @@ public class Node {
                     nodeVote = false; //Bad transaction found! Do not vote for the block
                 }
                 //Check if transactions are in node mempools, if not mempools need to be synged, broadcast to other mempools
-                for (Node node : Main.quorum.getNODES()) {
-                    if (!node.getMemPool().contains(tx)) {
-//                        System.out.println("PRINT TRANSACTION vs Mempool");
-//                        System.out.println(tx);
-//                        System.out.println(Arrays.toString(node.getMemPool().toArray()));
-                        node.getMemPool().add(tx);
+                for (Node node : Main.quorum.getNETWORK()) {
+                    if (!node.getMEM_POOL().contains(tx)) {
+                        node.getMEM_POOL().add(tx);
                     }
                 }
 
@@ -74,15 +70,20 @@ public class Node {
     }
 
 
+//    /**
+//     * Checks whether the votes overall have any "false". If yes, check the entire mempool for invalid transactions
+//     * (nodeID no good) and when one is found remove it from the mempool of each quorum member. Call validate block
+//     * on each node and then call propose block again
+//     * <p>
+//     * If no bad votes, for ever transaction in the mempool, add a new block for only that transaction. Clear the mempool
+//     * For ever node, make sure they have the updated chain after adding all 60 blocks
+//     */
+
     /**
-     * Checks whether the votes overall have any "false". If yes, check the entire mempool for invalid transactions
-     * (nodeID no good) and when one is found remove it from the mempool of each quorum member. Call validate block
-     * on each node and then call propose block again
-     * <p>
-     * If no bad votes, for ever transaction in the mempool, add a new block for only that transaction. Clear the mempool
-     * For ever node, make sure they have the updated chain after adding all 60 blocks
+     *
+     * @param quorumThreshold The percentage of the quorum that needs to approve a block in order for it to be committed
+     *                        to the blockchainn.
      */
-    //MINE #2 : 1 TXN per block AND ...
     public void proposeBlock(double quorumThreshold) {
 
         //If the node vote has a "false" ...
@@ -98,12 +99,12 @@ public class Node {
         if (percentBadVotes > quorumThreshold) {
             System.out.println("Block validation failed - Attempting to remove Bad TXs and rebroadcast for validaton\n");
 
-            //search through mempool and check for invalid transactions (i.e. nodes not members of the network - invalid nodeID)
-            for (int i = 0; i < this.memPool.size(); i++) {
-                if ((this.memPool.get(i).getUSER_ID() > Main.Nodes.size()) || (this.memPool.get(i).getUSER_ID() < 1)) {
+            //search through mempool and check for invalid transactions (i.e. NETWORK not members of the network - invalid nodeID)
+            for (int i = 0; i < this.MEM_POOL.size(); i++) {
+                if ((this.MEM_POOL.get(i).getUSER_ID() > Main.NETWORK.size()) || (this.MEM_POOL.get(i).getUSER_ID() < 1)) {
                     //bad transaction found, Call on quorum to remove bad transaction and revalidate new block
-                    for (Node node : Main.quorum.getNODES()) {
-                        node.getMemPool().remove(i);
+                    for (Node node : Main.quorum.getNETWORK()) {
+                        node.getMEM_POOL().remove(i);
                         node.validateBlock();
 
                     }
@@ -113,86 +114,85 @@ public class Node {
         }
         // If node vote is good (block is good) create new block from the mempool
         else {  //Block is good, add Block to local ledger, clear MemPool
-            System.out.println("(before) CURRENT BLOCKCHAIN SIZE " + this.blockchain.size());
-//            System.out.println("Propose Block MEMPOOL SIZE: " + memPool.size());
-            for (Transaction transaction : this.memPool) {
+            System.out.println("(before) CURRENT BLOCKCHAIN SIZE " + this.BLOCKCHAIN.size());
+            for (Transaction transaction : this.MEM_POOL) {
                 //Create ArrayList<Transaction> for a single transaction
                 ArrayList<Transaction> singleTransaction = new ArrayList<>();
                 singleTransaction.add(transaction);
 
                 System.out.println("Transaction Provenance tID, workflowID: " + transaction.getTASK_ID() + ", " + transaction.getWORKFLOW_ID());
 
-                this.blockchain.add(new Block(singleTransaction, this.blockchain.get(this.blockchain.size() - 1)
-                        .getHash(), this.blockchain.size() + 1, Main.quorum.getVOTES()));
+                this.BLOCKCHAIN.add(new Block(singleTransaction, this.BLOCKCHAIN.get(this.BLOCKCHAIN.size() - 1)
+                        .getHash(), this.BLOCKCHAIN.size() + 1, Main.quorum.getVOTES()));
 
 //                System.out.println("Successfully added Block. Blockchain length: " + this.blockchain.size());
             }
 
-            this.memPool.clear();
+            this.MEM_POOL.clear();
 
             //Broadcast block to network (node now has longest chain) Nodes check if block in longest chain has valid Quorum Signature
-            for (Node node : Main.Nodes) {
+            for (Node node : Main.NETWORK) {
                 node.getLongestChain();
             }
-            System.out.println("CURRENT BLOCKCHAIN SIZE " + this.blockchain.size());
-//            System.out.println(this.blockchain.toString());
+            System.out.println("CURRENT BLOCKCHAIN SIZE " + this.BLOCKCHAIN.size());
+//            System.out.println(this.BLOCKCHAIN.toString());
 
         }
     }
 
 
     //Function to broadcast transaction through network
+
+    /**
+     *
+     * @param tx
+     */
     public void broadcastTransaction(Transaction tx) {
 
-        if (!this.memPool.contains(tx)) {
-            this.memPool.add(tx);
+        if (!this.MEM_POOL.contains(tx)) {
+            this.MEM_POOL.add(tx);
         }
-        //broadcast transaction to connected peers
-        for (Node peer : this.peers) {
-            if (!peer.getMemPool().contains(tx)) {
-                peer.getMemPool().add(tx);
+        //broadcast transaction to connected PEERS
+        for (Node peer : this.PEERS) {
+            if (!peer.getMEM_POOL().contains(tx)) {
+                peer.getMEM_POOL().add(tx);
                 peer.broadcastTransaction(tx); //peers recursively propogate through network
             }
         }
 
     }
 
-
-//Mine: propagates all new blocks (1 per transaction (60) to the chain)
-
+    /**
+     *
+     */
     public void getLongestChain() {
 
 
-        int maxID = this.nodeID;
-        for (Node node : Main.Nodes) {  //Find node with longest blockchain
-            if (node.getBlockchain().size() > this.blockchain.size()) {
-                maxID = node.getNodeID();
+        int maxID = this.NODE_ID;
+        for (Node node : Main.NETWORK) {  //Find node with longest BLOCKCHAIN
+            if (node.getBLOCKCHAIN().size() > this.BLOCKCHAIN.size()) {
+                maxID = node.getNODE_ID();
             }
         }
 
-        if (maxID != this.nodeID) { //Make sure longest chain is not self
+        if (maxID != this.NODE_ID) { //Make sure longest chain is not self
             //check that quorum voted true
-            if (!Main.Nodes.get(maxID - 1)
-                    .getBlockchain().get(Main.Nodes.get(maxID - 1)
-                            .getBlockchain().size() - 1).getQVotes()
+            if (!Main.NETWORK.get(maxID - 1)
+                    .getBLOCKCHAIN().get(Main.NETWORK.get(maxID - 1)
+                            .getBLOCKCHAIN().size() - 1).getQVotes()
                     .contains(false)) {
 
-//                int blockchainSizeDifference = Main.Nodes.get(maxID - 1).getBlockchain().size() - this.blockchain.size();
-//                System.out.println("Current node BC size " + this.blockchain.size());
-//                System.out.println("Longest BC size " + Main.Nodes.get(maxID - 1).getBlockchain().size());
-//                System.out.println("Difference " + blockchainSizeDifference);
-
-                //Quorum Signature succesfully validated, clear mempool and add latest blocks to local ledger
+                //Quorum Signature succesfully validated, clear MEM_POOL and add latest blocks to local ledger
                 //Start index at the size of the non-updated blockchain
                 //End one before the size of the updated (larger) blockchain
-                for (int i = this.blockchain.size(); i < Main.Nodes.get(maxID - 1).getBlockchain().size(); i++) {
-                    this.blockchain.add(Main.Nodes.get(maxID - 1)
-                            .getBlockchain().get(i));
+                for (int i = this.BLOCKCHAIN.size(); i < Main.NETWORK.get(maxID - 1).getBLOCKCHAIN().size(); i++) {
+                    this.BLOCKCHAIN.add(Main.NETWORK.get(maxID - 1)
+                            .getBLOCKCHAIN().get(i));
                 }
 
-                //*note* in reality we want to remove only mempool transactions that are already in the blockchain
-                //for scalability experiment, mempools will always match, so just clear mempool.
-                this.memPool.clear();
+                //*note* in reality we want to remove only MEM_POOL transactions that are already in the blockchain
+                //for scalability experiment, MEM_POOLs will always match, so just clear MEM_POOL.
+                this.MEM_POOL.clear();
             }
 
 
@@ -200,24 +200,24 @@ public class Node {
 
     }
 
-    public ArrayList<Transaction> getMemPool() {
-        return memPool;
+    public ArrayList<Transaction> getMEM_POOL() {
+        return MEM_POOL;
     }
 
-    public int getNodeID() {
-        return nodeID;
+    public int getNODE_ID() {
+        return NODE_ID;
     }
 
-    public ArrayList<Node> getPeers() {
-        return peers;
+    public ArrayList<Node> getPEERS() {
+        return PEERS;
     }
 
     public void addPeer(Node node) {
-        this.peers.add(node);
+        this.PEERS.add(node);
     }
 
-    public ArrayList<Block> getBlockchain() {
-        return blockchain;
+    public ArrayList<Block> getBLOCKCHAIN() {
+        return BLOCKCHAIN;
     }
 
 }

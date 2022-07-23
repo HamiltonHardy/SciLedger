@@ -10,17 +10,17 @@ import java.util.Random;
  */
 public class Quorum {
     private final int SIZE;
-    private final ArrayList<Node> NODES;
+    private final ArrayList<Node> NETWORK;
     private final ArrayList<Boolean> VOTES;
 
     /**
      * Constructor: initiates quorum selection, sets the votes for each node to false.
-     * @param quorumSize The desired number of nodes in the quorum
+     * @param quorumSize The desired number of NETWORK in the quorum
      */
 
     public Quorum(int quorumSize) {
         this.SIZE = quorumSize;
-        this.NODES = selectQuorum();
+        this.NETWORK = selectQuorum();
         this.VOTES = new ArrayList<>(Arrays.asList(new Boolean[this.SIZE]));
         Collections.fill(this.VOTES, Boolean.FALSE);
     }
@@ -35,10 +35,10 @@ public class Quorum {
 
         for (int i = 0; i < this.SIZE; i++) {
 
-            Node node = Main.Nodes.get(rand.nextInt(Main.Nodes.size()));
+            Node node = Main.NETWORK.get(rand.nextInt(Main.NETWORK.size()));
             //Ensure no duplicate nodes in list
             while (quorum.contains(node)) {
-                node = Main.Nodes.get(rand.nextInt(Main.Nodes.size()));
+                node = Main.NETWORK.get(rand.nextInt(Main.NETWORK.size()));
             }
             quorum.add(node);
         }
@@ -49,8 +49,8 @@ public class Quorum {
         return VOTES;
     }
 
-    public ArrayList<Node> getNODES() {
-        return NODES;
+    public ArrayList<Node> getNETWORK() {
+        return NETWORK;
     }
     public int getSIZE(){
         return SIZE;
