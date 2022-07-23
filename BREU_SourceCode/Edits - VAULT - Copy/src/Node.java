@@ -5,19 +5,20 @@ import java.util.Random;
 
 /**
  *
- * @author Justin Gazsi
+ * Node Class: Creates the nodes that make up the blockchain network.
  */
-//Mimic behavior of a Node
+
 public class Node {
 
-    //Class variables
-    private int nodeID;
-    private ArrayList<Block> blockchain = new ArrayList<Block>();
-    private ArrayList<Node> peers = new ArrayList<Node>();
-    private ArrayList<Transaction> memPool = new ArrayList<Transaction>();
+    private final int nodeID;
+    private final ArrayList<Block> blockchain = new ArrayList<>();
+    private final ArrayList<Node> peers = new ArrayList<>();
+    private final ArrayList<Transaction> memPool = new ArrayList<>();
 
-    //Constructor
-    public Node() throws InterruptedException {
+    /**
+     * Constructor: Assigns an ID to the node and
+     */
+    public Node(){
         //Inizalize local Blockchain ledger Genesis Block
         this.blockchain.add(Main.GenBlock);
 
@@ -47,7 +48,7 @@ public class Node {
             for (Transaction tx : this.memPool) {
                 boolean txIsFound = false;
                 for (int j = 0; j < Main.Nodes.size(); j++) {
-                    if (tx.getuID() == Main.Nodes.get(j).getNodeID()) {
+                    if (tx.getUserID() == Main.Nodes.get(j).getNodeID()) {
                         txIsFound = true;
                     }
 
@@ -102,7 +103,7 @@ public class Node {
 
             //search through mempool and check for invalid transactions (i.e. nodes not members of the network - invalid nodeID)
             for (int i = 0; i < this.memPool.size(); i++) {
-                if ((this.memPool.get(i).getuID() > Main.Nodes.size()) || (this.memPool.get(i).getuID() < 1)) {
+                if ((this.memPool.get(i).getUserID() > Main.Nodes.size()) || (this.memPool.get(i).getUserID() < 1)) {
                     //bad transaction found, Call on quorum to remove bad transaction and revalidate new block
                     for (Node node : Main.Quorum.getQuroumGroup()) {
                         node.getMemPool().remove(i);
@@ -202,29 +203,16 @@ public class Node {
 
     }
 
-    //***** Getters and Setters ****//
     public ArrayList<Transaction> getMemPool() {
         return memPool;
-    }
-
-    public void setMemPool(ArrayList<Transaction> memPool) {
-        this.memPool = memPool;
     }
 
     public int getNodeID() {
         return nodeID;
     }
 
-    public void setNodeID(int nodeID) {
-        this.nodeID = nodeID;
-    }
-
     public ArrayList<Node> getPeers() {
         return peers;
-    }
-
-    public void setPeers(ArrayList<Node> peers) {
-        this.peers = peers;
     }
 
     public void addPeer(Node node) {
@@ -235,7 +223,4 @@ public class Node {
         return blockchain;
     }
 
-    public void setBlockchain(ArrayList<Block> blockchain) {
-        this.blockchain = blockchain;
-    }
 }

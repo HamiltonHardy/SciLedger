@@ -175,54 +175,5 @@ public class Main {
         System.out.println();
     }
 
-    static void printMemPool() {
-        System.out.println("");
-        for (Node node : Nodes) {
-            System.out.println("NodeID: " + node.getNodeID() + " MemPool:");
-            for (int i = 0; i < node.getMemPool().size(); i++) {
-                System.out.print(node.getMemPool().get(i) + " - TX_Info: ");
-            }
-        }
-    }
-
-    //***** EXPERIMENTS *****//
-
-    //Experiment to test quorum distribution of java.util random (compare to block hash generation)
-    static void randomDistributionExp(int quorumSize) throws InterruptedException, IOException {
-        File file = new File("RandomCounts.csv");
-        if (!file.exists()) {
-            file.createNewFile();
-        }
-
-        PrintWriter pw = new PrintWriter(new FileOutputStream(new File("RandomCounts.csv"), true));
-
-        int[] randomCounts = new int[50];
-        Quorum = new Quorum(quorumSize);
-
-        for (int x = 0; x < 1000; x++) {  //Number of Trials
-
-            for (int i = 0; i < 1000; i++) { //Number Quorum Generations - log how many times node was selected
-                //Thread.sleep(1); //Add a millisecond to change timestamp for increase hash randomness
-                //Generate Block and Get Quorum based on Block Hash
-                //Nodes.get(0).generateBlock();
-                Quorum.getRandomQuorum();
-
-                //Log the nodes that were selected for the quorum
-                for (int j = 0; j < Quorum.getQuroumGroup().size(); j++) {
-                    randomCounts[Quorum.getQuroumGroup().get(j).getNodeID() - 1] += 1;
-
-                }
-            }
-
-            //Record results
-            for (int count : randomCounts) { //print to screen and file
-                //System.out.println(count);
-                pw.print(count + ",");
-            }
-            pw.println(); //add new line for next run
-            randomCounts = new int[50];  //reset array counts back to zero
-        }
-        pw.close();
-    }
 
 }

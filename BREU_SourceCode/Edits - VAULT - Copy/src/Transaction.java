@@ -3,12 +3,12 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * Transaction Class: Creates the transactions that are submitted to the blockchain. Each transaction represents
- * a single workflow task.
+ * Transaction Class: Creates the transactions that are submitted to the quorum. Each transaction corresponds to
+ * an individual workflow task.
  */
 
 public class Transaction {
-    private final int uID;
+    private final int userID;
     private final Timestamp timeStamp;
     private final String workflowID;
     private final String taskID;
@@ -16,8 +16,13 @@ public class Transaction {
     private final String parentTaskID;
     private final String merkleRoot;
 
-    public Transaction(int uID, ArrayList<String> provenanceData) {
-        this.uID = uID;
+    /**
+     * Constructor
+     * @param userID The ID for the node that ?
+     * @param provenanceData An arraylist containing the provenance data for the given workflow task.
+     */
+    public Transaction(int userID, ArrayList<String> provenanceData) {
+        this.userID = userID;
         this.timeStamp = new Timestamp(new Date().getTime());
 
         this.workflowID = provenanceData.get(0);
@@ -27,8 +32,8 @@ public class Transaction {
         this.merkleRoot = provenanceData.get(4);
     }
 
-    public int getuID() {
-        return uID;
+    public int getUserID() {
+        return userID;
     }
 
     public Timestamp getTimeStamp() {

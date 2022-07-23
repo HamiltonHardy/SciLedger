@@ -2,22 +2,26 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- *
- * @author Justin Gazsi
+ * Block Class: Creates the blocks that are committed to the block chain
  */
 public class Block {
 
     //Blocks contain previous hash and data of transaction
     private String hash;
     private String previousHash;
-    //private String data; //Tx data stub <- Turn into a Transaction object List
     private Transaction transaction;
     private ArrayList<Transaction> txList = new ArrayList<Transaction>();
     private long timeStamp;
     private int blockNum;
     private ArrayList<Boolean> QVotes;
 
-    //Block Constructor
+    /**
+     *
+     * @param TXs
+     * @param prevHash
+     * @param blockNum
+     * @param QVotes
+     */
     public Block(ArrayList<Transaction> TXs, String prevHash, int blockNum, ArrayList<Boolean> QVotes) {
         //this.transaction = tx;
         for (Transaction tx: TXs) {
@@ -25,7 +29,7 @@ public class Block {
         }
         this.timeStamp = new Date().getTime();
 
-        if (TXs.get(0).getuID() == -1) {
+        if (TXs.get(0).getUserID() == -1) {
             this.previousHash = "0";
             //tx.setData("GENESIS BLOCK");// = "Genesis Block";
         } else {
@@ -37,8 +41,6 @@ public class Block {
         this.hash = calculateHash();
 
     }
-
-    //Getters and Setters
 
     public ArrayList<Boolean> getQVotes() {
         return QVotes;
@@ -54,49 +56,24 @@ public class Block {
         return blockNum;
     }
 
-    public void setBlockNum(int blockNum) {
-        this.blockNum = blockNum;
-    }
-
     public String getHash() {
         return hash;
     }
 
-    public void setHash(String hash) {
-        this.hash = hash;
-    }
 
     public String getPreviousHash() {
         return previousHash;
     }
 
-    public void setPreviousHash(String previousHash) {
-        this.previousHash = previousHash;
-    }
-
-//    public String getData() {
-//        return data;
-//    }
-//
-//    public void setData(String data) {
-//        this.data = data;
-//    }
-
     public Transaction getTransaction() {
         return transaction;
     }
 
-    public void setTransaction(Transaction transaction) {
-        this.transaction = transaction;
-    }
 
     public long getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(long timeStamp) {
-        this.timeStamp = timeStamp;
-    }
 
     //Function to calculate Hash
     public String calculateHash() {
