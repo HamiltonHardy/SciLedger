@@ -15,21 +15,21 @@ import java.util.Random;
  * @author Justin Gazsi
  */
 public class Main {
-    static ArrayList<Transaction> GenBlockTXs = new ArrayList<Transaction>();
+    static ArrayList<Transaction> genesisBlockTXs = new ArrayList<Transaction>();
 
     public static ArrayList<Node> Nodes = new ArrayList<Node>();            //Network of Nodes
-    public static Block GenBlock;// = new Block(new Transaction(-1), "0", 1);  //Genesis Block
-    public static Quorum Quorum; //= new Quorum();                             //Class to generate Quorum
-    //public static ArrayList<Node> QuorumGroup;                              //Create List to Hold Quorum
-    public static ArrayList<Boolean> GenQuorum = new ArrayList<Boolean>();
+    public static Block genesisBlock;// = new Block(new Transaction(-1), "0", 1);  //Genesis Block
+    public static Quorum quorum;                             //Class to generate Quorum
+    public static ArrayList<Boolean> genesisQuorum = new ArrayList<Boolean>();
+    private final int NUM_NODES = 1000; //Number of nodes in the network
+    private final int NUM_BLOCKS = 5; //Number of blocks/transactions/workflow tasks
+    private final int QUORUM_SIZE = 10;
+    private final double QUORUM_THRESHOLD = .8;
 
 
     //MAIN DRIVER
     public static void main(String[] args) throws InterruptedException, IOException {
-        final int NUM_NODES = 1000; //Number of nodes in the network
-        final int NUM_BLOCKS = 5; //Number of blocks/transactions/workflow tasks
-        final int QUORUM_SIZE = 10;
-        final double QUORUM_THRESHOLD = .8;
+
 
         ArrayList<String> dummyProvenanceData = new ArrayList<>();
         for(int i = 0; i< 5; i++){
@@ -37,24 +37,24 @@ public class Main {
         }
 
         //Need initial genesis block
-        GenBlockTXs.add(new Transaction(-1, dummyProvenanceData));
-        GenBlock = new Block(GenBlockTXs, "0", 1, GenQuorum);
+        genesisBlockTXs.add(new Transaction(-1, dummyProvenanceData));
+        genesisBlock = new Block(genesisBlockTXs, "0", 1, genesisQuorum);
 
-        scalability(NUM_NODES, NUM_BLOCKS, QUORUM_SIZE, QUORUM_THRESHOLD);
+        //Run Experiments
+        Main main = new Main();
+        main.scalability();
     }
 
     //MINE: Scalability Experiment
-    //Removed tps completely
-    static void scalability(int numNodes, int numBlocks, int quorumSize, double quorumThreshold) throws InterruptedException {
+    private void scalability(){
 
 
         //Create Nodes
-        for (int i = 0; i < numNodes; i++) {
+        for (int i = 0; i < this.NUM_NODES; i++) {
             Nodes.add(new Node());
         }
         connectNetwork();
         printNetworkConnections();
-        System.out.println("NumNodes: " + numNodes + " Blocks: " + numBlocks);
 
         //Number of Blocks to create for tests
         //create workflows
@@ -67,7 +67,7 @@ public class Main {
                 ArrayList<String> provenanceData = workflow.get(j).toProvenanceData();
 
                 long start = System.currentTimeMillis();
-                Quorum = new Quorum(quorumSize);          //1.Create Quroum
+                this.quorum = new Quorum(this.QUORUM_SIZE);          //1.Create Quroum
                 long QCreation = System.currentTimeMillis();
                 long qDuration = (QCreation - start);  //divide by 1000000 to get milliseconds.
                 //Print 1
@@ -99,9 +99,9 @@ public class Main {
                 //Propse block and append all Nodes' ledgers
                 long blockStart = System.currentTimeMillis();
 
-                System.out.println(Quorum.getQuroumGroup().size());
+                System.out.println(quorum.getNODES().size());
 
-                Quorum.getQuroumGroup().get(0).proposeBlock(quorumThreshold);  //4. Broadcast Block and propogate ledgers
+                quorum.getNODES().get(0).proposeBlock(this.QUORUM_THRESHOLD);  //4. Broadcast Block and propogate ledgers
                 long blockEnd = System.currentTimeMillis();
                 long blockDuration = (blockEnd - blockStart);
                 //Print 4

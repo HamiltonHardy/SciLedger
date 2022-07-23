@@ -29,7 +29,7 @@ public class Block {
         }
         this.timeStamp = new Date().getTime();
 
-        if (TXs.get(0).getUserID() == -1) {
+        if (TXs.get(0).getUSER_ID() == -1) {
             this.previousHash = "0";
             //tx.setData("GENESIS BLOCK");// = "Genesis Block";
         } else {

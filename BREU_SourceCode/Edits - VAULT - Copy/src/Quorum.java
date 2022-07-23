@@ -5,38 +5,36 @@ import java.util.Collections;
 import java.util.Random;
 
 /**
- *
- * @author Justin Gazsi
+ * Quorum Class: Creates the quorum to approve transactions. The quorum is randomly selected from the blockchain
+ * network of nodes.
  */
 public class Quorum {
+    private final int SIZE;
+    private final ArrayList<Node> NODES;
+    private final ArrayList<Boolean> VOTES;
 
-    //Determine number of Quorum members desired
-//    private static final int NUM = 10;
+    /**
+     * Constructor: initiates quorum selection, sets the votes for each node to false.
+     * @param quorumSize The desired number of nodes in the quorum
+     */
 
-    //Original Votes array is size 5. Why?
-    //I changed to 10 to match the quorum size
-    private ArrayList<Boolean> votes;
-    private ArrayList<Node> QuroumGroup = new ArrayList<>();
-    private int quorumSize;
-
-    //Constructor
     public Quorum(int quorumSize) {
-        this.quorumSize = quorumSize;
-        getRandomQuorum();
-        this.votes = new ArrayList<Boolean>(Arrays.asList(new Boolean[this.quorumSize]));
-        Collections.fill(votes, Boolean.FALSE);
+        this.SIZE = quorumSize;
+        this.NODES = selectQuorum();
+        this.VOTES = new ArrayList<>(Arrays.asList(new Boolean[this.SIZE]));
+        Collections.fill(this.VOTES, Boolean.FALSE);
     }
 
-    //This function returns an ArrayList of Quorum members from the Network Node list
-    public void getRandomQuorum() {
+    /**
+     * Randomly selects the quorum members.
+     * @return Arraylist containing the nodes in the quorum.
+     */
+    public ArrayList<Node> selectQuorum() {
         ArrayList<Node> quorum = new ArrayList<>();
-
-        //long seed = stringToSeed(Main.GenBlock.getHash());
-        //long seed = stringToSeed(hash);
         Random rand = new Random();
 
-        //Add specified number of random nodes to Quorum group
-        for (int i = 0; i < this.quorumSize; i++) {
+        for (int i = 0; i < this.SIZE; i++) {
+
             Node node = Main.Nodes.get(rand.nextInt(Main.Nodes.size()));
             //Ensure no duplicate nodes in list
             while (quorum.contains(node)) {
@@ -44,63 +42,18 @@ public class Quorum {
             }
             quorum.add(node);
         }
-        this.QuroumGroup = quorum;
-        //return quorum;
+        return quorum;
     }
 
-
-
-
-//    //This function returns an ArrayList of Quorum members from the Network Node list
-//    public void getHashQuorum(String hash) {
-//
-//        ArrayList<Node> quorum = new ArrayList<>();
-//        long seed = stringToSeed(hash); //convert hash string to long
-//        Random rand = new Random(seed); //seed with converted hash string
-//
-//        //long seed = stringToSeed(Main.GenBlock.getHash()); //Test with consistent seed to check results
-//
-//        //Add specified number of random nodes to Quorum group
-//        for (int i = 0; i < NUM; i++) {
-//            Node node = Main.Nodes.get(rand.nextInt(Main.Nodes.size()));
-//            //Ensure no duplicate nodes in list
-//            while (quorum.contains(node)) {
-//                node = Main.Nodes.get(rand.nextInt(Main.Nodes.size()));
-//            }
-//            quorum.add(node);
-//        }
-//        this.QuroumGroup = quorum;
-//        //return quorum;
-//    }
-
-
-    //Getters and Setters
-    public ArrayList<Boolean> getVotes() {
-        return votes;
+    public ArrayList<Boolean> getVOTES() {
+        return VOTES;
     }
 
-    public void setVotes(ArrayList<Boolean> votes) {
-        this.votes = votes;
+    public ArrayList<Node> getNODES() {
+        return NODES;
     }
-
-    public ArrayList<Node> getQuroumGroup() {
-        return QuroumGroup;
-    }
-
-    public void setQuroumGroup(ArrayList<Node> QuroumGroup) {
-        this.QuroumGroup = QuroumGroup;
-    }
-
-    //Function to take a hash and convert it to a long for Random seed
-    static long stringToSeed(String s) {
-        if (s == null) {
-            return 0;
-        }
-        long hash = 0;
-        for (char c : s.toCharArray()) {
-            hash = 31L * hash + c;
-        }
-        return hash;
+    public int getSIZE(){
+        return SIZE;
     }
 
 }

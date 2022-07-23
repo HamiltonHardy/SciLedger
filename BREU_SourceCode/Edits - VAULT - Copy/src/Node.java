@@ -16,15 +16,12 @@ public class Node {
     private final ArrayList<Transaction> memPool = new ArrayList<>();
 
     /**
-     * Constructor: Assigns an ID to the node and
+     * Constructor: Assigns an ID to the node and creates the starting blockchain for the node
+     * which consists of only the genesis block.
      */
     public Node(){
-        //Inizalize local Blockchain ledger Genesis Block
-        this.blockchain.add(Main.GenBlock);
-
-        //assign NodeID
         this.nodeID = Main.Nodes.size() + 1;
-
+        this.blockchain.add(Main.genesisBlock);
     }
 
     // ***** FUNCTIONS *****//
@@ -40,7 +37,7 @@ public class Node {
     public void validateBlock() {
         boolean nodeVote = true;
         //Check if node is in Quorum
-        if (Main.Quorum.getQuroumGroup().contains(this)) {
+        if (Main.quorum.getNODES().contains(this)) {
             //System.out.print("I am node: " + this.nodeID + " \tI am in the quorum - ");
             //For each transaction in the mempool, if the transactionID is one of the nodeIDs then it is "found" meaning it is good
 //            System.out.println("Validate Block Mempool: " + Arrays.toString(this.memPool.toArray()));
@@ -48,7 +45,7 @@ public class Node {
             for (Transaction tx : this.memPool) {
                 boolean txIsFound = false;
                 for (int j = 0; j < Main.Nodes.size(); j++) {
-                    if (tx.getUserID() == Main.Nodes.get(j).getNodeID()) {
+                    if (tx.getUSER_ID() == Main.Nodes.get(j).getNodeID()) {
                         txIsFound = true;
                     }
 
@@ -57,7 +54,7 @@ public class Node {
                     nodeVote = false; //Bad transaction found! Do not vote for the block
                 }
                 //Check if transactions are in node mempools, if not mempools need to be synged, broadcast to other mempools
-                for (Node node : Main.Quorum.getQuroumGroup()) {
+                for (Node node : Main.quorum.getNODES()) {
                     if (!node.getMemPool().contains(tx)) {
 //                        System.out.println("PRINT TRANSACTION vs Mempool");
 //                        System.out.println(tx);
@@ -69,8 +66,8 @@ public class Node {
             }
             //Set the node vote
 //            System.out.println("I voted: " + nodeVote);
-            Main.Quorum.getVotes().remove(0);
-            Main.Quorum.getVotes().add(nodeVote);
+            Main.quorum.getVOTES().remove(0);
+            Main.quorum.getVOTES().add(nodeVote);
 
         }
 
@@ -90,12 +87,12 @@ public class Node {
 
         //If the node vote has a "false" ...
         int badVoteCount = 0;
-        for (Boolean vote : Main.Quorum.getVotes()) {
+        for (Boolean vote : Main.quorum.getVOTES()) {
             if (!vote) {
                 badVoteCount++;
             }
         }
-        double percentBadVotes = badVoteCount / Main.Quorum.getVotes().size();
+        double percentBadVotes = badVoteCount / Main.quorum.getSIZE();
 
         //Check whether threshold is met
         if (percentBadVotes > quorumThreshold) {
@@ -103,9 +100,9 @@ public class Node {
 
             //search through mempool and check for invalid transactions (i.e. nodes not members of the network - invalid nodeID)
             for (int i = 0; i < this.memPool.size(); i++) {
-                if ((this.memPool.get(i).getUserID() > Main.Nodes.size()) || (this.memPool.get(i).getUserID() < 1)) {
+                if ((this.memPool.get(i).getUSER_ID() > Main.Nodes.size()) || (this.memPool.get(i).getUSER_ID() < 1)) {
                     //bad transaction found, Call on quorum to remove bad transaction and revalidate new block
-                    for (Node node : Main.Quorum.getQuroumGroup()) {
+                    for (Node node : Main.quorum.getNODES()) {
                         node.getMemPool().remove(i);
                         node.validateBlock();
 
@@ -123,10 +120,10 @@ public class Node {
                 ArrayList<Transaction> singleTransaction = new ArrayList<>();
                 singleTransaction.add(transaction);
 
-                System.out.println("Transaction Provenance tID, workflowID: " + transaction.gettaskID() + ", " + transaction.getworkflowID());
+                System.out.println("Transaction Provenance tID, workflowID: " + transaction.getTASK_ID() + ", " + transaction.getWORKFLOW_ID());
 
                 this.blockchain.add(new Block(singleTransaction, this.blockchain.get(this.blockchain.size() - 1)
-                        .getHash(), this.blockchain.size() + 1, Main.Quorum.getVotes()));
+                        .getHash(), this.blockchain.size() + 1, Main.quorum.getVOTES()));
 
 //                System.out.println("Successfully added Block. Blockchain length: " + this.blockchain.size());
             }
