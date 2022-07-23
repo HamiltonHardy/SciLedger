@@ -75,7 +75,7 @@ public class Main {
 
                 long broadcastStart = System.currentTimeMillis();
 
-                NETWORK.get(0).broadcastTransaction(NETWORK.get(0).createTransaction(provenanceData));
+                NETWORK.get(0).propagateTransaction(NETWORK.get(0).createTransaction(provenanceData));
 
                 long broadcastEnd = System.currentTimeMillis();
                 long bDuration = (broadcastEnd - broadcastStart);
@@ -100,7 +100,7 @@ public class Main {
                 System.out.println(quorum.getNODES().size());
                 System.out.println(quorum.getNODES());
 
-                quorum.getNODES().get(0).proposeBlock(this.QUORUM_THRESHOLD);  //4. Broadcast Block and propogate ledgers
+                quorum.getNODES().get(0).validateBlock(this.QUORUM_THRESHOLD);  //4. Broadcast Block and propogate ledgers
                 long blockEnd = System.currentTimeMillis();
                 long blockDuration = (blockEnd - blockStart);
                 //Print 4

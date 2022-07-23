@@ -32,22 +32,15 @@ public class Node {
     }
 
     /**
-     *TODO: Is there a more efficient way to check the nodes in the network? Do we ever remove nodes, so could we just check the size and make sure Id is less?
+     *TODO: Is there a more efficient way to check the nodes in the network? Do we ever remove nodes, is it ok to just check the size and make sure Id is less?
      * Do we need to broadcast? And do we need to remove the first vote?
      */
     public void validateTransactions() {
         //Ensure node is a member of the quorum
         if (Main.quorum.getNODES().contains(this)) {
             for (Transaction transaction : this.PENDING_TRANSACTIONS) {
-//                System.out.println("NODE ID: " + transaction.getUSER_ID());
                 //A transaction is valid if the node ID is a node in the network. Vote is true for valid, false for invalid.
-                boolean vote = false;
-                for (Node node : Main.NETWORK) {
-                    if(node.getNODE_ID() == transaction.getUSER_ID()) {
-                        vote = true;
-                        break;
-                    }
-                }
+                boolean vote = ((transaction.getUSER_ID() < Main.NETWORK.size()) && (transaction.getUSER_ID() > 0));
                 //Check if the transaction is pending for the rest of the quorum, if not broadcast transaction
                 for (Node quorumNode : Main.quorum.getNODES()) {
                     if (!quorumNode.getPENDING_TRANSACTIONS().contains(transaction)) {
@@ -76,104 +69,98 @@ public class Node {
      * @param quorumThreshold The percentage of the quorum that needs to approve a block in order for it to be committed
      *                        to the blockchainn.
      */
-    public void proposeBlock(double quorumThreshold) {
-
-        //If the node vote has a "false" ...
+    public void validateBlock(double quorumThreshold) {
+        //Tally votes rejecting the transaction and calculate percentage
         int transactionRejectionCount = 0;
         for (Boolean vote : Main.quorum.getVOTES()) {
             if (!vote) {
                 transactionRejectionCount++;
             }
         }
-        System.out.println(transactionRejectionCount + " : " + Main.quorum.getSIZE());
         double percentRejected = (double)transactionRejectionCount / (double)Main.quorum.getSIZE();
 
-        //Check whether threshold is met
+        //If threshold is not met, remove all invalid transactions from pending transactions lists for all quorum members
         if (percentRejected > quorumThreshold) {
             System.out.println("Block validation failed - Attempting to remove Bad TXs and rebroadcast for validaton\n Rejected " + percentRejected);
 
-            //search through mempool and check for invalid transactions (i.e. NETWORK not members of the network - invalid nodeID)
+            //? should you check them all before calling validate
             for (int i = 0; i < this.PENDING_TRANSACTIONS.size(); i++) {
                 if ((this.PENDING_TRANSACTIONS.get(i).getUSER_ID() > Main.NETWORK.size()) || (this.PENDING_TRANSACTIONS.get(i).getUSER_ID() < 1)) {
-                    //bad transaction found, Call on quorum to remove bad transaction and revalidate new block
                     for (Node node : Main.quorum.getNODES()) {
                         node.getPENDING_TRANSACTIONS().remove(i);
                         node.validateTransactions();
-
                     }
-                    this.proposeBlock(quorumThreshold);
+                    this.validateBlock(quorumThreshold);
                 }
             }
         }
-        // If node vote is good (block is good) create new block from the mempool
-        else {  //Block is good, add Block to local ledger, clear MemPool
-            System.out.println("(before) CURRENT BLOCKCHAIN SIZE " + this.BLOCKCHAIN.size());
+        // If threshold is met, create a block and add to the blockchain
+        else {
             for (Transaction transaction : this.PENDING_TRANSACTIONS) {
                 ArrayList<String> hashes = new ArrayList<>();
-                hashes.add(this.BLOCKCHAIN.get(this.BLOCKCHAIN.size() - 1)
-                        .getHASH());
+                hashes.add(this.BLOCKCHAIN.get(this.BLOCKCHAIN.size() - 1).getHASH());
                 this.BLOCKCHAIN.add(new Block(transaction, hashes , this.BLOCKCHAIN.size() + 1, Main.quorum.getVOTES()));
-
-//                System.out.println("Successfully added Block. Blockchain length: " + this.blockchain.size());
             }
-
+            //? Should this be cleared?
             this.PENDING_TRANSACTIONS.clear();
-
             //Broadcast block to network (node now has longest chain) Nodes check if block in longest chain has valid Quorum Signature
             for (Node node : Main.NETWORK) {
-                node.getLongestChain();
+                node.updateLocalLedger();
             }
             System.out.println("CURRENT BLOCKCHAIN SIZE " + this.BLOCKCHAIN.size());
-//            System.out.println(this.BLOCKCHAIN.toString());
-
         }
     }
 
-
-    //Function to broadcast transaction through network
-
     /**
-     *
-     * @param tx
+     * Function to propagate the given transaction throughout the network
+     * @param transaction The transaction to be propagated
      */
-    public void broadcastTransaction(Transaction tx) {
-
-        if (!this.PENDING_TRANSACTIONS.contains(tx)) {
-            this.PENDING_TRANSACTIONS.add(tx);
+    public void propagateTransaction(Transaction transaction) {
+        //Node adds transaction to its current pending transactions if it is not already there
+        if (!this.PENDING_TRANSACTIONS.contains(transaction)) {
+            this.PENDING_TRANSACTIONS.add(transaction);
         }
-        //broadcast transaction to connected PEERS
+        //Node does the same for all peer nodes in the network
         for (Node peer : this.PEERS) {
-            if (!peer.getPENDING_TRANSACTIONS().contains(tx)) {
-                peer.getPENDING_TRANSACTIONS().add(tx);
-                peer.broadcastTransaction(tx); //peers recursively propogate through network
+            if (!peer.getPENDING_TRANSACTIONS().contains(transaction)) {
+                peer.getPENDING_TRANSACTIONS().add(transaction);
+                //Peers continue to propagate the transaction
+                peer.propagateTransaction(transaction);
             }
         }
-
     }
 
     /**
+     * Function updates all nodes in the network with the most recent version of the blockchain
      *
+     * TODO: Figure out what is going on in here
      */
-    public void getLongestChain() {
-        int maxID = this.NODE_ID;
-        for (Node node : Main.NETWORK) {  //Find node with longest BLOCKCHAIN
+    public void updateLocalLedger() {
+        Node mostCurrentNode = this;
+
+        //Find the most up-to-date version of the blockchain (the longest)
+        for (Node node : Main.NETWORK) {
             if (node.getBLOCKCHAIN().size() > this.BLOCKCHAIN.size()) {
-                maxID = node.getNODE_ID();
+                mostCurrentNode = node;
             }
         }
 
-        if (maxID != this.NODE_ID) { //Make sure longest chain is not self
+        //If the most current node is self, do nothing
+        if (mostCurrentNode.NODE_ID != this.NODE_ID) {
+
             //check that quorum voted true
-            if (!Main.NETWORK.get(maxID - 1)
-                    .getBLOCKCHAIN().get(Main.NETWORK.get(maxID - 1)
+            if (!Main.NETWORK.get(mostCurrentNode.NODE_ID - 1)
+                    .getBLOCKCHAIN().get(Main.NETWORK.get(mostCurrentNode.NODE_ID - 1)
                             .getBLOCKCHAIN().size() - 1).getVOTES()
                     .contains(false)) {
 
                 //Quorum Signature succesfully validated, clear PENDING_TRANSACTIONS and add latest blocks to local ledger
                 //Start index at the size of the non-updated blockchain
                 //End one before the size of the updated (larger) blockchain
-                for (int i = this.BLOCKCHAIN.size(); i < Main.NETWORK.get(maxID - 1).getBLOCKCHAIN().size(); i++) {
-                    this.BLOCKCHAIN.add(Main.NETWORK.get(maxID - 1)
+
+
+                for (int i = this.BLOCKCHAIN.size(); i < Main.NETWORK.get(mostCurrentNode.NODE_ID - 1).getBLOCKCHAIN().size(); i++) {
+                    this.BLOCKCHAIN.add(Main.NETWORK.get(mostCurrentNode.NODE_ID - 1)
                             .getBLOCKCHAIN().get(i));
                 }
 
