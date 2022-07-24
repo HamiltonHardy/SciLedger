@@ -48,11 +48,11 @@ public class Main {
      * TODO
      */
     public void scalability() throws IOException {
-        File file = new File("QuorumCounts.csv");
+        File file = new File("AverageBlockAddTime.csv");
         if (!file.exists()) {
             file.createNewFile();
         }
-        PrintWriter pw = new PrintWriter(new FileOutputStream(new File("QuorumCounts.csv"), true));
+        PrintWriter pw = new PrintWriter(new FileOutputStream(new File("AverageBlockAddTime.csv"), true));
 
 
 
