@@ -47,7 +47,9 @@ public class Main {
     /**
      * TODO
      */
-    private void scalability(){
+    public void scalability(){
+        long totalTimeSum = 0;
+        int printCount = 0;
         //Create Nodes
         for (int i = 0; i < this.NETWORK_SIZE; i++) {
             NETWORK.add(new Node());
@@ -106,10 +108,13 @@ public class Main {
                 //total time
                 long endTime = System.currentTimeMillis();
                 long totalTime = (endTime - start);
-                System.out.println(totalTime);
+                totalTimeSum += totalTime;
+                printCount ++;
 
             }
         }
+        long avgTime = totalTimeSum/printCount;
+        System.out.println("Avg Time " + avgTime);
 
     }
 
