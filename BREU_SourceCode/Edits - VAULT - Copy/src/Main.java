@@ -66,53 +66,48 @@ public class Main {
 
                 long start = System.currentTimeMillis();
                 this.quorum = new Quorum(this.QUORUM_SIZE);          //1.Create Quroum
-                long QCreation = System.currentTimeMillis();
-                long qDuration = (QCreation - start);  //divide by 1000000 to get milliseconds.
-                //Print 1
-                System.out.println("Begin---------------------");
-                System.out.print("Quorum creation duration: " + qDuration);
-                //broadcast #tps for #seconds
-
-                long broadcastStart = System.currentTimeMillis();
+//                long QCreation = System.currentTimeMillis();
+//                long qDuration = (QCreation - start);  //divide by 1000000 to get milliseconds.
+//                //Print 1
+//                System.out.println("Begin---------------------");
+//                System.out.print("Quorum creation duration: " + qDuration);
+//                //broadcast #tps for #seconds
+//
+//                long broadcastStart = System.currentTimeMillis();
 
                 NETWORK.get(0).propagateTransaction(NETWORK.get(0).createTransaction(provenanceData));
 
-                long broadcastEnd = System.currentTimeMillis();
-                long bDuration = (broadcastEnd - broadcastStart);
-                //Print 2
-                System.out.println(", broadcast transactions duration: " + bDuration);
-
-                long validationStart = System.currentTimeMillis();
+//                long broadcastEnd = System.currentTimeMillis();
+//                long bDuration = (broadcastEnd - broadcastStart);
+//                //Print 2
+//                System.out.println(", broadcast transactions duration: " + bDuration);
+//
+//                long validationStart = System.currentTimeMillis();
 
                 for (Node node : NETWORK) {  //3. Validate Transactions
 
                     node.validateTransactions();
                 }
-                long validationEnd = System.currentTimeMillis();
-                long vDuration = (validationEnd - validationStart);
-                //Print 3
-                System.out.println(", validation duration: " + vDuration);
-                System.out.println("Middle---------------------");
+//                long validationEnd = System.currentTimeMillis();
+//                long vDuration = (validationEnd - validationStart);
+//                //Print 3
+//                System.out.println(", validation duration: " + vDuration);
+//                System.out.println("Middle---------------------");
 
                 //Propse block and append all NETWORK' ledgers
-                long blockStart = System.currentTimeMillis();
-
-                System.out.println(quorum.getNODES().size());
-                System.out.println(quorum.getNODES());
+//                long blockStart = System.currentTimeMillis();
 
                 quorum.getNODES().get(0).validateBlock(this.QUORUM_THRESHOLD);  //4. Broadcast Block and propogate ledgers
-                long blockEnd = System.currentTimeMillis();
-                long blockDuration = (blockEnd - blockStart);
-                //Print 4
-                System.out.print(", Add block duration: " + blockDuration);
+//                long blockEnd = System.currentTimeMillis();
+//                long blockDuration = (blockEnd - blockStart);
+//                //Print 4
+//                System.out.print(", Add block duration: " + blockDuration);
 
                 //total time
                 long endTime = System.currentTimeMillis();
                 long totalTime = (endTime - start);
-                //Print 5
-                System.out.println(", total time: " + totalTime);
-                System.out.println("END---------------------");
-                System.out.println();
+                System.out.println(totalTime);
+
             }
         }
 

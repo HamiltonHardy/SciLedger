@@ -108,7 +108,7 @@ public class Node {
             for (Node node : Main.NETWORK) {
                 node.updateLocalLedger(quorumThreshold);
             }
-            System.out.println("CURRENT BLOCKCHAIN SIZE " + this.BLOCKCHAIN.size());
+//            System.out.println("CURRENT BLOCKCHAIN SIZE " + this.BLOCKCHAIN.size());
         }
     }
 
