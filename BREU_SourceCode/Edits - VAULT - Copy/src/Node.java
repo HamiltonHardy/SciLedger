@@ -1,4 +1,5 @@
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -80,7 +81,7 @@ public class Node {
         double percentRejected = (double)transactionRejectionCount / (double)Main.quorum.getSIZE();
 
         //If threshold is not met, remove all invalid transactions from pending transactions lists for all quorum members
-        if (percentRejected > quorumThreshold) {
+        if (percentRejected >= quorumThreshold) {
             System.out.println("Block validation failed - Attempting to remove Bad TXs and rebroadcast for validaton\n Rejected " + percentRejected);
 
             //? should you check them all before calling validate
@@ -105,7 +106,7 @@ public class Node {
             this.PENDING_TRANSACTIONS.clear();
             //Broadcast block to network (node now has longest chain) Nodes check if block in longest chain has valid Quorum Signature
             for (Node node : Main.NETWORK) {
-                node.updateLocalLedger();
+                node.updateLocalLedger(quorumThreshold);
             }
             System.out.println("CURRENT BLOCKCHAIN SIZE " + this.BLOCKCHAIN.size());
         }
@@ -133,9 +134,9 @@ public class Node {
     /**
      * Function updates all nodes in the network with the most recent version of the blockchain
      *
-     * TODO: Figure out what is going on in here
+     * TODO: Issue, we check the votes on one block, but add all new blocks? Also, Last note seems to make this code no good
      */
-    public void updateLocalLedger() {
+    public void updateLocalLedger(double quorumThreshold) {
         Node mostCurrentNode = this;
 
         //Find the most up-to-date version of the blockchain (the longest)
@@ -148,24 +149,27 @@ public class Node {
         //If the most current node is self, do nothing
         if (mostCurrentNode.NODE_ID != this.NODE_ID) {
 
-            //check that quorum voted true
-            if (!Main.NETWORK.get(mostCurrentNode.NODE_ID - 1)
-                    .getBLOCKCHAIN().get(Main.NETWORK.get(mostCurrentNode.NODE_ID - 1)
-                            .getBLOCKCHAIN().size() - 1).getVOTES()
-                    .contains(false)) {
+            //Get the most current blockchain and block from the most current node
+           ArrayList<Block> mostCurrentBlockChain = mostCurrentNode.getBLOCKCHAIN();
+           Block mostCurrentBlock = mostCurrentBlockChain.get(mostCurrentBlockChain.size()-1);
 
-                //Quorum Signature succesfully validated, clear PENDING_TRANSACTIONS and add latest blocks to local ledger
-                //Start index at the size of the non-updated blockchain
-                //End one before the size of the updated (larger) blockchain
+            //Verify again that the number of approval votes reaches the threshold
+            int transactionRejectionCount = 0;
+            for (Boolean vote : mostCurrentBlock.getVOTES()) {
+                if (!vote) {
+                    transactionRejectionCount++;
+                }
+            }
+            double percentRejected = (double)transactionRejectionCount / (double)Main.quorum.getSIZE();
+            if (percentRejected < quorumThreshold) {
 
-
-                for (int i = this.BLOCKCHAIN.size(); i < Main.NETWORK.get(mostCurrentNode.NODE_ID - 1).getBLOCKCHAIN().size(); i++) {
-                    this.BLOCKCHAIN.add(Main.NETWORK.get(mostCurrentNode.NODE_ID - 1)
-                            .getBLOCKCHAIN().get(i));
+                //Add all blocks that longest blockchain has that are not on the local blockchain
+                for (int i = this.BLOCKCHAIN.size(); i < mostCurrentBlockChain.size(); i++) {
+                    this.BLOCKCHAIN.add(mostCurrentBlockChain.get(i));
                 }
 
                 //*note* in reality we want to remove only PENDING_TRANSACTIONS transactions that are already in the blockchain
-                //for scalability experiment, PENDING_TRANSACTIONSs will always match, so just clear PENDING_TRANSACTIONS.
+                //for scalability experiment, PENDING_TRANSACTIONS will always match, so just clear PENDING_TRANSACTIONS.
                 this.PENDING_TRANSACTIONS.clear();
             }
 
