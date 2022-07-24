@@ -25,7 +25,7 @@ public class Main {
     /**
      * Driver to run experiments
      */
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
         //Create an empty arraylist to use as the parent hashes for the genesis block
         ArrayList<String> genesisParentHashes = new ArrayList<>();
         //Create a "dummy" arraylist to use as the provenance data for the genesis block
@@ -47,7 +47,15 @@ public class Main {
     /**
      * TODO
      */
-    public void scalability(){
+    public void scalability() throws IOException {
+        File file = new File("QuorumCounts.csv");
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        PrintWriter pw = new PrintWriter(new FileOutputStream(new File("QuorumCounts.csv"), true));
+
+
+
         long totalTimeSum = 0;
         int printCount = 0;
         //Create Nodes
@@ -114,8 +122,10 @@ public class Main {
             }
         }
         long avgTime = totalTimeSum/printCount;
-        System.out.println("Avg Time " + avgTime);
-
+//        System.out.println("Avg Time " + avgTime);
+//        System.out.println("Blockchain size " + NETWORK.get(1).getBLOCKCHAIN().size());
+        pw.println(avgTime);
+        pw.close();
     }
 
     /**
