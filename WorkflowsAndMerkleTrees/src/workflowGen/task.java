@@ -75,6 +75,7 @@ public class task {
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder(this.workflowID + "\n" + this.taskID + "\n" + this.invalidated + "\n" + this.inData + "\n" + this.outData);
+        str.append("Parents\n");
         for (Integer integer : this.idxParent) {
             str.append(integer + "\n");
         }
