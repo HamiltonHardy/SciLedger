@@ -2,8 +2,6 @@
 import javax.xml.crypto.NodeSetData;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Random;
 
 /**
@@ -13,7 +11,6 @@ import java.util.Random;
 public class Quorum {
     private final int SIZE;
     private final ArrayList<Node> NODES;
-    private final ArrayList<Boolean> VOTES;
 
     /**
      * Constructor: initiates quorum selection, sets the votes for each node to false.
@@ -23,8 +20,6 @@ public class Quorum {
     public Quorum(int quorumSize) {
         this.SIZE = quorumSize;
         this.NODES = selectQuorum();
-        this.VOTES = new ArrayList<>(Arrays.asList(new Boolean[this.SIZE]));
-        Collections.fill(this.VOTES, Boolean.FALSE);
     }
 
     /**
@@ -47,41 +42,25 @@ public class Quorum {
     }
 
     public void exchangeSignatures() throws Exception {
-        //Quorum member signs block
         for(int i = 0; i<this.SIZE; i++){
+            //Quorum member signs block
             Node signer = this.NODES.get(i);
-
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(bos);
             oos.writeObject(Main.currentBlock);
             oos.flush();
             byte[] blockAsByteArray = bos.toByteArray();
-
             byte[] digitalSignature = signer.Create_Digital_Signature(blockAsByteArray, signer.getPRIVATE_KEY());
+
             //All other members verify signature
             for(int j = 0; j<this.SIZE; j++){
-                Node verifier = this.NODES.get(i);
-                Boolean verification = verifier.Verify_Digital_Signature(blockAsByteArray, digitalSignature, signer.getPUBLIC_KEY());
-                System.out.println("Signer: " + i + " Verifier: " + j);
-                if(verification){
-                    System.out.println("Valid sig");
-                }
-                else{
-                    System.out.println("Invalid sig");
+                //Quorum member should not verify its own signature
+                if(i != j) {
+                    Node verifier = this.NODES.get(i);
+                    verifier.Verify_Digital_Signature(blockAsByteArray, digitalSignature, signer.getPUBLIC_KEY());
                 }
             }
         }
-    }
-
-    public ArrayList<Boolean> getVOTES() {
-        return VOTES;
-    }
-
-    public ArrayList<Node> getNODES() {
-        return NODES;
-    }
-    public int getSIZE(){
-        return SIZE;
     }
 
 }

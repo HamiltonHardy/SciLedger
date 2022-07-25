@@ -78,7 +78,7 @@ public class Main {
             System.out.println("Workflow");
             ArrayList<task> workflow = workflows.get(i).getWorkflow();
             for(int j = 0; j < workflow.size(); j++) {
-                System.out.println("Task");
+                System.out.println("Task: " + printCount);
                 ArrayList<String> provenanceData = workflow.get(j).toProvenanceData();
 
                 //Create the quorum
@@ -107,10 +107,10 @@ public class Main {
             }
         }
         long avgTime = totalTimeSum/printCount;
-        System.out.println("Total time to add 1000 blocks: " + totalTimeSum);
+        System.out.println("Total time to add blocks: " + totalTimeSum);
         System.out.println("Average time to add 1 block: " + avgTime);
 //        System.out.println("Blockchain size " + BLOCKCHAIN.size());
-//        System.out.println("Print count " + printCount);
+        System.out.println("Print count " + printCount);
         pw.println(avgTime);
         pw.close();
     }
