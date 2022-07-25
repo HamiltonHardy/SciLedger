@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -64,7 +66,13 @@ public class Main {
             ArrayList<task> workflow = workflows.get(i).getWorkflow();
             for(int j = 0; j < workflow.size(); j++) {
                 System.out.println("Task: " + printCount);
-                ArrayList<String> provenanceData = workflow.get(j).toProvenanceData();
+                ArrayList<String> provenanceRecord = workflow.get(j).toProvenanceRecord();
+
+                String parentTaskIDString = provenanceRecord.get(0);
+                List<String> parentTaskIDs = Arrays.asList(parentTaskIDString.split(","));
+                
+                String validMerkleRoot = provenanceRecord.get(1);
+                String invalidMerkleRoot = provenanceRecord.get(2);
 
                 //Create the quorum
                 this.quorum = new Quorum(this.QUORUM_SIZE);
@@ -73,7 +81,7 @@ public class Main {
                 long start = System.currentTimeMillis();
 
                 //Step 2: Create the block
-                currentBlock = NETWORK.get(0).createBlock(provenanceData);
+                currentBlock = NETWORK.get(0).createBlock(provenanceRecord);
 
                 //Step 4: Quorum signs the block and xchange signatures
                 quorum.exchangeSignatures();

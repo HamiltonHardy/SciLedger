@@ -6,34 +6,61 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import de.svenjacobs.loremipsum.LoremIpsum;
 
 public class task {
+    static int SIZELOREMIPSUM = 5000;
     private String workflowID;
     private String taskID;
-    private String invalidated;
+    private boolean invalidated;
     private ArrayList<Integer> idxParent;
-    private ArrayList<String> tree;
-    public task(String workflowID, String taskID, String invalidated, ArrayList<Integer> idxParent){
+    private ArrayList<String> validTree;
+    private ArrayList<String> invalidTree;
+    private String inData;
+    private String outData;
+    public task(String workflowID, String taskID, boolean invalidated, ArrayList<Integer> idxParent){
         this.workflowID = workflowID;
         this.taskID = taskID;
         this.invalidated = invalidated;
         this.idxParent=idxParent;
+        this.inData = getLoremHash(SIZELOREMIPSUM);
+        this.outData = getLoremHash(SIZELOREMIPSUM + 1);
     }
 
+    public String getLoremHash(int size){
+        return hash(new LoremIpsum().getWords(size));
+    }
     public String getTaskID() {
         return taskID;
-    }
-
-    public ArrayList<Integer> getIdxParent() {
-        return idxParent;
     }
 
     public void addIdxParent(int parent) {
         this.idxParent.add(parent);
     }
 
-    public void setMerkleTree(ArrayList<String> tree){
-        this.tree=tree;
+    public void setValidTree(ArrayList<String> validTree){
+        this.validTree = validTree;
+    }
+    public void setInvalidTree(ArrayList<String> invalidTree){this.invalidTree = invalidTree;}
+
+    public boolean isInvalidated(){
+        return invalidated;
+    }
+    public ArrayList<String> getValidTree(){
+        return this.validTree;
+    }
+    public ArrayList<String> getInvalidTree(){
+        return this.invalidTree;
+    }
+    public String hash(String str){
+        MessageDigest digest = null;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        return Base64.getEncoder().encodeToString(digest.digest(str.getBytes(StandardCharsets.UTF_8)));
     }
     public String hash(){
         String taskHash = this.toString();
@@ -48,32 +75,34 @@ public class task {
     }
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder(this.workflowID + "\n" + this.taskID + "\n" + this.invalidated + "\n");
+        StringBuilder str = new StringBuilder(this.workflowID + "\n" + this.taskID + "\n" + this.invalidated + "\n" + this.inData + "\n" + this.outData);
+        str.append("Parents\n");
         for (Integer integer : this.idxParent) {
-            str.append(integer + ", ");
+            str.append(integer + "\n");
         }
-        if(this.tree!=null){
-            str.append("\n" + this.tree);
-        }
+            str.append("Valid Tree" + this.validTree + "\n");
+
+            str.append("Invalid Tree" + this.invalidTree);
         return str.toString();
     }
 
-    public ArrayList<String> toProvenanceData(){
-        //0: workflowID, 1: taskID, 2: invalid, 3: parentTaskIDs, 4: merkleTree
-        ArrayList<String> provenanceData = new ArrayList<>();
-        provenanceData.add(this.workflowID);
-        provenanceData.add(this.taskID);
-        provenanceData.add(this.invalidated);
 
-        String parentTaskIDs = "null";
-        if (this.idxParent != null){
-            parentTaskIDs = this.idxParent.toString();
-        }
-        provenanceData.add(parentTaskIDs);
+    public ArrayList<String> toProvenanceRecord(){
+        ArrayList<String> provenanceRecord = new ArrayList<>();
 
-        String merkleRoot = this.tree.get(this.tree.size()-1);
-        provenanceData.add(merkleRoot);
+        provenanceRecord.add(this.idxParent.toString());
+        provenanceRecord.add(this.validTree.get(this.validTree.size()-1));
+        provenanceRecord.add(this.invalidTree.get(this.invalidTree.size()-1));
 
-        return provenanceData;
+        provenanceRecord.add(this.workflowID);
+        provenanceRecord.add(this.taskID);
+        provenanceRecord.add(Boolean.toString(this.invalidated));
+        provenanceRecord.add(inData);
+        provenanceRecord.add(outData);
+
+
+
+
+        return provenanceRecord;
     }
 }
