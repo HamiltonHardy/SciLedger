@@ -42,8 +42,9 @@ public class Quorum {
     }
 
     /**
-     *
-     * @throws Exception
+     * Function simulates each member of the quorum signing the block and then every other member of the quorum
+     * verifying the signature. This function is only used to factor in the time that this process takes, so
+     * nothing is returned.
      */
     public void exchangeSignatures() throws Exception {
         for(int i = 0; i<this.SIZE; i++){

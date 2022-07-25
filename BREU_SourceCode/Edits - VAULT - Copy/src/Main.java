@@ -17,7 +17,6 @@ public class Main {
     public static final ArrayList<Node> NETWORK = new ArrayList<>();
     public static final ArrayList<Block> BLOCKCHAIN = new ArrayList<>();
     public static Block currentBlock;
-    public static Block genesisBlock;
     public static Quorum quorum;
     private final int NETWORK_SIZE = 20;
     private final int QUORUM_SIZE = 10;
@@ -31,8 +30,6 @@ public class Main {
         for(int i = 0; i< 5; i++){
             dummyProvenanceRecord.add("-1");
         }
-        //Create the genesis block
-        genesisBlock = new Block(-1, dummyProvenanceRecord);
 
         //Run Experiments
         Main main = new Main();
