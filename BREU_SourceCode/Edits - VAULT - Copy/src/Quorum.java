@@ -41,6 +41,10 @@ public class Quorum {
         return quorum;
     }
 
+    /**
+     *
+     * @throws Exception
+     */
     public void exchangeSignatures() throws Exception {
         for(int i = 0; i<this.SIZE; i++){
             //Quorum member signs block

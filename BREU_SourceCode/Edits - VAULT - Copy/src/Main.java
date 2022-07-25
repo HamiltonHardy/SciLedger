@@ -21,22 +21,17 @@ public class Main {
     public static Quorum quorum;
     private final int NETWORK_SIZE = 20;
     private final int QUORUM_SIZE = 10;
-    private final double QUORUM_THRESHOLD = .8;
 
     /**
      * Driver to run experiments
      */
     public static void main(String[] args) throws Exception {
-        //Create an empty arraylist to use as the parent hashes for the genesis block
-//        ArrayList<String> genesisParentHashes = new ArrayList<>();
         //Create a "dummy" arraylist to use as the provenance data for the genesis block
         ArrayList<String> dummyProvenanceRecord = new ArrayList<>();
         for(int i = 0; i< 5; i++){
             dummyProvenanceRecord.add("-1");
         }
-
         //Create the genesis block
-//        GENESIS_BLOCK = new Block(-1, dummyProvenanceRecord, genesisParentHashes, 1, genesisQuorum);
         genesisBlock = new Block(-1, dummyProvenanceRecord);
 
         //Run Experiments
@@ -56,8 +51,6 @@ public class Main {
         }
         PrintWriter pw = new PrintWriter(new FileOutputStream(new File("AverageBlockAddTime.csv"), true));
 
-
-
         long totalTimeSum = 0;
         int printCount = 0;
         //Create Nodes
@@ -66,11 +59,6 @@ public class Main {
             System.out.println("Add node: " + i);
         }
 
-        //?? I don't think we need this?
-//        connectNetwork();
-
-        //Number of Blocks to create for tests
-        //create workflows
         randomizeGen randomizeGen = new randomizeGen();
         ArrayList<workflow> workflows = randomizeGen.getWorkflows();
 
@@ -109,7 +97,7 @@ public class Main {
         long avgTime = totalTimeSum/printCount;
         System.out.println("Total time to add blocks: " + totalTimeSum);
         System.out.println("Average time to add 1 block: " + avgTime);
-//        System.out.println("Blockchain size " + BLOCKCHAIN.size());
+        System.out.println("Blockchain size " + BLOCKCHAIN.size());
         System.out.println("Print count " + printCount);
         pw.println(avgTime);
         pw.close();
@@ -121,32 +109,5 @@ public class Main {
     static void merkleExperiment(){
 
     }
-
-    /**
-     * TODO
-     */
-    static void connectNetwork() {
-        Random rand = new Random();
-
-        for (Node node : NETWORK) {
-            int count = rand.nextInt(2) + 9;  //Random connection to peers
-            //int count = 10;  //Random connection to peers
-            //System.out.println(count);
-
-            //While # of peers is less than desired size, get a random peer to connect to
-            while (node.getPEERS().size() < count) {
-                Node peer = NETWORK.get(rand.nextInt(NETWORK.size()));
-
-                //Peer must not be in list already and peer must not equal itself, or must try to get new peer
-                while (node.getPEERS().contains(peer) || (node.getNODE_ID() == peer.getNODE_ID())) {
-                    peer = NETWORK.get(rand.nextInt(NETWORK.size()));
-                }
-                //Connect to listen to peers
-                node.addPeer(peer);
-                //peer.addPeer(node);  //for two-way connection
-            }
-        }
-    }
-
 
 }
