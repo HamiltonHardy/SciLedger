@@ -63,17 +63,18 @@ public class DataStorage {
             Quorum = new Quorum();          //1.Create Quroum
             long QCreation = System.currentTimeMillis();
             long qDuration = (QCreation - start);  //divide by 1000000 to get milliseconds.
-            System.out.print(qDuration);
+            System.out.print("select quorum: " + qDuration);
             //broadcast #tps for #seconds
 
             long broadcastStart = System.currentTimeMillis();
             for (int j = 0; j < tps; j++) { //2. Target # transactions per block/tps
                 //Thread.sleep(sleep);
+                //involves creating a transaction
                 Nodes.get(j).broadcastTransaction(Nodes.get(j).createTransaction());
             }
             long broadcastEnd = System.currentTimeMillis();
             long bDuration = (broadcastEnd - broadcastStart);
-            System.out.print("," + bDuration);
+            System.out.print(", create and broadcast transaction to entire network:" + bDuration);
 
             long validationStart = System.currentTimeMillis();
 
@@ -89,19 +90,19 @@ public class DataStorage {
             }
             long validationEnd = System.currentTimeMillis();
             long vDuration = (validationEnd - validationStart);
-            System.out.print("," + vDuration);
+            System.out.print(", quorum validation: " + vDuration);
 
             //Propse block and append all Nodes' ledgers
             long blockStart = System.currentTimeMillis();
             Quorum.getQuroumGroup().get(0).proposeBlock();  //4. Broadcast Block and propogate ledgers
             long blockEnd = System.currentTimeMillis();
             long blockDuration = (blockEnd - blockStart);
-            System.out.print("," + blockDuration);
+            System.out.print(", propagate: " + blockDuration);
 
             //total time
             long endTime = System.currentTimeMillis();
             long totalTime = (endTime - start);
-            System.out.println("," + totalTime);
+            System.out.println(", total: " + totalTime);
 
             //System.out.println();
         }

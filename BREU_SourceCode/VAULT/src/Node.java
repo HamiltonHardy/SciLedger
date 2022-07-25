@@ -57,7 +57,7 @@ public class Node {
                 }
 
             }
-            System.out.println("I voted: " + nodeVote);
+//            System.out.println("I voted: " + nodeVote);
             DataStorage.Quorum.getVotes().remove(0);
             DataStorage.Quorum.getVotes().add(nodeVote);
 

@@ -14,28 +14,30 @@ import java.util.Random;
  * Main Class:
  */
 public class Main {
-    public static ArrayList<Node> NETWORK = new ArrayList<>();
-    public static Block GENESIS_BLOCK;
+    public static final ArrayList<Node> NETWORK = new ArrayList<>();
+    public static final ArrayList<Block> BLOCKCHAIN = new ArrayList<>();
+    public static Block currentBlock;
+    public static Block genesisBlock;
     public static Quorum quorum;
-    public static ArrayList<Boolean> genesisQuorum = new ArrayList<Boolean>();
-    private final int NETWORK_SIZE = 1000;
+    private final int NETWORK_SIZE = 20;
     private final int QUORUM_SIZE = 10;
     private final double QUORUM_THRESHOLD = .8;
 
     /**
      * Driver to run experiments
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         //Create an empty arraylist to use as the parent hashes for the genesis block
-        ArrayList<String> genesisParentHashes = new ArrayList<>();
+//        ArrayList<String> genesisParentHashes = new ArrayList<>();
         //Create a "dummy" arraylist to use as the provenance data for the genesis block
-        ArrayList<String> dummyProvenanceData = new ArrayList<>();
+        ArrayList<String> dummyProvenanceRecord = new ArrayList<>();
         for(int i = 0; i< 5; i++){
-            dummyProvenanceData.add("-1");
+            dummyProvenanceRecord.add("-1");
         }
 
         //Create the genesis block
-        GENESIS_BLOCK = new Block(new Transaction(-1, dummyProvenanceData), genesisParentHashes, 1, genesisQuorum);
+//        GENESIS_BLOCK = new Block(-1, dummyProvenanceRecord, genesisParentHashes, 1, genesisQuorum);
+        genesisBlock = new Block(-1, dummyProvenanceRecord);
 
         //Run Experiments
         Main main = new Main();
@@ -47,7 +49,7 @@ public class Main {
     /**
      * TODO
      */
-    public void scalability() throws IOException {
+    public void scalability() throws Exception {
         File file = new File("AverageBlockAddTime.csv");
         if (!file.exists()) {
             file.createNewFile();
@@ -61,8 +63,11 @@ public class Main {
         //Create Nodes
         for (int i = 0; i < this.NETWORK_SIZE; i++) {
             NETWORK.add(new Node());
+            System.out.println("Add node: " + i);
         }
-        connectNetwork();
+
+        //?? I don't think we need this?
+//        connectNetwork();
 
         //Number of Blocks to create for tests
         //create workflows
@@ -70,60 +75,42 @@ public class Main {
         ArrayList<workflow> workflows = randomizeGen.getWorkflows();
 
         for (int i = 0; i<workflows.size(); i++){
+            System.out.println("Workflow");
             ArrayList<task> workflow = workflows.get(i).getWorkflow();
             for(int j = 0; j < workflow.size(); j++) {
+                System.out.println("Task");
                 ArrayList<String> provenanceData = workflow.get(j).toProvenanceData();
 
+                //Create the quorum
+                this.quorum = new Quorum(this.QUORUM_SIZE);
+
+                //Begin: Get start time
                 long start = System.currentTimeMillis();
-                this.quorum = new Quorum(this.QUORUM_SIZE);          //1.Create Quroum
-//                long QCreation = System.currentTimeMillis();
-//                long qDuration = (QCreation - start);  //divide by 1000000 to get milliseconds.
-//                //Print 1
-//                System.out.println("Begin---------------------");
-//                System.out.print("Quorum creation duration: " + qDuration);
-//                //broadcast #tps for #seconds
-//
-//                long broadcastStart = System.currentTimeMillis();
 
-                NETWORK.get(0).propagateTransaction(NETWORK.get(0).createTransaction(provenanceData));
+                //Step 2: Create the block
+                currentBlock = NETWORK.get(0).createBlock(provenanceData);
 
-//                long broadcastEnd = System.currentTimeMillis();
-//                long bDuration = (broadcastEnd - broadcastStart);
-//                //Print 2
-//                System.out.println(", broadcast transactions duration: " + bDuration);
-//
-//                long validationStart = System.currentTimeMillis();
+                //Step 4: Quorum signs the block and xchange signatures
+                quorum.exchangeSignatures();
 
-                for (Node node : NETWORK) {  //3. Validate Transactions
+                //Append block to blockchain
+                this.BLOCKCHAIN.add(currentBlock);
 
-                    node.validateTransactions();
-                }
-//                long validationEnd = System.currentTimeMillis();
-//                long vDuration = (validationEnd - validationStart);
-//                //Print 3
-//                System.out.println(", validation duration: " + vDuration);
-//                System.out.println("Middle---------------------");
-
-                //Propse block and append all NETWORK' ledgers
-//                long blockStart = System.currentTimeMillis();
-
-                quorum.getNODES().get(0).validateBlock(this.QUORUM_THRESHOLD);  //4. Broadcast Block and propogate ledgers
-//                long blockEnd = System.currentTimeMillis();
-//                long blockDuration = (blockEnd - blockStart);
-//                //Print 4
-//                System.out.print(", Add block duration: " + blockDuration);
-
-                //total time
+                //Get end time
                 long endTime = System.currentTimeMillis();
+
                 long totalTime = (endTime - start);
                 totalTimeSum += totalTime;
+                System.out.println("Block Add Time: " + totalTime);
                 printCount ++;
 
             }
         }
         long avgTime = totalTimeSum/printCount;
-//        System.out.println("Avg Time " + avgTime);
-//        System.out.println("Blockchain size " + NETWORK.get(1).getBLOCKCHAIN().size());
+        System.out.println("Total time to add 1000 blocks: " + totalTimeSum);
+        System.out.println("Average time to add 1 block: " + avgTime);
+//        System.out.println("Blockchain size " + BLOCKCHAIN.size());
+//        System.out.println("Print count " + printCount);
         pw.println(avgTime);
         pw.close();
     }

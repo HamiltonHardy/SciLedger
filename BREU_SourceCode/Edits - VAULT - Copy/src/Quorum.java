@@ -1,4 +1,6 @@
 
+import javax.xml.crypto.NodeSetData;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,6 +44,33 @@ public class Quorum {
             quorum.add(node);
         }
         return quorum;
+    }
+
+    public void exchangeSignatures() throws Exception {
+        //Quorum member signs block
+        for(int i = 0; i<this.SIZE; i++){
+            Node signer = this.NODES.get(i);
+
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            oos.writeObject(Main.currentBlock);
+            oos.flush();
+            byte[] blockAsByteArray = bos.toByteArray();
+
+            byte[] digitalSignature = signer.Create_Digital_Signature(blockAsByteArray, signer.getPRIVATE_KEY());
+            //All other members verify signature
+            for(int j = 0; j<this.SIZE; j++){
+                Node verifier = this.NODES.get(i);
+                Boolean verification = verifier.Verify_Digital_Signature(blockAsByteArray, digitalSignature, signer.getPUBLIC_KEY());
+                System.out.println("Signer: " + i + " Verifier: " + j);
+                if(verification){
+                    System.out.println("Valid sig");
+                }
+                else{
+                    System.out.println("Invalid sig");
+                }
+            }
+        }
     }
 
     public ArrayList<Boolean> getVOTES() {
