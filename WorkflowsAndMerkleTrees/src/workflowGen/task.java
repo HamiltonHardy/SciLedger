@@ -13,7 +13,8 @@ public class task {
     private String taskID;
     private boolean invalidated;
     private ArrayList<Integer> idxParent;
-    private ArrayList<String> tree;
+    private ArrayList<String> validTree;
+    private ArrayList<String> invalidTree;
     private String inData;
     private String outData;
     public task(String workflowID, String taskID, boolean invalidated, ArrayList<Integer> idxParent){
@@ -36,8 +37,19 @@ public class task {
         this.idxParent.add(parent);
     }
 
-    public void setMerkleTree(ArrayList<String> tree){
-        this.tree=tree;
+    public void setValidTree(ArrayList<String> validTree){
+        this.validTree = validTree;
+    }
+    public void setInvalidTree(ArrayList<String> invalidTree){this.invalidTree = invalidTree;}
+
+    public boolean isInvalidated(){
+        return invalidated;
+    }
+    public ArrayList<String> getValidTree(){
+        return this.validTree;
+    }
+    public ArrayList<String> getInvalidTree(){
+        return this.invalidTree;
     }
     public String hash(String str){
         MessageDigest digest = null;
@@ -66,9 +78,9 @@ public class task {
         for (Integer integer : this.idxParent) {
             str.append(integer + "\n");
         }
-        if(this.tree!=null){
-            str.append(this.tree);
-        }
+            str.append("Valid Tree" + this.validTree + "\n");
+
+            str.append("Invalid Tree" + this.invalidTree);
         return str.toString();
     }
 }

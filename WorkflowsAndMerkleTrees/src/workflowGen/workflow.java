@@ -9,32 +9,46 @@ import java.util.Base64;
 import java.util.Random;
 
 public class workflow {
-    final int MAXWFSIZE = 10;
+    final int MAXWFSIZE = 100;
+    final double PERINV = 0.3;
     final double PERBRANCH = 0.3;
 
     task forNextWf;
+    ArrayList<task> invTree = new ArrayList<>();
     ArrayList<task> workflow = new ArrayList<>();
+    ArrayList<task> valTree = new ArrayList<>();
     public workflow(int wfNum, String stpt, String spwf) {
         genRandWorkflow(wfNum, stpt, spwf);
     }
 
     public void addTask(task task){
+
+        if(task.isInvalidated()){
+            this.invTree.add(task);
+            task.setInvalidTree(this.genMerkleTree(this.invTree));
+            task.setValidTree(workflow.get(workflow.size()-2).getValidTree());
+        }
+        else{
+            this.valTree.add(task);
+            task.setValidTree(this.genMerkleTree(this.valTree));
+            task.setInvalidTree(workflow.get(workflow.size()-2).getInvalidTree());
+        }
         this.workflow.add(task);
-        workflow.get(workflow.size()-1).setMerkleTree(this.genMerkleTree());
     }
     public void genRandWorkflow(int wf, String startPoint, String startPointWorkFlow) {
 
         Random rand = new Random();
-        int wSize = rand.nextInt(MAXWFSIZE -3) + 3;
+        int wSize = (rand.nextInt(MAXWFSIZE -3) + 3);
+        System.out.println(wSize);
         int branchCount = (int) (wSize * PERBRANCH) + 1;
         int counter = 1;
         int randIdx;
 
         //Add Linear Tasks
-        addTask(new gentask("w" + wf, "gen", startPointWorkFlow, startPoint));
-        addTask(new task("w" + wf, "t1", false, new ArrayList<>(Arrays.asList(0))));
+        this.workflow.add(new gentask("w" + wf, "gen", startPointWorkFlow, startPoint));
+        this.workflow.add(new task("w" + wf, "t1", (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(0))));
         while (counter < wSize) {
-            addTask(new task("w" + wf, "t" + (counter + 1), false, new ArrayList<>(Arrays.asList(counter))));
+            addTask(new task("w" + wf, "t" + (counter + 1), (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(counter))));
             counter++;
         }
         int linear = counter;
@@ -42,11 +56,11 @@ public class workflow {
         //Add Branching Tasks
         for (int i = 0; i < branchCount; i++) {
             randIdx = rand.nextInt(linear - 2) + 1;
-            addTask(new task("w" + wf, "t" + (counter + 1), false, new ArrayList<>(Arrays.asList(randIdx))));
+            addTask(new task("w" + wf, "t" + (counter + 1), (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(randIdx))));
             counter++;
             int branchLen = rand.nextInt(4);
             for (int j = 0; j < branchLen; j++) {
-                addTask(new task("w" + wf, "t" + (counter + 1), false, new ArrayList<>(Arrays.asList(counter))));
+                addTask(new task("w" + wf, "t" + (counter + 1), (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(counter))));
                 counter++;
             }
             task merge = this.workflow.get(rand.nextInt(linear - 1 - randIdx) + randIdx + 2);
@@ -68,11 +82,11 @@ public class workflow {
         return Base64.getEncoder().encodeToString(digest.digest(hash.getBytes(StandardCharsets.UTF_8)));
     }
 
-    public ArrayList<String> genMerkleTree(){
+    public ArrayList<String> genMerkleTree(ArrayList<task> wf){
         ArrayList<String> tree = new ArrayList<>();
         // Start by adding all the hashes of the transactions as leaves of the
         // tree.
-        for (workflowGen.task task : this.workflow) {
+        for (workflowGen.task task : wf) {
             System.out.println(task.hash());
             tree.add(task.hash());
         }
@@ -81,7 +95,7 @@ public class workflow {
         // level starts.
         // Step through each level, stopping when we reach the root (levelSize
         // == 1).
-        for (int levelSize = this.workflow.size(); levelSize > 1; levelSize = (levelSize + 1) / 2) {
+        for (int levelSize = wf.size(); levelSize > 1; levelSize = (levelSize + 1) / 2) {
             // For each pair of nodes on that level:
             for (int left = 0; left < levelSize; left += 2) {
                 // The right hand node can be the same as the left hand, in the

@@ -5,7 +5,7 @@ import java.util.*;
 
 
 public class randomizeGen {
-    static int maxWorkflows =10;
+    static int maxWorkflows =1;
 
     static String startPoint;
     static ArrayList<workflow> workflows = new ArrayList<>();
