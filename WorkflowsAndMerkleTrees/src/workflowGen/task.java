@@ -5,20 +5,29 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
+import de.svenjacobs.loremipsum.LoremIpsum;
 
 public class task {
+    static int SIZELOREMIPSUM = 5000;
     private String workflowID;
     private String taskID;
     private boolean invalidated;
     private ArrayList<Integer> idxParent;
     private ArrayList<String> tree;
+    private String inData;
+    private String outData;
     public task(String workflowID, String taskID, boolean invalidated, ArrayList<Integer> idxParent){
         this.workflowID = workflowID;
         this.taskID = taskID;
         this.invalidated = invalidated;
         this.idxParent=idxParent;
+        this.inData = getLoremHash(SIZELOREMIPSUM);
+        this.outData = getLoremHash(SIZELOREMIPSUM + 1);
     }
 
+    public String getLoremHash(int size){
+        return hash(new LoremIpsum().getWords(size));
+    }
     public String getTaskID() {
         return taskID;
     }
@@ -29,6 +38,16 @@ public class task {
 
     public void setMerkleTree(ArrayList<String> tree){
         this.tree=tree;
+    }
+    public String hash(String str){
+        MessageDigest digest = null;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        return Base64.getEncoder().encodeToString(digest.digest(str.getBytes(StandardCharsets.UTF_8)));
     }
     public String hash(){
         String taskHash = this.toString();
@@ -43,7 +62,7 @@ public class task {
     }
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder(this.workflowID + "\n" + this.taskID + "\n" + this.invalidated + "\n");
+        StringBuilder str = new StringBuilder(this.workflowID + "\n" + this.taskID + "\n" + this.invalidated + "\n" + this.inData + "\n" + this.outData);
         for (Integer integer : this.idxParent) {
             str.append(integer + "\n");
         }

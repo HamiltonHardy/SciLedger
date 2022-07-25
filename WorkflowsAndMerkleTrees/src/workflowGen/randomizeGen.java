@@ -3,6 +3,7 @@ package workflowGen;
 import java.util.Random;
 import java.util.*;
 
+
 public class randomizeGen {
     static int maxWorkflows =10;
 
@@ -10,6 +11,7 @@ public class randomizeGen {
     static ArrayList<workflow> workflows = new ArrayList<>();
 
     public static void generate(){
+
         workflows.add(new workflow(0,null,null));
         Random rand = new Random();
         for(int i=1; i<maxWorkflows; i++) {
@@ -28,3 +30,6 @@ public class randomizeGen {
 
 
 }
+
+//verification
+//exclude selecting a quorum
