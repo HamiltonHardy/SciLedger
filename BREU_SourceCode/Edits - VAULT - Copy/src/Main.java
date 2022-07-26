@@ -76,14 +76,14 @@ public class Main {
                 parentTaskIDString = parentTaskIDString.replace("[", "");
                 parentTaskIDString = parentTaskIDString.replace("]", "");
                 parentTaskIDString = parentTaskIDString.strip();
+
                 String[] parentTaskIDs = parentTaskIDString.split(",");
 
 
                 Block[] parentBlocks = new Block[parentTaskIDs.length];
                 for(int parentCount = 0; parentCount < parentTaskIDs.length; parentCount++){
-                    if(Integer.parseInt(parentTaskIDs[parentCount].strip()) != -1) {
-                        Block parentBlock = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount].strip())];
-                        parentBlocks[parentCount] = parentBlock;
+                    if(Integer.parseInt(parentTaskIDs[parentCount]) != -1) {
+                        parentBlocks[parentCount] = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount])];
                     }
                 }
 

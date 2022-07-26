@@ -10,19 +10,21 @@ import de.svenjacobs.loremipsum.LoremIpsum;
 
 public class task {
     static int SIZELOREMIPSUM = 5000;
-    private String workflowID;
+    private final String workflowID;
     private String taskID;
     private boolean invalidated;
     private ArrayList<Integer> idxParent;
     private ArrayList<String> validTree;
     private ArrayList<String> invalidTree;
-    private String inData;
-    private String outData;
+    private final String inData;
+    private final String outData;
+    public long hashRuntime =0;
     public task(String workflowID, String taskID, boolean invalidated, ArrayList<Integer> idxParent){
         this.workflowID = workflowID;
         this.taskID = taskID;
         this.invalidated = invalidated;
         this.idxParent=idxParent;
+
         this.inData = getLoremHash(SIZELOREMIPSUM);
         this.outData = getLoremHash(SIZELOREMIPSUM + 1);
         this.validTree = new ArrayList<>();
@@ -41,19 +43,16 @@ public class task {
             return idxParent.get(index);
         }
     }
-//    public ArrayList<Integer> getIdxParent() {
-//        if (idxParent==null){
-//            ArrayList<Integer> list = new ArrayList<Integer>();
-//            list.add(-2);
-//            return list;
-//        }else{
-//
-//            return idxParent;
-//        }
-//    }
 
     public String getLoremHash(int size){
-        return hash(new LoremIpsum().getWords(size));
+        LoremIpsum loremIpsum = new LoremIpsum();
+        String str = loremIpsum.getParagraphs(size);
+        long sTime = System.currentTimeMillis();
+        String hash = hash(str);
+        long stpTime = System.currentTimeMillis();
+        System.out.println("Input & Output Hash computation time: " + (stpTime-sTime));
+        hashRuntime = (stpTime-sTime);
+        return hash;
     }
     public String getTaskID() {
         return taskID;
@@ -78,7 +77,7 @@ public class task {
         return this.invalidTree;
     }
     public String hash(String str){
-        MessageDigest digest = null;
+        MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
@@ -89,7 +88,7 @@ public class task {
     }
     public String hash(){
         String taskHash = this.toString();
-        MessageDigest digest = null;
+        MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
