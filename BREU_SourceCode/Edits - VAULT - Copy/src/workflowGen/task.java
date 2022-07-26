@@ -27,6 +27,26 @@ public class task {
         this.outData = getLoremHash(SIZELOREMIPSUM + 1);
     }
 
+    public int getIdxParent(int index) {
+        if (idxParent==null){
+            ArrayList<Integer> list = new ArrayList<Integer>();
+            list.add(-2);
+            return list.get(0);
+        }else{
+
+            return idxParent.get(index);
+        }
+    }
+    public ArrayList<Integer> getIdxParent() {
+        if (idxParent==null){
+            ArrayList<Integer> list = new ArrayList<Integer>();
+            list.add(-2);
+            return list;
+        }else{
+
+            return idxParent;
+        }
+    }
     public String getLoremHash(int size){
         return hash(new LoremIpsum().getWords(size));
     }

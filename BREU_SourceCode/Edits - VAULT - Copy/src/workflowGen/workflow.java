@@ -3,10 +3,7 @@ package workflowGen;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Random;
+import java.util.*;
 
 public class workflow {
     final int MAXWFSIZE = 10;
@@ -69,6 +66,8 @@ public class workflow {
         }
         //get random task for next workflow branch
         forNextWf = this.workflow.get((int) (Math.random() * workflow.size()));
+
+        workflow.sort(Comparator.comparing(o -> o.getIdxParent(0)));
     }
 
 

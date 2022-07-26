@@ -18,7 +18,8 @@ public class Block implements Serializable {
         this.USER_ID = userID;
         this.PROVENANCE_RECORD = provenanceRecord;
         this.TIMESTAMP = new Timestamp(new Date().getTime());
-        this.PARENT_HASHES = parentHashes;
+
+        this.PARENT_HASHES = new ArrayList<>();
         this.HASH = calculateHash();
 
     }
