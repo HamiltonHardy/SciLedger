@@ -33,6 +33,8 @@ public class Main {
         //Run Experiments
         Main main = new Main();
         main.scalability();
+
+        main.merkleExperiment();
     }
 
     //----------Experiments----------//
@@ -115,6 +117,7 @@ public class Main {
             }
         }
         long avgTime = totalTimeSum/printCount;
+        System.out.println();
         System.out.println("Total time to add blocks: " + totalTimeSum);
         System.out.println("Average time to add 1 block: " + avgTime);
         System.out.println("Blockchain size " + BLOCKCHAIN.size());
@@ -126,7 +129,12 @@ public class Main {
     /**
      * TODO
      */
-    static void merkleExperiment(){
+    public void merkleExperiment() throws IOException {
+        File file = new File("Merkle.csv");
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        PrintWriter pw = new PrintWriter(new FileOutputStream(new File("AverageBlockAddTime.csv"), true));
 
     }
 
