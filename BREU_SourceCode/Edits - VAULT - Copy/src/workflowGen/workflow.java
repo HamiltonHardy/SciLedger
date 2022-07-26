@@ -30,6 +30,7 @@ public class workflow {
     public void addTask(task task){
         //if task is invalid add to invalid tree and copy valid tree from last task
         long stTime = System.currentTimeMillis();
+        System.out.println("START TIME " + stTime);
         if(task.isInvalidated()){
             this.invTree.add(task);
             task.setInvalidTree(this.genMerkleTree(this.invTree));
@@ -43,6 +44,7 @@ public class workflow {
         }
         this.workflow.add(task);
         long stpTime = System.currentTimeMillis();
+        System.out.println("END TIME " + stpTime);
         System.out.println("Gen Merkle Tree computation time" + (stpTime-stTime));
         runtime += (stpTime-stTime);
     }

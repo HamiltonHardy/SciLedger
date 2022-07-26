@@ -5,7 +5,7 @@ import java.util.*;
 
 public class randomizeGen {
     final int MXWFS;
-    final static int MAXWFSIZE = 1000;
+    final static int MAXWFSIZE = 10;
     String startPoint;
     ArrayList<workflow> workflows = new ArrayList<>();
 
@@ -23,8 +23,8 @@ public class randomizeGen {
         System.out.println("Merkle AVG runtime: " + getMerkleRuntimeAvg());
     }
 
-    private double getHashRuntimes(){
-        double hashRuntime=0;
+    private long getHashRuntimes(){
+        long hashRuntime=0;
         for (workflowGen.workflow workflow : workflows) {
             for (int j = 0; j < workflow.workflow.size(); j++) {
                 hashRuntime += workflow.workflow.get(j).hashRuntime;
@@ -33,17 +33,17 @@ public class randomizeGen {
         return hashRuntime;
     }
 
-    public double getHashRuntimeAvg(){ return getHashRuntimes()/(MXWFS * MAXWFSIZE); }
+    public long getHashRuntimeAvg(){ return getHashRuntimes()/(MXWFS * MAXWFSIZE); }
 
-    private double getMerkleRuntimes(){
-        double merkleRuntime =0;
+    private long getMerkleRuntimes(){
+        long merkleRuntime =0;
         for (workflowGen.workflow workflow : workflows) {
             merkleRuntime += workflow.runtime;
         }
         return merkleRuntime;
     }
 
-    public double getMerkleRuntimeAvg(){ return getMerkleRuntimes()/(MXWFS * MAXWFSIZE); }
+    public long getMerkleRuntimeAvg(){ return getMerkleRuntimes()/(MXWFS * MAXWFSIZE); }
     public ArrayList<workflow> getWorkflows(){
         return workflows;
     }
