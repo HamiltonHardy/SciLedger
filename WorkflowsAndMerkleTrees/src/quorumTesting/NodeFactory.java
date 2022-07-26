@@ -40,9 +40,9 @@ public class NodeFactory {
 //                catch (IOException e) {
 //                    e.printStackTrace();
 //                }
-                System.out.println(calc2);
-                System.out.println(calc1);
-                System.out.println(calc3);
+//                System.out.println(calc2);
+//                System.out.println(calc1);
+//                System.out.println(calc3);
             }
         }
 

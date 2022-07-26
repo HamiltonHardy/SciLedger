@@ -25,6 +25,10 @@ public class task {
         this.idxParent=idxParent;
         this.inData = getLoremHash(SIZELOREMIPSUM);
         this.outData = getLoremHash(SIZELOREMIPSUM + 1);
+        this.validTree = new ArrayList<>();
+        validTree.add("-1");
+        this.invalidTree = new ArrayList<>();
+        invalidTree.add("-1");
     }
 
     public int getIdxParent(int index) {
@@ -37,16 +41,17 @@ public class task {
             return idxParent.get(index);
         }
     }
-    public ArrayList<Integer> getIdxParent() {
-        if (idxParent==null){
-            ArrayList<Integer> list = new ArrayList<Integer>();
-            list.add(-2);
-            return list;
-        }else{
+//    public ArrayList<Integer> getIdxParent() {
+//        if (idxParent==null){
+//            ArrayList<Integer> list = new ArrayList<Integer>();
+//            list.add(-2);
+//            return list;
+//        }else{
+//
+//            return idxParent;
+//        }
+//    }
 
-            return idxParent;
-        }
-    }
     public String getLoremHash(int size){
         return hash(new LoremIpsum().getWords(size));
     }
@@ -93,23 +98,23 @@ public class task {
 
         return Base64.getEncoder().encodeToString(digest.digest(taskHash.getBytes(StandardCharsets.UTF_8)));
     }
-    @Override
-    public String toString() {
-        StringBuilder str = new StringBuilder(this.workflowID + "\n" + this.taskID + "\n" + this.invalidated + "\n" + this.inData + "\n" + this.outData);
-        str.append("Parents\n");
-        for (Integer integer : this.idxParent) {
-            str.append(integer + "\n");
-        }
-            str.append("Valid Tree" + this.validTree + "\n");
-
-            str.append("Invalid Tree" + this.invalidTree);
-        return str.toString();
-    }
+//    @Override
+//    public String toString() {
+//        StringBuilder str = new StringBuilder(this.workflowID + "\n" + this.taskID + "\n" + this.invalidated + "\n" + this.inData + "\n" + this.outData);
+//        str.append("Parents\n");
+//        for (Integer integer : this.idxParent) {
+//            str.append(integer + "\n");
+//        }
+//            str.append("Valid Tree" + this.validTree + "\n");
+//
+//            str.append("Invalid Tree" + this.invalidTree);
+//        return str.toString();
+//    }
 
 
     public ArrayList<String> toProvenanceRecord(){
         ArrayList<String> provenanceRecord = new ArrayList<>();
-
+        System.out.println("idx parent" + this.idxParent);
         provenanceRecord.add(this.idxParent.toString());
         provenanceRecord.add(this.validTree.get(this.validTree.size()-1));
         provenanceRecord.add(this.invalidTree.get(this.invalidTree.size()-1));

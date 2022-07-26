@@ -15,7 +15,11 @@ public class workflow {
     ArrayList<task> valTree = new ArrayList<>();
     public workflow(int wfNum, String stpt, String spwf) {
         //make gen task
-        this.workflow.add(new gentask("w" + wfNum, "gen", spwf, stpt));
+        //GENESIS BLOCK
+        ArrayList<Integer> genesisParent = new ArrayList<>();
+        genesisParent.add(-1);
+        //String workflowID, String taskID, boolean invalidated, ArrayList<Integer> idxParent
+        this.workflow.add(new task("w" + wfNum, "0", false, genesisParent));
         //make the other tasks
         genTasks(wfNum);
     }
@@ -67,7 +71,11 @@ public class workflow {
         //get random task for next workflow branch
         forNextWf = this.workflow.get((int) (Math.random() * workflow.size()));
 
+        //Remove genesis, sort, reinsert genesis
+        task genesis = workflow.get(0);
+        workflow.remove(genesis);
         workflow.sort(Comparator.comparing(o -> o.getIdxParent(0)));
+        workflow.add(0, genesis);
     }
 
 
@@ -88,10 +96,10 @@ public class workflow {
         // Start by adding all the hashes of the transactions as leaves of the
         // tree.
         for (workflowGen.task task : wf) {
-            System.out.println(task.hash());
+//            System.out.println(task.hash());
             tree.add(task.hash());
         }
-        System.out.println();
+//        System.out.println();
         int levelOffset = 0; // Offset in the list where the currently processed
         // level starts.
         // Step through each level, stopping when we reach the root (levelSize

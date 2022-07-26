@@ -5,13 +5,13 @@ import java.util.*;
 
 
 public class randomizeGen {
-    static int maxWorkflows =1;
+    static int maxWorkflows = 10;
 
     static String startPoint;
     static ArrayList<workflow> workflows = new ArrayList<>();
 
-    public static void generate(){
 
+    public randomizeGen() {
         workflows.add(new workflow(0,null,null));
         Random rand = new Random();
         for(int i=1; i<maxWorkflows; i++) {
@@ -21,12 +21,7 @@ public class randomizeGen {
         }
     }
 
-    public static void main(String[] args) {
-        generate();
-        System.out.println(workflows);
 
-
-    }
 
     public ArrayList<workflow> getWorkflows(){
         return workflows;

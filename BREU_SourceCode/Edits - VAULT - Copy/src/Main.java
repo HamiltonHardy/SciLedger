@@ -7,10 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Main Class:
@@ -61,15 +58,33 @@ public class Main {
         randomizeGen randomizeGen = new randomizeGen();
         ArrayList<workflow> workflows = randomizeGen.getWorkflows();
 
+//        System.out.println(workflows);
+
         for (int i = 0; i<workflows.size(); i++){
-            System.out.println("Workflow");
             ArrayList<task> workflow = workflows.get(i).getWorkflow();
+            Block[] workflowBlocks = new Block[workflow.size()];
             for(int j = 0; j < workflow.size(); j++) {
-                System.out.println("Task: " + printCount);
+//                System.out.println("Task: " + printCount);
                 ArrayList<String> provenanceRecord = workflow.get(j).toProvenanceRecord();
 
                 String parentTaskIDString = provenanceRecord.get(0);
-                List<String> parentTaskIDs = Arrays.asList(parentTaskIDString.split(","));
+                System.out.println("parent task id string" + parentTaskIDString);
+                parentTaskIDString = parentTaskIDString.replace("[", "");
+                parentTaskIDString = parentTaskIDString.replace("]", "");
+                parentTaskIDString = parentTaskIDString.strip();
+                System.out.println("parent task id string #2" + parentTaskIDString);
+                String[] parentTaskIDs = parentTaskIDString.split(",");
+
+                System.out.println("Parent task IDs " + parentTaskIDs);
+
+                Block[] parentBlocks = new Block[parentTaskIDs.length];
+                for(int parentCount = 0; parentCount < parentTaskIDs.length; parentCount++){
+                    if(Integer.parseInt(parentTaskIDs[parentCount].strip()) != -1) {
+                        parentBlocks[parentCount] = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount].strip())];
+                    }
+                }
+
+                System.out.println("Parent blocks " + parentBlocks);
                 
                 String validMerkleRoot = provenanceRecord.get(1);
                 String invalidMerkleRoot = provenanceRecord.get(2);
