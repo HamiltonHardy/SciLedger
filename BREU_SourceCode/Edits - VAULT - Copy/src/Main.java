@@ -56,6 +56,7 @@ public class Main {
         PrintWriter pw = new PrintWriter(new FileOutputStream(new File("AverageBlockAddTime.csv"), true));
 
         long totalTimeSum = 0;
+        long exchangeSum = 0;
         int printCount = 0;
 
 
@@ -99,7 +100,10 @@ public class Main {
                 currentBlock = NETWORK.get(0).createBlock(provenanceRecord, parentBlocks);
 
                 //Step 4: Quorum signs the block and xchange signatures
+                long beginExchange = System.currentTimeMillis();
                 quorum.exchangeSignatures();
+                long endExchange = System.currentTimeMillis();
+                long exchange = endExchange - beginExchange;
 
                 //Append block to blockchain
                 this.BLOCKCHAIN.add(currentBlock);
@@ -109,18 +113,21 @@ public class Main {
 
                 long totalTime = (endTime - start);
                 totalTimeSum += totalTime;
+                exchangeSum += exchange;
 //                System.out.println("Block Add Time: " + totalTime);
                 printCount ++;
 
             }
         }
-        long avgTime = totalTimeSum/printCount;
+        long totalAverage = totalTimeSum/printCount;
+        long exchangeAverage = exchangeSum/printCount;
 //        System.out.println();
 //        System.out.println("Total time to add blocks: " + totalTimeSum);
 //        System.out.println("Average time to add 1 block: " + avgTime);
 //        System.out.println("Blockchain size " + BLOCKCHAIN.size());
 //        System.out.println("Print count " + printCount);
-        pw.println(avgTime);
+        String trialData = exchangeAverage + ", " + totalAverage;
+        pw.println(trialData);
         pw.close();
     }
 
