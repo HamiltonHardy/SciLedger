@@ -32,9 +32,9 @@ public class Main {
 
         //Run Experiments
         Main main = new Main();
-        main.scalability();
+//        main.scalability();
 
-//        main.merkleExperiment();
+        main.merkleExperiment();
     }
 
     //----------Experiments----------//
@@ -168,8 +168,8 @@ public class Main {
             Block[] parentBlocks = new Block[parentTaskIDs.length];
             for(int parentCount = 0; parentCount < parentTaskIDs.length; parentCount++){
                 if(Integer.parseInt(parentTaskIDs[parentCount].strip()) != -1) {
-                    parentBlocks[parentCount] = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount].strip())];
-                }
+                    Block parentBlock = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount].strip())];
+                    parentBlocks[parentCount] = parentBlock;                }
             }
 //            String validMerkleRoot = provenanceRecord.get(1);
 //            String invalidMerkleRoot = provenanceRecord.get(2);
@@ -182,6 +182,8 @@ public class Main {
             quorum.exchangeSignatures();
             //Append block to blockchain
             this.BLOCKCHAIN.add(currentBlock);
+            workflowBlocks[j] = currentBlock;
+
             //------Begin merkle-----------
             printCount ++;
         }
