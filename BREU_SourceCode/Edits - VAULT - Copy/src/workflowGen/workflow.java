@@ -6,14 +6,16 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class workflow {
-    final int MAXWFSIZE = 10;
-    final double PERINV = 0.3;
 
+    final double PERINV = 0.3;
+    int wfSize;
     task forNextWf;
     ArrayList<task> invTree = new ArrayList<>();
     ArrayList<task> workflow = new ArrayList<>();
     ArrayList<task> valTree = new ArrayList<>();
-    public workflow(int wfNum, String stpt, String spwf) {
+    public long runtime = 0;
+    public workflow(int wfSize,int wfNum, String stpt, String spwf) {
+        this.wfSize = wfSize;
         //make gen task
         //GENESIS BLOCK
         ArrayList<Integer> genesisParent = new ArrayList<>();
@@ -22,10 +24,12 @@ public class workflow {
         this.workflow.add(new task("w" + wfNum, "0", false, genesisParent));
         //make the other tasks
         genTasks(wfNum);
+        System.out.println("Merkle computation time: " + runtime);
     }
 
     public void addTask(task task){
         //if task is invalid add to invalid tree and copy valid tree from last task
+        long stTime = System.currentTimeMillis();
         if(task.isInvalidated()){
             this.invTree.add(task);
             task.setInvalidTree(this.genMerkleTree(this.invTree));
@@ -38,10 +42,13 @@ public class workflow {
             task.setInvalidTree(workflow.get(workflow.size()-2).getInvalidTree());
         }
         this.workflow.add(task);
+        long stpTime = System.currentTimeMillis();
+        System.out.println("Gen Merkle Tree computation time" + (stpTime-stTime));
+        runtime += (stpTime-stTime);
     }
     private void genTasks(int wf){
         Random rand = new Random();
-        int wSize = (rand.nextInt(MAXWFSIZE/2 -3) + 3);
+        int wSize = (rand.nextInt(this.wfSize/2 -3) + 3);
         int counter = 1;
         int randIdx;
 
@@ -53,7 +60,7 @@ public class workflow {
 
         //Add Branching Tasks
         //loop through remaining nonlinear tasks
-        while(counter<MAXWFSIZE) {
+        while(counter<this.wfSize) {
             randIdx = rand.nextInt(wSize - 2) + 1;
             counter++;
             addTask(new task("w" + wf, "t" + counter, (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(randIdx))));
@@ -81,7 +88,7 @@ public class workflow {
 
 
     public String genTreeHash(String hash){
-        MessageDigest digest = null;
+        MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {

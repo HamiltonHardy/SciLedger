@@ -73,7 +73,7 @@ public class Main {
                 System.out.println("parent task id string" + parentTaskIDString);
                 parentTaskIDString = parentTaskIDString.replace("[", "");
                 parentTaskIDString = parentTaskIDString.replace("]", "");
-                parentTaskIDString = parentTaskIDString.strip();
+                parentTaskIDString = parentTaskIDString;
                 System.out.println("parent task id string #2" + parentTaskIDString);
                 String[] parentTaskIDs = parentTaskIDString.split(",");
 
@@ -81,8 +81,8 @@ public class Main {
 
                 Block[] parentBlocks = new Block[parentTaskIDs.length];
                 for(int parentCount = 0; parentCount < parentTaskIDs.length; parentCount++){
-                    if(Integer.parseInt(parentTaskIDs[parentCount].strip()) != -1) {
-                        parentBlocks[parentCount] = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount].strip())];
+                    if(Integer.parseInt(parentTaskIDs[parentCount]) != -1) {
+                        parentBlocks[parentCount] = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount])];
                     }
                 }
 
