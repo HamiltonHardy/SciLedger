@@ -20,11 +20,8 @@ public class Block implements Serializable {
         this.TIMESTAMP = new Timestamp(new Date().getTime());
 
         this.PARENT_HASHES = new ArrayList<>();
-        System.out.println("PARENT BLOCKS " + parentBlocks);
-        System.out.println(parentBlocks.length);
         for(int i = 0; i<parentBlocks.length; i++){
             Block block = parentBlocks[i];
-            System.out.println("BLOCK = " + block);
             if(block != null) {
                 this.PARENT_HASHES.add(block.getHASH());
             }

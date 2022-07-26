@@ -114,7 +114,6 @@ public class task {
 
     public ArrayList<String> toProvenanceRecord(){
         ArrayList<String> provenanceRecord = new ArrayList<>();
-        System.out.println("idx parent" + this.idxParent);
         provenanceRecord.add(this.idxParent.toString());
         provenanceRecord.add(this.validTree.get(this.validTree.size()-1));
         provenanceRecord.add(this.invalidTree.get(this.invalidTree.size()-1));

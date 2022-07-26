@@ -14,27 +14,31 @@ import java.util.*;
  */
 public class Main {
     public static final ArrayList<Node> NETWORK = new ArrayList<>();
-    public static final ArrayList<Block> BLOCKCHAIN = new ArrayList<>();
+    public ArrayList<Block> BLOCKCHAIN = new ArrayList<>();
     public static Block currentBlock;
     public static Quorum quorum;
-    private final int NETWORK_SIZE = 20;
+    private static final int NETWORK_SIZE = 10;
     private final int QUORUM_SIZE = 10;
 
     /**
      * Driver to run experiments
      */
     public static void main(String[] args) throws Exception {
-        //Create a "dummy" arraylist to use as the provenance data for the genesis block
-        ArrayList<String> dummyProvenanceRecord = new ArrayList<>();
-        for(int i = 0; i< 5; i++){
-            dummyProvenanceRecord.add("-1");
-        }
-
         //Run Experiments
         Main main = new Main();
-//        main.scalability();
 
-        main.merkleExperiment();
+        //Create Nodes
+        for (int i = 0; i < NETWORK_SIZE; i++) {
+            NETWORK.add(new Node());
+//            System.out.println("Add node: " + i);
+        }
+
+        for(int i = 0; i<5; i++) {
+            System.out.println(i);
+            main.scalability();
+        }
+
+//        main.merkleExperiment();
     }
 
     //----------Experiments----------//
@@ -43,6 +47,8 @@ public class Main {
      * TODO
      */
     public void scalability() throws Exception {
+        BLOCKCHAIN = new ArrayList<>();
+//        System.out.println("Blockchain size at start " + BLOCKCHAIN.size());
         File file = new File("AverageBlockAddTime.csv");
         if (!file.exists()) {
             file.createNewFile();
@@ -51,16 +57,12 @@ public class Main {
 
         long totalTimeSum = 0;
         int printCount = 0;
-        //Create Nodes
-        for (int i = 0; i < this.NETWORK_SIZE; i++) {
-            NETWORK.add(new Node());
-            System.out.println("Add node: " + i);
-        }
+
 
         randomizeGen randomizeGen = new randomizeGen(10);
         ArrayList<workflow> workflows = randomizeGen.getWorkflows();
 
-//        System.out.println(workflows);
+//        System.out.println("Workflows.size " + workflows.size());
 
         for (int i = 0; i<workflows.size(); i++){
             ArrayList<task> workflow = workflows.get(i).getWorkflow();
@@ -70,29 +72,22 @@ public class Main {
                 ArrayList<String> provenanceRecord = workflow.get(j).toProvenanceRecord();
 
                 String parentTaskIDString = provenanceRecord.get(0);
-                System.out.println("parent task id string" + parentTaskIDString);
                 parentTaskIDString = parentTaskIDString.replace("[", "");
                 parentTaskIDString = parentTaskIDString.replace("]", "");
                 parentTaskIDString = parentTaskIDString.strip();
-                System.out.println("parent task id string #2" + parentTaskIDString);
                 String[] parentTaskIDs = parentTaskIDString.split(",");
 
-                System.out.println("Parent task IDs 0 " + parentTaskIDs[0]);
 
                 Block[] parentBlocks = new Block[parentTaskIDs.length];
                 for(int parentCount = 0; parentCount < parentTaskIDs.length; parentCount++){
                     if(Integer.parseInt(parentTaskIDs[parentCount].strip()) != -1) {
                         Block parentBlock = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount].strip())];
-                        System.out.println("parent index - " + Integer.parseInt(parentTaskIDs[parentCount].strip()));
-                        System.out.println("workflow blocks " + workflowBlocks);
                         parentBlocks[parentCount] = parentBlock;
                     }
                 }
 
-                System.out.println("Parent blocks " + parentBlocks);
-                
-                String validMerkleRoot = provenanceRecord.get(1);
-                String invalidMerkleRoot = provenanceRecord.get(2);
+//                String validMerkleRoot = provenanceRecord.get(1);
+//                String invalidMerkleRoot = provenanceRecord.get(2);
 
                 //Create the quorum
                 this.quorum = new Quorum(this.QUORUM_SIZE);
@@ -114,17 +109,17 @@ public class Main {
 
                 long totalTime = (endTime - start);
                 totalTimeSum += totalTime;
-                System.out.println("Block Add Time: " + totalTime);
+//                System.out.println("Block Add Time: " + totalTime);
                 printCount ++;
 
             }
         }
         long avgTime = totalTimeSum/printCount;
-        System.out.println();
-        System.out.println("Total time to add blocks: " + totalTimeSum);
-        System.out.println("Average time to add 1 block: " + avgTime);
-        System.out.println("Blockchain size " + BLOCKCHAIN.size());
-        System.out.println("Print count " + printCount);
+//        System.out.println();
+//        System.out.println("Total time to add blocks: " + totalTimeSum);
+//        System.out.println("Average time to add 1 block: " + avgTime);
+//        System.out.println("Blockchain size " + BLOCKCHAIN.size());
+//        System.out.println("Print count " + printCount);
         pw.println(avgTime);
         pw.close();
     }
