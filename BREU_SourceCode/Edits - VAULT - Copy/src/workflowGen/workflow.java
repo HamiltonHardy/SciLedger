@@ -53,13 +53,13 @@ public class workflow {
             randIdx = rand.nextInt(wSize - 2) + 1;
             counter++;
             addTask(new task("w" + wf, "t" + counter, (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(randIdx))));
-            int branchLen = rand.nextInt(MAXWFSIZE-counter+1);
-            //for a new non linear task add a random number of linear tasks
-            for (int j = 0; j < branchLen; j++) {
-                counter++;
-                if(counter>=MAXWFSIZE) break;
-                addTask(new task("w" + wf, "t" + counter, (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(counter-1))));
-            }
+//            int branchLen = rand.nextInt(MAXWFSIZE-counter+1);
+//            //for a new non linear task add a random number of linear tasks
+//            for (int j = 0; j < branchLen; j++) {
+//                counter++;
+//                if(counter>=MAXWFSIZE) break;
+//                addTask(new task("w" + wf, "t" + counter, (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(counter-1))));
+//            }
             //merge any open tasks
             task merge = this.workflow.get(rand.nextInt(wSize - 1 - randIdx) + randIdx + 2);
             merge.addIdxParent(counter);
