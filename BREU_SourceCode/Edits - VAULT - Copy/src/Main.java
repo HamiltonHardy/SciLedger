@@ -77,12 +77,15 @@ public class Main {
                 System.out.println("parent task id string #2" + parentTaskIDString);
                 String[] parentTaskIDs = parentTaskIDString.split(",");
 
-                System.out.println("Parent task IDs " + parentTaskIDs);
+                System.out.println("Parent task IDs 0 " + parentTaskIDs[0]);
 
                 Block[] parentBlocks = new Block[parentTaskIDs.length];
                 for(int parentCount = 0; parentCount < parentTaskIDs.length; parentCount++){
                     if(Integer.parseInt(parentTaskIDs[parentCount].strip()) != -1) {
-                        parentBlocks[parentCount] = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount].strip())];
+                        Block parentBlock = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount].strip())];
+                        System.out.println("parent index - " + Integer.parseInt(parentTaskIDs[parentCount].strip()));
+                        System.out.println("workflow blocks " + workflowBlocks);
+                        parentBlocks[parentCount] = parentBlock;
                     }
                 }
 
@@ -98,14 +101,14 @@ public class Main {
                 long start = System.currentTimeMillis();
 
                 //Step 2: Create the block
-                currentBlock = NETWORK.get(0).createBlock(provenanceRecord);
+                currentBlock = NETWORK.get(0).createBlock(provenanceRecord, parentBlocks);
 
                 //Step 4: Quorum signs the block and xchange signatures
                 quorum.exchangeSignatures();
 
                 //Append block to blockchain
                 this.BLOCKCHAIN.add(currentBlock);
-
+                workflowBlocks[j] = currentBlock;
                 //Get end time
                 long endTime = System.currentTimeMillis();
 

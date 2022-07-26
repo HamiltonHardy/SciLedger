@@ -29,8 +29,8 @@ public class Node {
      * Takes the arraylist of provenance data and makes a transaction out of it
      * @return The resulting Transaction object
      */
-    public Block createBlock(ArrayList<String> provenanceRecord) {
-        return new Block(this.NODE_ID, provenanceRecord);
+    public Block createBlock(ArrayList<String> provenanceRecord, Block[] parentBlocks) {
+        return new Block(this.NODE_ID, provenanceRecord, parentBlocks);
     }
 
     public PrivateKey getPRIVATE_KEY() {

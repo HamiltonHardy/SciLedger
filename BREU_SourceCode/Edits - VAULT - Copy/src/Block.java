@@ -14,12 +14,21 @@ public class Block implements Serializable {
     private final Timestamp TIMESTAMP;
 
 
-    public Block(int userID, ArrayList<String> provenanceRecord) {
+    public Block(int userID, ArrayList<String> provenanceRecord, Block[] parentBlocks) {
         this.USER_ID = userID;
         this.PROVENANCE_RECORD = provenanceRecord;
         this.TIMESTAMP = new Timestamp(new Date().getTime());
 
         this.PARENT_HASHES = new ArrayList<>();
+        System.out.println("PARENT BLOCKS " + parentBlocks);
+        System.out.println(parentBlocks.length);
+        for(int i = 0; i<parentBlocks.length; i++){
+            Block block = parentBlocks[i];
+            System.out.println("BLOCK = " + block);
+            if(block != null) {
+                this.PARENT_HASHES.add(block.getHASH());
+            }
+        }
         this.HASH = calculateHash();
 
     }
