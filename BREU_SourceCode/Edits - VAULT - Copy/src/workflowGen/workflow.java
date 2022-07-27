@@ -14,6 +14,7 @@ public class workflow {
     ArrayList<task> workflow = new ArrayList<>();
     ArrayList<task> valTree = new ArrayList<>();
     public long runtime = 0;
+
     public workflow(int wfSize,int wfNum, String stpt, String spwf) {
         this.wfSize = wfSize;
         //make gen task
@@ -24,6 +25,7 @@ public class workflow {
         this.workflow.add(new task("w" + wfNum, "0", false, genesisParent));
         //make the other tasks
         genTasks(wfNum);
+
 //        System.out.println("Merkle computation time: " + runtime);
     }
 
@@ -43,6 +45,7 @@ public class workflow {
             task.setInvalidTree(workflow.get(workflow.size()-2).getInvalidTree());
         }
         this.workflow.add(task);
+//        System.out.println("Valid + invalid size = " + (this.valTree.size() + this.invTree.size()) + " VS size " + workflow.size());
         long stpTime = System.nanoTime();
 //        System.out.println("END TIME " + stpTime);
 //        System.out.println("Gen Merkle Tree computation time" + (stpTime-stTime));
@@ -105,7 +108,7 @@ public class workflow {
         // Start by adding all the hashes of the transactions as leaves of the
         // tree.
         for (workflowGen.task task : wf) {
-//            System.out.println(task.hash());
+            //System.out.println(task.hash());
             tree.add(task.hash());
         }
 //        System.out.println();

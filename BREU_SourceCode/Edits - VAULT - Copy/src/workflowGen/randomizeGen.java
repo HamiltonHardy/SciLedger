@@ -9,12 +9,13 @@ public class randomizeGen {
 //    final static int MAXWFSIZE = 10;
 
     //Merkle
-    final static int MAXWFSIZE = 501;
+    final int MAXWFSIZE;
     String startPoint;
     ArrayList<workflow> workflows = new ArrayList<>();
 
 
-    public randomizeGen(int maxWorkflows) {
+    public randomizeGen(int maxWorkflows, int MAXWFSIZE) {
+        this.MAXWFSIZE = MAXWFSIZE;
         MXWFS = maxWorkflows;
         workflows.add(new workflow(MAXWFSIZE,0,null,null));
         Random rand = new Random();

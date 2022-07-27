@@ -44,6 +44,10 @@ public class task {
         }
     }
 
+    public ArrayList<Integer> getIdxParent() {
+            return idxParent;
+    }
+
     public String getLoremHash(int size){
         LoremIpsum loremIpsum = new LoremIpsum();
         String str = loremIpsum.getParagraphs(size);
@@ -105,9 +109,7 @@ public class task {
 //        for (Integer integer : this.idxParent) {
 //            str.append(integer + "\n");
 //        }
-//            str.append("Valid Tree" + this.validTree + "\n");
-//
-//            str.append("Invalid Tree" + this.invalidTree);
+
 //        return str.toString();
 //    }
 
@@ -120,11 +122,14 @@ public class task {
         provenanceRecord.add((int)Math.ceil(Math.log(this.validTree.size()) / Math.log(2)) + 1 + "");
         provenanceRecord.add((int)Math.ceil(Math.log(this.invalidTree.size()) / Math.log(2)) + 1 + "");
 
-////        System.out.println("Valid tree size: " + this.validTree.size());
+//        System.out.println();
+//        System.out.println(this.taskID);
+//        System.out.println("Valid tree size: " + this.validTree.size());
 //        System.out.println("Valid tree height: " + validTreeHeight);
-////
-////        System.out.println("invalid tree size: " + this.invalidTree.size());
+//////
+//        System.out.println("invalid tree size: " + this.invalidTree.size());
 //        System.out.println("invalid tree height: " + invalidTreeHeight);
+//        System.out.println();
 
         provenanceRecord.add(this.validTree.get(this.validTree.size()-1));
         provenanceRecord.add(this.invalidTree.get(this.invalidTree.size()-1));
@@ -133,9 +138,10 @@ public class task {
         provenanceRecord.add(Boolean.toString(this.invalidated));
         provenanceRecord.add(inData);
         provenanceRecord.add(outData);
-
-
-
+//
+//        System.out.println("Valid Tree" + this.validTree + "\n");
+//
+//        System.out.println("Invalid Tree" + this.invalidTree);
 
         return provenanceRecord;
     }

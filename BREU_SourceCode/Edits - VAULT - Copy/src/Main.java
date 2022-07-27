@@ -60,7 +60,7 @@ public class Main {
         int printCount = 0;
 
 
-        randomizeGen randomizeGen = new randomizeGen(10);
+        randomizeGen randomizeGen = new randomizeGen(10, 10);
         ArrayList<workflow> workflows = randomizeGen.getWorkflows();
 
 //        System.out.println("Workflows.size " + workflows.size());
@@ -133,27 +133,40 @@ public class Main {
      * TODO
      */
     public void merkleExperiment() throws Exception {
-        //Creates one giant workflow
-        randomizeGen randomizeGen = new randomizeGen(1);
-        ArrayList<task> workflow = randomizeGen.getWorkflows().get(0).getWorkflow();
-        String verificationTimes;
-
-        for(int j = 0; j < workflow.size(); j++) {
-            ArrayList<String> provenanceRecord = workflow.get(j).toProvenanceRecord();
-            Block[] parentBlocks = new Block[1];
-            //Step 2: Create the block
-            currentBlock = NETWORK.get(0).createBlock(provenanceRecord, parentBlocks);
-            //Append block to blockchain
-            this.BLOCKCHAIN.add(currentBlock);
-        }
 
         //Trial for 1, 2, 3, 4, 5k blocks + genesis
-        for(int i = 1; i<6; i++) {
-            int totalBlocksOnChain = i * 100 + 1;
+        for(int i = 1; i<2; i++) {
+            int totalBlocksOnChain = i * 1000 + 1;
+            //int totalBlocksOnChain = 20;
+            //Creates one giant workflow
+            randomizeGen randomizeGen = new randomizeGen(1, totalBlocksOnChain);
+            ArrayList<task> workflow = randomizeGen.getWorkflows().get(0).getWorkflow();
+            String verificationTimes;
+            for(int k=0; k<workflow.size(); k++){
+                System.out.println(workflow.get(k).getTaskID());
+                for(int q=0; q<workflow.get(k).getIdxParent().size(); q++){
+                    System.out.println(workflow.get(k).getIdxParent(q));
+                }
+            }
+
+            for(int j = 0; j < workflow.size(); j++) {
+                ArrayList<String> provenanceRecord = workflow.get(j).toProvenanceRecord();
+                Block[] parentBlocks = new Block[1];
+                //Step 2: Create the block
+                currentBlock = NETWORK.get(0).createBlock(provenanceRecord, parentBlocks);
+                //Append block to blockchain
+                this.BLOCKCHAIN.add(currentBlock);
+            }
+
+
             //Creates a file for each workflow size
-            String fileName = "Merkle-" + totalBlocksOnChain + "-blocks.csv";
+            String fileName = "testMerkle-" + totalBlocksOnChain + "-blocks.csv";
             File file = new File(fileName);
             if (!file.exists()) {
+                file.createNewFile();
+            }
+            else {
+                file.delete();
                 file.createNewFile();
             }
             PrintWriter pw = new PrintWriter(new FileOutputStream(new File(fileName), true));
@@ -167,13 +180,13 @@ public class Main {
             long trialThreeSum = 0;
             long trialFourSum = 0;
 
-            System.out.println("Starting experiment with " + i + " thousand tasks");
-            for (int j = 1; j < 50; j++) {
-
-                int randomBlockIndex = (int)(Math.random() * range) + min;
+            System.out.println("Starting experiment with " + totalBlocksOnChain + " tasks-----------------------------------------------------------------");
+            for (int j = 1; j < totalBlocksOnChain; j++) {
+//                int randomBlockIndex = (int)(Math.random() * range) + min;
+//                System.out.println("I and J " + i + " " + j);
                 //get the block you want to verify and the last block within the workflow
-                Block blockToVerify = this.BLOCKCHAIN.get(randomBlockIndex);
-                Block lastBlock = this.BLOCKCHAIN.get(totalBlocksOnChain-1);
+                Block blockToVerify = this.BLOCKCHAIN.get(j);
+                Block lastBlock = this.BLOCKCHAIN.get(totalBlocksOnChain);
                 //get height of valid merkle tree for the block you are verifying
                 int validMerkleHeight = Integer.parseInt(blockToVerify.validGetTreeHeight());
 
@@ -184,6 +197,7 @@ public class Main {
                 //get the valid and invalid merkle roots for the block you are trying to verify
                 String validMerkleRoot = blockToVerify.getValidMerkleRoot();
                 String invalidMerkleRoot = blockToVerify.getInvalidMerkleRoot();
+//                System.out.println("Valid height " + validMerkleHeight);
 
                 Boolean valid;
 
@@ -251,27 +265,28 @@ public class Main {
 
                 //Trial Time 4 - bruteForce: linear search of the blockchain for the block. Once found, check for existence in valid tree (last) which is the same as trial two.
                 long trialFourStart = System.nanoTime();
-                for(int index = 1; index < j + 1; index ++){
+                for(int index = 1; index < totalBlocksOnChain; index ++){
                     if(blockToVerify == this.BLOCKCHAIN.get(index)){
+                        System.out.println("Brute Force index: " + index);
                         break;
                     }
                 }
                 valid = totalHash.equals(invalidMerkleRoot);
                 long trialFourEnd = System.nanoTime();
                 long trialFourDifference = trialFourEnd - trialFourStart;
-                trialFourSum += (trialFourDifference);
-
-//                System.out.println(trialOneDifference + " " + trialTwoDifference + " " + trialThreeDifference + " " + trialFourDifference);
+                trialFourSum += trialFourDifference;
+                System.out.println(" index: " + j + " ID: " + blockToVerify.getPROVENANCE_RECORD().get(6) + " Runtime: " + trialFourDifference);
+                pw.println(j+ "," + blockToVerify.getPROVENANCE_RECORD().get(6) + "," + trialFourDifference);
             }
-            long trialOneAvg = trialOneSum/(totalBlocksOnChain - 1);
-            long trialTwoAvg = trialTwoSum/(totalBlocksOnChain - 1);
-            long trialThreeAvg = trialThreeSum/(totalBlocksOnChain - 1);
-            long trialFourAvg = trialFourSum/(totalBlocksOnChain - 1);
+            long trialOneAvg = trialOneSum/(500);
+            long trialTwoAvg = trialTwoSum/(500);
+            long trialThreeAvg = trialThreeSum/(500);
+            long trialFourAvg = trialFourSum/(500);
 
 //            System.out.println(trialOneSum + "-" + trialTwoSum + "-" + trialThreeSum + "-" + trialFourSum);
             verificationTimes = trialOneAvg + ", " + trialTwoAvg + ", " + trialThreeAvg + ", " + trialFourAvg;
             System.out.println(verificationTimes);
-            pw.println(verificationTimes);
+//            pw.println(verificationTimes);
             pw.close();
         }
     }

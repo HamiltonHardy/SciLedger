@@ -58,5 +58,9 @@ public class Block implements Serializable {
     public String getInvalidMerkleRoot(){
         return this.PROVENANCE_RECORD.get(4);
     }
+
+    public ArrayList<String> getPROVENANCE_RECORD() {
+        return PROVENANCE_RECORD;
+    }
 }
 
