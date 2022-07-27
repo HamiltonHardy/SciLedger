@@ -24,13 +24,13 @@ public class workflow {
         this.workflow.add(new task("w" + wfNum, "0", false, genesisParent));
         //make the other tasks
         genTasks(wfNum);
-        System.out.println("Merkle computation time: " + runtime);
+//        System.out.println("Merkle computation time: " + runtime);
     }
 
     public void addTask(task task){
         //if task is invalid add to invalid tree and copy valid tree from last task
         long stTime = System.currentTimeMillis();
-        System.out.println("START TIME " + stTime);
+//        System.out.println("START TIME " + stTime);
         if(task.isInvalidated()){
             this.invTree.add(task);
             task.setInvalidTree(this.genMerkleTree(this.invTree));
@@ -44,8 +44,8 @@ public class workflow {
         }
         this.workflow.add(task);
         long stpTime = System.currentTimeMillis();
-        System.out.println("END TIME " + stpTime);
-        System.out.println("Gen Merkle Tree computation time" + (stpTime-stTime));
+//        System.out.println("END TIME " + stpTime);
+//        System.out.println("Gen Merkle Tree computation time" + (stpTime-stTime));
         runtime += (stpTime-stTime);
     }
     private void genTasks(int wf){

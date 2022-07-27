@@ -7,6 +7,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -33,12 +36,13 @@ public class Main {
 //            System.out.println("Add node: " + i);
         }
 
-        for(int i = 0; i<5; i++) {
-            System.out.println(i);
+//        for(int i = 0; i<5; i++) {
+//            System.out.println(i);
 //            main.scalability();
-        }
+//        }
 
-        main.merkleExperiment();
+
+            main.merkleExperiment();
     }
 
     //----------Experiments----------//
@@ -133,11 +137,6 @@ public class Main {
      * TODO
      */
     public void merkleExperiment() throws Exception {
-        File file = new File("Merkle.csv");
-        if (!file.exists()) {
-            file.createNewFile();
-        }
-        PrintWriter pw = new PrintWriter(new FileOutputStream(new File("Merkle.csv"), true));
 
         //Create Nodes
         for (int i = 0; i < this.NETWORK_SIZE; i++) {
@@ -149,68 +148,166 @@ public class Main {
         randomizeGen randomizeGen = new randomizeGen(1);
         ArrayList<task> workflow = randomizeGen.getWorkflows().get(0).getWorkflow();
         String verificationTimes;
-        long validAndLastInvalid = 0;
-        long lastInvalid = 0;
-        long selfValid = 0;
-        long bruteForce = 0;
+
         //-------------------------------------------------
         Block[] workflowBlocks = new Block[workflow.size()];
         int printCount = 0;
         for(int j = 0; j < workflow.size(); j++) {
-            System.out.println("Task: " + printCount);
+//            System.out.println("Task: " + printCount);
             ArrayList<String> provenanceRecord = workflow.get(j).toProvenanceRecord();
 
-            String parentTaskIDString = provenanceRecord.get(0);
-            parentTaskIDString = parentTaskIDString.replace("[", "");
-            parentTaskIDString = parentTaskIDString.replace("]", "");
-            parentTaskIDString = parentTaskIDString.strip();
-            String[] parentTaskIDs = parentTaskIDString.split(",");
-            Block[] parentBlocks = new Block[parentTaskIDs.length];
-            for(int parentCount = 0; parentCount < parentTaskIDs.length; parentCount++){
-                if(Integer.parseInt(parentTaskIDs[parentCount].strip()) != -1) {
-                    Block parentBlock = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount].strip())];
-                    parentBlocks[parentCount] = parentBlock;                }
-            }
-
-
-            //Create the quorum
-            this.quorum = new Quorum(this.QUORUM_SIZE);
-            //Step 2: Create the block
+//            String parentTaskIDString = provenanceRecord.get(0);
+//            parentTaskIDString = parentTaskIDString.replace("[", "");
+//            parentTaskIDString = parentTaskIDString.replace("]", "");
+//            parentTaskIDString = parentTaskIDString.strip();
+//            String[] parentTaskIDs = parentTaskIDString.split(",");
+            Block[] parentBlocks = new Block[1];
+//            for(int parentCount = 0; parentCount < parentTaskIDs.length; parentCount++){
+//                if(Integer.parseInt(parentTaskIDs[parentCount].strip()) != -1) {
+//                    Block parentBlock = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount].strip())];
+//                    parentBlocks[parentCount] = parentBlock;                }
+//            }
+//
+//
+//            //Create the quorum
+//            this.quorum = new Quorum(this.QUORUM_SIZE);
+//            //Step 2: Create the block
             currentBlock = NETWORK.get(0).createBlock(provenanceRecord, parentBlocks);
-            //Step 4: Quorum signs the block and xchange signatures
-            quorum.exchangeSignatures();
-            //Append block to blockchain
+//            //Step 4: Quorum signs the block and xchange signatures
+//            quorum.exchangeSignatures();
+//            //Append block to blockchain
             this.BLOCKCHAIN.add(currentBlock);
-            workflowBlocks[j] = currentBlock;
+//            workflowBlocks[j] = currentBlock;
 
             //------Begin merkle-----------
             printCount ++;
-//        }
-////        for(int i = 1; i<6; i++) {
-////            int totalBlocksOnChain = i * 2000 + 1;
-////            for (int j = 1; j < totalBlocksOnChain; j++) {
-////                Block blockToVerify = this.BLOCKCHAIN.get(j);
-////                Block lastBlock = this.BLOCKCHAIN.get(totalBlocksOnChain-1);
-////
-////                //Trial Time 1 - validAndLastInvalid
-////
-////                //Trial Time 2 - lastInvalid
-////
-////                //Trial Time 3 - selfValid
-////
-////                //Trial Time 4 - bruteForce
-////
-////            }
-////        }
+        }
+        //Trial for 2, 4, 6, 8, 10k blocks + genesis
+        for(int i = 1; i<6; i++) {
+//            int totalBlocksOnChain = i * 2000 + 1;
+            int totalBlocksOnChain = i * 200 + 1;
+            String fileName = "Merkle-" + totalBlocksOnChain + "-blocks.csv";
+            File file = new File(fileName);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            PrintWriter pw = new PrintWriter(new FileOutputStream(new File(fileName), true));
+
+            //Set values for random later
+            int max = totalBlocksOnChain;
+            int min = 1;
+            int range = max - min + 1;
+
+            long trialOneSum = 0;
+            long trialTwoSum = 0;
+            long trialThreeSum = 0;
+            long trialFourSum = 0;
+
+            System.out.println("Starting experiment:");
+            for (int j = 1; j < totalBlocksOnChain; j++) {
+                Block blockToVerify = this.BLOCKCHAIN.get(j);
+                int validMerkleHeight = Integer.parseInt(blockToVerify.validGetTreeHeight());
+                int invalidMerkleHeight = Integer.parseInt(blockToVerify.invalidGetTreeHeight());
+                Block lastBlock = this.BLOCKCHAIN.get(totalBlocksOnChain-1);
+                int lastValidMerkleHeight = Integer.parseInt(lastBlock.validGetTreeHeight());
+                int lastInvalidMerkleHeight = Integer.parseInt(lastBlock.invalidGetTreeHeight());
+                String validMerkleRoot = blockToVerify.getValidMerkleRoot();
+                String invalidMerkleRoot = blockToVerify.getInvalidMerkleRoot();
+                Boolean valid;
+
+                int rand = (int)(Math.random() * range) + min;
+                task randomTask = workflow.get(rand);
+
+                //Trial Time 1 - validAndLastInvalid
+                long trialOneStart = System.currentTimeMillis();
+                //valid(self)
+                String totalHash = randomTask.hash();
+                for(int level = 1; level < validMerkleHeight; level++){
+                    totalHash = totalHash + totalHash;
+                    totalHash = hash(totalHash);
+                }
+                valid = totalHash.equals(validMerkleRoot);
+
+                //invalid(last)
+                totalHash = randomTask.hash();
+                for(int level = 1; level < lastInvalidMerkleHeight; level++){
+                    totalHash = totalHash + totalHash;
+                    totalHash = hash(totalHash);
+                }
+                valid = totalHash.equals(invalidMerkleRoot);
+
+                long trialOneEnd = System.currentTimeMillis();
+                long trialOneDifference = trialOneEnd - trialOneStart;
+                trialOneSum += trialOneDifference;
+
+                //Trial Time 2 - lastValid
+                long trialTwoStart = System.currentTimeMillis();
+
+                //valid(last)
+                totalHash = randomTask.hash();
+                for(int level = 1; level < lastValidMerkleHeight; level++){
+                    totalHash = totalHash + totalHash;
+                    totalHash = hash(totalHash);
+                }
+
+                valid = totalHash.equals(validMerkleRoot);
+
+                long trialTwoEnd = System.currentTimeMillis();
+                long trialTwoDifference = trialTwoEnd - trialTwoStart;
+                trialTwoSum += trialTwoDifference;
+
+                //Trial Time 3 - selfValid
+                long trialThreeStart = System.currentTimeMillis();
+
+                //valid(self)
+
+                totalHash = randomTask.hash();
+                for(int level = 1; level < validMerkleHeight; level++){
+                    totalHash = totalHash + totalHash;
+                    totalHash = hash(totalHash);
+                }
+                valid = totalHash.equals(invalidMerkleRoot);
+
+                long trialThreeEnd = System.currentTimeMillis();
+                long trialThreeDifference = trialThreeEnd - trialThreeStart;
+                trialThreeSum += trialThreeDifference;
+
+                //Trial Time 4 - bruteForce
+                long trialFourStart = System.currentTimeMillis();
+                for(int index = 1; index < j + 1; index ++){
+                    if(blockToVerify == this.BLOCKCHAIN.get(index)){
+                        break;
+                    }
+                }
+                valid = totalHash.equals(invalidMerkleRoot);
+                long trialFourEnd = System.currentTimeMillis();
+                long trialFourDifference = trialFourEnd - trialFourStart;
+                //End of four is the same as 3, so just append
+                trialFourSum += (trialFourDifference + trialThreeDifference);
 
 
-        //--------------------------------------------------
+            }
+            long trialOneAvg = trialOneSum/(totalBlocksOnChain - 1);
+            long trialTwoAvg = trialTwoSum/(totalBlocksOnChain - 1);
+            long trialThreeAvg = trialThreeSum/(totalBlocksOnChain - 1);
+            long trialFourAvg = trialFourSum/(totalBlocksOnChain - 1);
 
-        verificationTimes = validAndLastInvalid + ", " + lastInvalid + ", " + selfValid + ", " + bruteForce;
-        System.out.println(verificationTimes);
-        pw.println(verificationTimes);
-        pw.close();
+            System.out.println(trialOneSum + "-" + trialTwoSum + "-" + trialThreeSum + "-" + trialFourSum);
+            verificationTimes = trialOneAvg + ", " + trialTwoAvg + ", " + trialThreeAvg + ", " + trialFourAvg;
+            System.out.println(verificationTimes);
+            pw.println(verificationTimes);
+            pw.close();
+        }
     }
 
+    public String hash(String hashes){
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
 
+        return Base64.getEncoder().encodeToString(digest.digest(hashes.getBytes(StandardCharsets.UTF_8)));
+    }
 }

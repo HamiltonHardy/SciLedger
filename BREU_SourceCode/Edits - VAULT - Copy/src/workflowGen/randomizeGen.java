@@ -5,7 +5,7 @@ import java.util.*;
 
 public class randomizeGen {
     final int MXWFS;
-    final static int MAXWFSIZE = 10;
+    final static int MAXWFSIZE = 1001;
     String startPoint;
     ArrayList<workflow> workflows = new ArrayList<>();
 
@@ -19,8 +19,8 @@ public class randomizeGen {
             workflows.add(w);
             startPoint = w.forNextWf.getTaskID();
         }
-        System.out.println("Hash AVG runtime: " + getHashRuntimeAvg());
-        System.out.println("Merkle AVG runtime: " + getMerkleRuntimeAvg());
+//        System.out.println("Hash AVG runtime: " + getHashRuntimeAvg());
+//        System.out.println("Merkle AVG runtime: " + getMerkleRuntimeAvg());
     }
 
     private long getHashRuntimes(){

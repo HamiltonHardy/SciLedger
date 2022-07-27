@@ -48,5 +48,14 @@ public class Block implements Serializable {
     public String invalidGetTreeHeight(){
         return this.PROVENANCE_RECORD.get(2);
     }
+
+
+    public String getValidMerkleRoot(){
+        return this.PROVENANCE_RECORD.get(3);
+    }
+
+    public String getInvalidMerkleRoot(){
+        return this.PROVENANCE_RECORD.get(4);
+    }
 }
 

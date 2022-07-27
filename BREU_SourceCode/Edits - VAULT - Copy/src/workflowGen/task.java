@@ -50,7 +50,7 @@ public class task {
         long sTime = System.currentTimeMillis();
         String hash = hash(str);
         long stpTime = System.currentTimeMillis();
-        System.out.println("Input & Output Hash computation time: " + (stpTime-sTime));
+//        System.out.println("Input & Output Hash computation time: " + (stpTime-sTime));
         hashRuntime = (stpTime-sTime);
         return hash;
     }
@@ -76,6 +76,7 @@ public class task {
     public ArrayList<String> getInvalidTree(){
         return this.invalidTree;
     }
+
     public String hash(String str){
         MessageDigest digest;
         try {
