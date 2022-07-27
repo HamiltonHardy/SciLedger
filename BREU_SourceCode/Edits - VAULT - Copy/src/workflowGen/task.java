@@ -47,9 +47,9 @@ public class task {
     public String getLoremHash(int size){
         LoremIpsum loremIpsum = new LoremIpsum();
         String str = loremIpsum.getParagraphs(size);
-        long sTime = System.currentTimeMillis();
+        long sTime = System.nanoTime();
         String hash = hash(str);
-        long stpTime = System.currentTimeMillis();
+        long stpTime = System.nanoTime();
 //        System.out.println("Input & Output Hash computation time: " + (stpTime-sTime));
         hashRuntime = (stpTime-sTime);
         return hash;
@@ -120,11 +120,11 @@ public class task {
         provenanceRecord.add((int)Math.ceil(Math.log(this.validTree.size()) / Math.log(2)) + 1 + "");
         provenanceRecord.add((int)Math.ceil(Math.log(this.invalidTree.size()) / Math.log(2)) + 1 + "");
 
-//        System.out.println("Valid tree size: " + this.validTree.size());
-        System.out.println("Valid tree height: " + validTreeHeight);
-//
-//        System.out.println("invalid tree size: " + this.invalidTree.size());
-        System.out.println("invalid tree height: " + invalidTreeHeight);
+////        System.out.println("Valid tree size: " + this.validTree.size());
+//        System.out.println("Valid tree height: " + validTreeHeight);
+////
+////        System.out.println("invalid tree size: " + this.invalidTree.size());
+//        System.out.println("invalid tree height: " + invalidTreeHeight);
 
         provenanceRecord.add(this.validTree.get(this.validTree.size()-1));
         provenanceRecord.add(this.invalidTree.get(this.invalidTree.size()-1));

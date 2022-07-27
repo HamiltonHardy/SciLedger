@@ -34,10 +34,10 @@ public class Main {
             NETWORK.add(new Node());
         }
 
-        for(int i = 0; i<5; i++) {
-            System.out.println(i);
+//        for(int i = 0; i<5; i++) {
+//            System.out.println("Trial  " + i);
 //            main.scalability();
-        }
+//        }
             main.merkleExperiment();
     }
 
@@ -92,22 +92,22 @@ public class Main {
                 this.quorum = new Quorum(this.QUORUM_SIZE);
 
                 //Begin: Get start time
-                long start = System.currentTimeMillis();
+                long start = System.nanoTime();
 
                 //Step 2: Create the block
                 currentBlock = NETWORK.get(0).createBlock(provenanceRecord, parentBlocks);
 
                 //Step 4: Quorum signs the block and xchange signatures
-                long beginExchange = System.currentTimeMillis();
+                long beginExchange = System.nanoTime();
                 quorum.exchangeSignatures();
-                long endExchange = System.currentTimeMillis();
+                long endExchange = System.nanoTime();
                 long exchange = endExchange - beginExchange;
 
                 //Append block to blockchain
                 this.BLOCKCHAIN.add(currentBlock);
                 workflowBlocks[j] = currentBlock;
                 //Get end time
-                long endTime = System.currentTimeMillis();
+                long endTime = System.nanoTime();
 
                 long totalTime = (endTime - start);
                 totalTimeSum += totalTime;
@@ -119,11 +119,11 @@ public class Main {
         }
         long totalAverage = totalTimeSum/printCount;
         long exchangeAverage = exchangeSum/printCount;
-//        System.out.println();
-//        System.out.println("Total time to add blocks: " + totalTimeSum);
-//        System.out.println("Average time to add 1 block: " + avgTime);
-//        System.out.println("Blockchain size " + BLOCKCHAIN.size());
-//        System.out.println("Print count " + printCount);
+        System.out.println();
+        System.out.println("Total time to add blocks: " + totalTimeSum);
+        System.out.println("Average time to add 1 block: " + totalAverage);
+        System.out.println("Blockchain size " + BLOCKCHAIN.size());
+        System.out.println("Print count " + printCount);
         String trialData = exchangeAverage + ", " + totalAverage;
         pw.println(trialData);
         pw.close();
@@ -149,7 +149,7 @@ public class Main {
 
         //Trial for 1, 2, 3, 4, 5k blocks + genesis
         for(int i = 1; i<6; i++) {
-            int totalBlocksOnChain = i * 1000 + 1;
+            int totalBlocksOnChain = i * 100 + 1;
             //Creates a file for each workflow size
             String fileName = "Merkle-" + totalBlocksOnChain + "-blocks.csv";
             File file = new File(fileName);
@@ -167,10 +167,12 @@ public class Main {
             long trialThreeSum = 0;
             long trialFourSum = 0;
 
-            System.out.println("Starting experiment:");
-            for (int j = 1; j < totalBlocksOnChain; j++) {
+            System.out.println("Starting experiment with " + i + " thousand tasks");
+            for (int j = 1; j < 50; j++) {
+
+                int randomBlockIndex = (int)(Math.random() * range) + min;
                 //get the block you want to verify and the last block within the workflow
-                Block blockToVerify = this.BLOCKCHAIN.get(j);
+                Block blockToVerify = this.BLOCKCHAIN.get(randomBlockIndex);
                 Block lastBlock = this.BLOCKCHAIN.get(totalBlocksOnChain-1);
                 //get height of valid merkle tree for the block you are verifying
                 int validMerkleHeight = Integer.parseInt(blockToVerify.validGetTreeHeight());
@@ -186,11 +188,11 @@ public class Main {
                 Boolean valid;
 
                 //Gets a random task from the workflow to use as the comparison hash (what the database would provide)
-                int rand = (int)(Math.random() * range) + min;
-                task randomTask = workflow.get(rand);
+                int randomTaskIndex = (int)(Math.random() * range) + min;
+                task randomTask = workflow.get(randomTaskIndex);
 
                 //Trial Time 1 - Check for existence in valid tree (self) and non-existence in invalid tree (last)
-                long trialOneStart = System.currentTimeMillis();
+                long trialOneStart = System.nanoTime();
                 //valid(self)
                 String totalHash = randomTask.hash();
 
@@ -211,12 +213,12 @@ public class Main {
                 }
                 valid = totalHash.equals(invalidMerkleRoot);
 
-                long trialOneEnd = System.currentTimeMillis();
+                long trialOneEnd = System.nanoTime();
                 long trialOneDifference = trialOneEnd - trialOneStart;
                 trialOneSum += trialOneDifference;
 
                 //Trial Time 2 - Check for existence in valid tree (last)
-                long trialTwoStart = System.currentTimeMillis();
+                long trialTwoStart = System.nanoTime();
 
                 //valid(last)
                 totalHash = randomTask.hash();
@@ -227,13 +229,13 @@ public class Main {
 
                 valid = totalHash.equals(validMerkleRoot);
 
-                long trialTwoEnd = System.currentTimeMillis();
+                long trialTwoEnd = System.nanoTime();
                 long trialTwoDifference = trialTwoEnd - trialTwoStart;
                 trialTwoSum += trialTwoDifference;
 
                 //Trial Time 3 - Checks to see if block existed at some point (may have since been invalidated)
                 //So check for existence in valid tree (self)
-                long trialThreeStart = System.currentTimeMillis();
+                long trialThreeStart = System.nanoTime();
 
                 //valid(self)
                 totalHash = randomTask.hash();
@@ -243,31 +245,30 @@ public class Main {
                 }
                 valid = totalHash.equals(validMerkleRoot);
 
-                long trialThreeEnd = System.currentTimeMillis();
+                long trialThreeEnd = System.nanoTime();
                 long trialThreeDifference = trialThreeEnd - trialThreeStart;
                 trialThreeSum += trialThreeDifference;
 
                 //Trial Time 4 - bruteForce: linear search of the blockchain for the block. Once found, check for existence in valid tree (last) which is the same as trial two.
-                long trialFourStart = System.currentTimeMillis();
+                long trialFourStart = System.nanoTime();
                 for(int index = 1; index < j + 1; index ++){
                     if(blockToVerify == this.BLOCKCHAIN.get(index)){
                         break;
                     }
                 }
                 valid = totalHash.equals(invalidMerkleRoot);
-                long trialFourEnd = System.currentTimeMillis();
+                long trialFourEnd = System.nanoTime();
                 long trialFourDifference = trialFourEnd - trialFourStart;
-                //End of four is the same as 2, so just append
-                trialFourSum += (trialFourDifference + trialTwoDifference);
+                trialFourSum += (trialFourDifference);
 
-                System.out.println(trialOneDifference + " " + trialTwoDifference + " " + trialThreeDifference + " " + trialFourDifference);
+//                System.out.println(trialOneDifference + " " + trialTwoDifference + " " + trialThreeDifference + " " + trialFourDifference);
             }
             long trialOneAvg = trialOneSum/(totalBlocksOnChain - 1);
             long trialTwoAvg = trialTwoSum/(totalBlocksOnChain - 1);
             long trialThreeAvg = trialThreeSum/(totalBlocksOnChain - 1);
             long trialFourAvg = trialFourSum/(totalBlocksOnChain - 1);
 
-            System.out.println(trialOneSum + "-" + trialTwoSum + "-" + trialThreeSum + "-" + trialFourSum);
+//            System.out.println(trialOneSum + "-" + trialTwoSum + "-" + trialThreeSum + "-" + trialFourSum);
             verificationTimes = trialOneAvg + ", " + trialTwoAvg + ", " + trialThreeAvg + ", " + trialFourAvg;
             System.out.println(verificationTimes);
             pw.println(verificationTimes);

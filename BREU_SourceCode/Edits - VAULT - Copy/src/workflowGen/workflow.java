@@ -29,7 +29,7 @@ public class workflow {
 
     public void addTask(task task){
         //if task is invalid add to invalid tree and copy valid tree from last task
-        long stTime = System.currentTimeMillis();
+        long stTime = System.nanoTime();
 //        System.out.println("START TIME " + stTime);
         if(task.isInvalidated()){
             this.invTree.add(task);
@@ -43,7 +43,7 @@ public class workflow {
             task.setInvalidTree(workflow.get(workflow.size()-2).getInvalidTree());
         }
         this.workflow.add(task);
-        long stpTime = System.currentTimeMillis();
+        long stpTime = System.nanoTime();
 //        System.out.println("END TIME " + stpTime);
 //        System.out.println("Gen Merkle Tree computation time" + (stpTime-stTime));
         runtime += (stpTime-stTime);
@@ -57,7 +57,6 @@ public class workflow {
         this.workflow.add(new task("w" + wf, "t1", (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(0))));
         while (counter < wSize) {
             counter++;
-            System.out.println(counter);
             addTask(new task("w" + wf, "t" + counter, (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(counter-1))));
         }
 
@@ -66,7 +65,6 @@ public class workflow {
         while(counter<this.wfSize) {
             randIdx = rand.nextInt(wSize - 2) + 1;
             counter++;
-            System.out.println(counter);
             addTask(new task("w" + wf, "t" + counter, (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(randIdx))));
 //            int branchLen = rand.nextInt(MAXWFSIZE-counter+1);
 //            //for a new non linear task add a random number of linear tasks
