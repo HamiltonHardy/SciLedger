@@ -57,6 +57,7 @@ public class workflow {
         this.workflow.add(new task("w" + wf, "t1", (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(0))));
         while (counter < wSize) {
             counter++;
+            System.out.println(counter);
             addTask(new task("w" + wf, "t" + counter, (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(counter-1))));
         }
 
@@ -65,6 +66,7 @@ public class workflow {
         while(counter<this.wfSize) {
             randIdx = rand.nextInt(wSize - 2) + 1;
             counter++;
+            System.out.println(counter);
             addTask(new task("w" + wf, "t" + counter, (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(randIdx))));
 //            int branchLen = rand.nextInt(MAXWFSIZE-counter+1);
 //            //for a new non linear task add a random number of linear tasks

@@ -5,7 +5,7 @@ import java.util.*;
 
 public class randomizeGen {
     final int MXWFS;
-    final static int MAXWFSIZE = 1001;
+    final static int MAXWFSIZE = 5001;
     String startPoint;
     ArrayList<workflow> workflows = new ArrayList<>();
 

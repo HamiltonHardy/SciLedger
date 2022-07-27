@@ -36,13 +36,13 @@ public class Main {
 //            System.out.println("Add node: " + i);
         }
 
-//        for(int i = 0; i<5; i++) {
-//            System.out.println(i);
-//            main.scalability();
-//        }
+        for(int i = 0; i<5; i++) {
+            System.out.println(i);
+            main.scalability();
+        }
 
 
-            main.merkleExperiment();
+//            main.merkleExperiment();
     }
 
     //----------Experiments----------//
@@ -139,10 +139,10 @@ public class Main {
     public void merkleExperiment() throws Exception {
 
         //Create Nodes
-        for (int i = 0; i < this.NETWORK_SIZE; i++) {
-            NETWORK.add(new Node());
-            System.out.println("Add node: " + i);
-        }
+//        for (int i = 0; i < this.NETWORK_SIZE; i++) {
+//            NETWORK.add(new Node());
+//            System.out.println("Add node: " + i);
+//        }
 
         //Creates one giant workflow
         randomizeGen randomizeGen = new randomizeGen(1);
@@ -185,7 +185,7 @@ public class Main {
         //Trial for 2, 4, 6, 8, 10k blocks + genesis
         for(int i = 1; i<6; i++) {
 //            int totalBlocksOnChain = i * 2000 + 1;
-            int totalBlocksOnChain = i * 200 + 1;
+            int totalBlocksOnChain = i * 1000 + 1;
             String fileName = "Merkle-" + totalBlocksOnChain + "-blocks.csv";
             File file = new File(fileName);
             if (!file.exists()) {
