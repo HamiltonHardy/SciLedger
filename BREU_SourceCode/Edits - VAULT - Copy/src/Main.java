@@ -35,10 +35,10 @@ public class Main {
 
         for(int i = 0; i<5; i++) {
             System.out.println(i);
-            main.scalability();
+//            main.scalability();
         }
 
-//        main.merkleExperiment();
+        main.merkleExperiment();
     }
 
     //----------Experiments----------//
@@ -87,8 +87,6 @@ public class Main {
                     }
                 }
 
-//                String validMerkleRoot = provenanceRecord.get(1);
-//                String invalidMerkleRoot = provenanceRecord.get(2);
 
                 //Create the quorum
                 this.quorum = new Quorum(this.QUORUM_SIZE);
@@ -173,8 +171,7 @@ public class Main {
                     Block parentBlock = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount].strip())];
                     parentBlocks[parentCount] = parentBlock;                }
             }
-//            String validMerkleRoot = provenanceRecord.get(1);
-//            String invalidMerkleRoot = provenanceRecord.get(2);
+
 
             //Create the quorum
             this.quorum = new Quorum(this.QUORUM_SIZE);
@@ -188,23 +185,23 @@ public class Main {
 
             //------Begin merkle-----------
             printCount ++;
-        }
-//        for(int i = 1; i<6; i++) {
-//            int totalBlocksOnChain = i * 2000 + 1;
-//            for (int j = 1; j < totalBlocksOnChain; j++) {
-//                Block blockToVerify = this.BLOCKCHAIN.get(j);
-//                Block lastBlock = this.BLOCKCHAIN.get(totalBlocksOnChain-1);
-//
-//                //Trial Time 1 - validAndLastInvalid
-//
-//                //Trial Time 2 - lastInvalid
-//
-//                //Trial Time 3 - selfValid
-//
-//                //Trial Time 4 - bruteForce
-//
-//            }
 //        }
+////        for(int i = 1; i<6; i++) {
+////            int totalBlocksOnChain = i * 2000 + 1;
+////            for (int j = 1; j < totalBlocksOnChain; j++) {
+////                Block blockToVerify = this.BLOCKCHAIN.get(j);
+////                Block lastBlock = this.BLOCKCHAIN.get(totalBlocksOnChain-1);
+////
+////                //Trial Time 1 - validAndLastInvalid
+////
+////                //Trial Time 2 - lastInvalid
+////
+////                //Trial Time 3 - selfValid
+////
+////                //Trial Time 4 - bruteForce
+////
+////            }
+////        }
 
 
         //--------------------------------------------------

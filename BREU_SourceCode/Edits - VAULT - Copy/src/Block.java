@@ -40,5 +40,13 @@ public class Block implements Serializable {
     public String getHASH() {
         return HASH;
     }
+
+    public String validGetTreeHeight(){
+       return this.PROVENANCE_RECORD.get(1);
+    }
+
+    public String invalidGetTreeHeight(){
+        return this.PROVENANCE_RECORD.get(2);
+    }
 }
 
