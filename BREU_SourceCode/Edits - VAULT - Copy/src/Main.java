@@ -135,19 +135,19 @@ public class Main {
     public void merkleExperiment() throws Exception {
 
         //Trial for 1, 2, 3, 4, 5k blocks + genesis
-        for(int i = 1; i<2; i++) {
+        for(int i = 1; i<6; i++) {
             int totalBlocksOnChain = i * 1000 + 1;
             //int totalBlocksOnChain = 20;
             //Creates one giant workflow
             randomizeGen randomizeGen = new randomizeGen(1, totalBlocksOnChain);
             ArrayList<task> workflow = randomizeGen.getWorkflows().get(0).getWorkflow();
             String verificationTimes;
-            for(int k=0; k<workflow.size(); k++){
-                System.out.println(workflow.get(k).getTaskID());
-                for(int q=0; q<workflow.get(k).getIdxParent().size(); q++){
-                    System.out.println(workflow.get(k).getIdxParent(q));
-                }
-            }
+//            for(int k=0; k<workflow.size(); k++){
+//                System.out.println(workflow.get(k).getTaskID());
+//                for(int q=0; q<workflow.get(k).getIdxParent().size(); q++){
+//                    System.out.println(workflow.get(k).getIdxParent(q));
+//                }
+//            }
 
             for(int j = 0; j < workflow.size(); j++) {
                 ArrayList<String> provenanceRecord = workflow.get(j).toProvenanceRecord();
@@ -267,26 +267,25 @@ public class Main {
                 long trialFourStart = System.nanoTime();
                 for(int index = 1; index < totalBlocksOnChain; index ++){
                     if(blockToVerify == this.BLOCKCHAIN.get(index)){
-                        System.out.println("Brute Force index: " + index);
+//                        valid = totalHash.equals(invalidMerkleRoot);
+                        long trialFourEnd = System.nanoTime();
+                        long trialFourDifference = trialFourEnd - trialFourStart;
+                        trialFourSum += trialFourDifference;
+                        System.out.println("Index: " + index + " Runtime: " + trialFourDifference);
                         break;
                     }
                 }
-                valid = totalHash.equals(invalidMerkleRoot);
-                long trialFourEnd = System.nanoTime();
-                long trialFourDifference = trialFourEnd - trialFourStart;
-                trialFourSum += trialFourDifference;
-                System.out.println(" index: " + j + " ID: " + blockToVerify.getPROVENANCE_RECORD().get(6) + " Runtime: " + trialFourDifference);
-                pw.println(j+ "," + blockToVerify.getPROVENANCE_RECORD().get(6) + "," + trialFourDifference);
+
             }
             long trialOneAvg = trialOneSum/(500);
             long trialTwoAvg = trialTwoSum/(500);
             long trialThreeAvg = trialThreeSum/(500);
-            long trialFourAvg = trialFourSum/(500);
+            long trialFourAvg = trialFourSum/(totalBlocksOnChain);
 
 //            System.out.println(trialOneSum + "-" + trialTwoSum + "-" + trialThreeSum + "-" + trialFourSum);
             verificationTimes = trialOneAvg + ", " + trialTwoAvg + ", " + trialThreeAvg + ", " + trialFourAvg;
             System.out.println(verificationTimes);
-//            pw.println(verificationTimes);
+            pw.println(verificationTimes);
             pw.close();
         }
     }
