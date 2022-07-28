@@ -121,10 +121,12 @@ public class task {
     public ArrayList<String> toProvenanceRecord(){
         ArrayList<String> provenanceRecord = new ArrayList<>();
         provenanceRecord.add(this.idxParent.toString());
-        int validTreeHeight = (int) Math.ceil(Math.log(this.validTree.size()) / Math.log(2) + 1);
-        int invalidTreeHeight = (int)Math.ceil(Math.log(this.invalidTree.size()) / Math.log(2) + 1);
-        provenanceRecord.add((int)Math.ceil(Math.log(this.validTree.size()) / Math.log(2)) + 1 + "");
-        provenanceRecord.add((int)Math.ceil(Math.log(this.invalidTree.size()) / Math.log(2)) + 1 + "");
+//        int validTreeHeight = (int) Math.ceil(Math.log(this.validTree.size()) / Math.log(2) + 1);
+//        int invalidTreeHeight = (int)Math.ceil(Math.log(this.invalidTree.size()) / Math.log(2) + 1);
+//        provenanceRecord.add((int)Math.ceil(Math.log(this.validTree.size()) / Math.log(2)) + 1 + "");
+//        provenanceRecord.add((int)Math.ceil(Math.log(this.invalidTree.size()) / Math.log(2)) + 1 + "");
+        provenanceRecord.add(this.validTree.size() + "");
+        provenanceRecord.add(this.invalidTree.size() + "");
 
 //        System.out.println();
 //        System.out.println(this.taskID);

@@ -29,19 +29,19 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Main main = new Main();
 
-        //Vary the quorum size from 200-1000 (10% of 2-10k)
-        for(int i = 5; i<51; i+=5) {
-            //Create the network
-            for (int y = 0; y < i; y++) {
-                NETWORK.add(new Node());
-            }
-            //Number of trials
-            for (int j = 0; j < 50; j++) {
-                System.out.println("Quorum size: " + i + ", Trial: " + j);
-                main.scalability(i);
-            }
-        }
-//            main.merkleExperiment();
+//        //Vary the quorum size from 200-1000 (10% of 2-10k)
+//        for(int i = 5; i<51; i+=5) {
+//            //Create the network
+//            for (int y = 0; y < i; y++) {
+//                NETWORK.add(new Node());
+//            }
+//            //Number of trials
+//            for (int j = 0; j < 50; j++) {
+//                System.out.println("Quorum size: " + i + ", Trial: " + j);
+//                main.scalability(i);
+//            }
+//        }
+            main.merkleExperiment();
     }
 
     //----------Experiments----------//
@@ -133,31 +133,23 @@ public class Main {
 
         //Trial for 1, 2, 3, 4, 5k blocks + genesis
         for(int i = 1; i<6; i++) {
-            int totalBlocksOnChain = i * 1000 + 1;
+            int totalBlocksOnChain = i * 1000;
             //int totalBlocksOnChain = 20;
             //Creates one giant workflow
             randomizeGen randomizeGen = new randomizeGen(1, totalBlocksOnChain);
             ArrayList<task> workflow = randomizeGen.getWorkflows().get(0).getWorkflow();
-            String verificationTimes;
-//            for(int k=0; k<workflow.size(); k++){
-//                System.out.println(workflow.get(k).getTaskID());
-//                for(int q=0; q<workflow.get(k).getIdxParent().size(); q++){
-//                    System.out.println(workflow.get(k).getIdxParent(q));
-//                }
-//            }
+            System.out.println(workflow.size());
 
-            for(int j = 0; j < workflow.size(); j++) {
+            for(int j = 1; j < workflow.size(); j++) {
                 ArrayList<String> provenanceRecord = workflow.get(j).toProvenanceRecord();
                 Block[] parentBlocks = new Block[1];
-                //Step 2: Create the block
-                currentBlock = NETWORK.get(0).createBlock(provenanceRecord, parentBlocks);
                 //Append block to blockchain
-                this.BLOCKCHAIN.add(currentBlock);
+                this.BLOCKCHAIN.add(NETWORK.get(0).createBlock(provenanceRecord, parentBlocks));
             }
 
 
             //Creates a file for each workflow size
-            String fileName = "testMerkle-" + totalBlocksOnChain + "-blocks.csv";
+            String fileName = "Merkle.csv";
             File file = new File(fileName);
             if (!file.exists()) {
                 file.createNewFile();
@@ -178,111 +170,60 @@ public class Main {
             long trialFourSum = 0;
 
             System.out.println("Starting experiment with " + totalBlocksOnChain + " tasks-----------------------------------------------------------------");
-            for (int j = 1; j < totalBlocksOnChain; j++) {
-//                int randomBlockIndex = (int)(Math.random() * range) + min;
-//                System.out.println("I and J " + i + " " + j);
+            for (int j = 0; j < 50; j++) {
+                int randomBlockIndex = (int)(Math.random() * range) + min;
                 //get the block you want to verify and the last block within the workflow
-                Block blockToVerify = this.BLOCKCHAIN.get(j);
+                Block blockToVerify = this.BLOCKCHAIN.get(randomBlockIndex);
                 Block lastBlock = this.BLOCKCHAIN.get(totalBlocksOnChain);
                 //get height of valid merkle tree for the block you are verifying
-                int validMerkleHeight = Integer.parseInt(blockToVerify.validGetTreeHeight());
+                int validMerkleSize = Integer.parseInt(blockToVerify.validGetTreeSize());
+                int invalidMerkleSize = Integer.parseInt(blockToVerify.invalidGetTreeSize());
 
                 //get the height of the valid and invalid merkle tree for the last block in the workflow
-                int lastValidMerkleHeight = Integer.parseInt(lastBlock.validGetTreeHeight());
-                int lastInvalidMerkleHeight = Integer.parseInt(lastBlock.invalidGetTreeHeight());
+                int lastValidMerkleSize = Integer.parseInt(lastBlock.validGetTreeSize());
+                int lastInvalidMerkleSize = Integer.parseInt(lastBlock.invalidGetTreeSize());
 
-                //get the valid and invalid merkle roots for the block you are trying to verify
-                String validMerkleRoot = blockToVerify.getValidMerkleRoot();
-                String invalidMerkleRoot = blockToVerify.getInvalidMerkleRoot();
-//                System.out.println("Valid height " + validMerkleHeight);
+                //Chart A - Exists and Valid
+                //Trial A1 - Check for existence in valid tree (self) and non-existence in invalid tree (last)
+                int inSelfCount = (int) Math.ceil(Math.log(validMerkleSize) / Math.log(2) + 1);
+                //***Should alt between 2 and 3
+                int notInLastInvalidCount = (int) Math.ceil(Math.log(lastInvalidMerkleSize) / Math.log(2) + 3);
+                int a1Counts =  inSelfCount + notInLastInvalidCount;
 
-                Boolean valid;
+                //Trial A2 - Check for existence in valid tree (last)
+                int a2Counts = (int) Math.ceil(Math.log(lastValidMerkleSize) / Math.log(2) + 1);
 
-                //Gets a random task from the workflow to use as the comparison hash (what the database would provide)
-                int randomTaskIndex = (int)(Math.random() * range) + min;
-                task randomTask = workflow.get(randomTaskIndex);
+                //Chart B - Exists
+                //Trial B1 - Check for existence in valid tree (self) (first part of a1)
+                int b1Counts = inSelfCount;
 
-                //Trial Time 1 - Check for existence in valid tree (self) and non-existence in invalid tree (last)
-                long trialOneStart = System.nanoTime();
-                //valid(self)
-                String totalHash = randomTask.hash();
-
-                //These loops hash a task, concatenate the hash to itself, then hash that. Repeats the
-                // number of the height of the tree
-                for(int level = 1; level < validMerkleHeight; level++){
-                    totalHash = totalHash + totalHash;
-                    totalHash = hash(totalHash);
-                }
-                //This represents checking if the given merkle root matches the hashed one
-                valid = totalHash.equals(validMerkleRoot);
-
-                //invalid(last)
-                totalHash = randomTask.hash();
-                for(int level = 1; level < lastInvalidMerkleHeight; level++){
-                    totalHash = totalHash + totalHash;
-                    totalHash = hash(totalHash);
-                }
-                valid = totalHash.equals(invalidMerkleRoot);
-
-                long trialOneEnd = System.nanoTime();
-                long trialOneDifference = trialOneEnd - trialOneStart;
-                trialOneSum += trialOneDifference;
-
-                //Trial Time 2 - Check for existence in valid tree (last)
-                long trialTwoStart = System.nanoTime();
-
-                //valid(last)
-                totalHash = randomTask.hash();
-                for(int level = 1; level < lastValidMerkleHeight; level++){
-                    totalHash = totalHash + totalHash;
-                    totalHash = hash(totalHash);
-                }
-
-                valid = totalHash.equals(validMerkleRoot);
-
-                long trialTwoEnd = System.nanoTime();
-                long trialTwoDifference = trialTwoEnd - trialTwoStart;
-                trialTwoSum += trialTwoDifference;
-
-                //Trial Time 3 - Checks to see if block existed at some point (may have since been invalidated)
-                //So check for existence in valid tree (self)
-                long trialThreeStart = System.nanoTime();
-
-                //valid(self)
-                totalHash = randomTask.hash();
-                for(int level = 1; level < validMerkleHeight; level++){
-                    totalHash = totalHash + totalHash;
-                    totalHash = hash(totalHash);
-                }
-                valid = totalHash.equals(validMerkleRoot);
-
-                long trialThreeEnd = System.nanoTime();
-                long trialThreeDifference = trialThreeEnd - trialThreeStart;
-                trialThreeSum += trialThreeDifference;
-
-                //Trial Time 4 - bruteForce: linear search of the blockchain for the block. Once found, check for existence in valid tree (last) which is the same as trial two.
-                long trialFourStart = System.nanoTime();
-                for(int index = 1; index < totalBlocksOnChain; index ++){
-                    if(blockToVerify == this.BLOCKCHAIN.get(index)){
-//                        valid = totalHash.equals(invalidMerkleRoot);
-                        long trialFourEnd = System.nanoTime();
-                        long trialFourDifference = trialFourEnd - trialFourStart;
-                        trialFourSum += trialFourDifference;
-                        System.out.println("Index: " + index + " Runtime: " + trialFourDifference);
+                //Trial B2 - Check for existence (brute force, find self)
+                String b2Counts = "error";
+                for(int y = 1; y < totalBlocksOnChain; y++){
+                    if(blockToVerify == this.BLOCKCHAIN.get(y)){
+                        b2Counts = y + "";
                         break;
                     }
                 }
 
-            }
-            long trialOneAvg = trialOneSum/(500);
-            long trialTwoAvg = trialTwoSum/(500);
-            long trialThreeAvg = trialThreeSum/(500);
-            long trialFourAvg = trialFourSum/(totalBlocksOnChain);
+                //Chart C - Non-Existence
+                // Trial C1 - brute force, check all
+                int c1Counts = totalBlocksOnChain;
 
-//            System.out.println(trialOneSum + "-" + trialTwoSum + "-" + trialThreeSum + "-" + trialFourSum);
-            verificationTimes = trialOneAvg + ", " + trialTwoAvg + ", " + trialThreeAvg + ", " + trialFourAvg;
-            System.out.println(verificationTimes);
-            pw.println(verificationTimes);
+                //Trial C2 - Check for non-existence in valid tree (last) and invalid tree (last)
+                //***
+                int notInLastValidCount = (int) Math.ceil(Math.log(lastValidMerkleSize) / Math.log(2) + 3);
+                int c2Counts = notInLastValidCount + notInLastInvalidCount;
+
+
+
+                String taskID = blockToVerify.getPROVENANCE_RECORD().get(6);
+                String verificationCounts = totalBlocksOnChain + ", " + taskID + ", " + a1Counts + ", " + a2Counts + ", " + b1Counts + ", " + b2Counts + ", " + c1Counts + ", " + c2Counts;
+                System.out.println(verificationCounts);
+                pw.println(verificationCounts);
+
+            }
+
             pw.close();
         }
     }
