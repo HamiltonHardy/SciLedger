@@ -81,6 +81,10 @@ public class task {
         return this.invalidTree;
     }
 
+    public long getHashRuntime() {
+        return hashRuntime;
+    }
+
     public String hash(String str){
         MessageDigest digest;
         try {

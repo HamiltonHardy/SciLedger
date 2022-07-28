@@ -20,8 +20,8 @@ public class Main {
     public ArrayList<Block> BLOCKCHAIN = new ArrayList<>();
     public static Block currentBlock;
     public static Quorum quorum;
-    private static final int NETWORK_SIZE = 10;
-    private final int QUORUM_SIZE = 10;
+    private int NETWORK_SIZE;
+//    private final int QUORUM_SIZE = 10;
 
     /**
      * Driver to run experiments
@@ -29,16 +29,18 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Main main = new Main();
 
-        //Create the network
-        for (int i = 0; i < NETWORK_SIZE; i++) {
-            NETWORK.add(new Node());
+        for(int i = 10; i<101; i+=10) {
+            System.out.println("Quorum size  " + i);
+            //Create the network
+            for (int y = 0; y < i; y++) {
+                NETWORK.add(new Node());
+            }
+            for (int j = 0; j < 5; j++) {
+                System.out.println("Trial  " + j);
+                main.scalability(i);
+            }
         }
-
-//        for(int i = 0; i<5; i++) {
-//            System.out.println("Trial  " + i);
-//            main.scalability();
-//        }
-            main.merkleExperiment();
+//            main.merkleExperiment();
     }
 
     //----------Experiments----------//
@@ -46,17 +48,21 @@ public class Main {
     /**
      * TODO
      */
-    public void scalability() throws Exception {
+    public void scalability(int quorumSize) throws Exception {
+        this.NETWORK_SIZE = quorumSize;
         BLOCKCHAIN = new ArrayList<>();
 //        System.out.println("Blockchain size at start " + BLOCKCHAIN.size());
-        File file = new File("AverageBlockAddTime.csv");
+        String filename = "AverageBlockAddTime" + quorumSize + ".csv";
+        File file = new File(filename);
         if (!file.exists()) {
             file.createNewFile();
         }
-        PrintWriter pw = new PrintWriter(new FileOutputStream(new File("AverageBlockAddTime.csv"), true));
+        PrintWriter pw = new PrintWriter(new FileOutputStream(new File(filename), true));
 
         long totalTimeSum = 0;
         long exchangeSum = 0;
+
+
         int printCount = 0;
 
 
@@ -70,7 +76,8 @@ public class Main {
             Block[] workflowBlocks = new Block[workflow.size()];
             for(int j = 0; j < workflow.size(); j++) {
 //                System.out.println("Task: " + printCount);
-                ArrayList<String> provenanceRecord = workflow.get(j).toProvenanceRecord();
+                task task = workflow.get(j);
+                ArrayList<String> provenanceRecord = task.toProvenanceRecord();
 
                 String parentTaskIDString = provenanceRecord.get(0);
                 parentTaskIDString = parentTaskIDString.replace("[", "");
@@ -89,7 +96,7 @@ public class Main {
 
 
                 //Create the quorum
-                this.quorum = new Quorum(this.QUORUM_SIZE);
+                this.quorum = new Quorum(this.NETWORK_SIZE);
 
                 //Begin: Get start time
                 long start = System.nanoTime();
@@ -117,14 +124,15 @@ public class Main {
 
             }
         }
-        long totalAverage = totalTimeSum/printCount;
+        long totalAverage = totalTimeSum/printCount + randomizeGen.getHashRuntimeAvg() + randomizeGen.getMerkleRuntimeAvg();
         long exchangeAverage = exchangeSum/printCount;
         System.out.println();
         System.out.println("Total time to add blocks: " + totalTimeSum);
         System.out.println("Average time to add 1 block: " + totalAverage);
         System.out.println("Blockchain size " + BLOCKCHAIN.size());
         System.out.println("Print count " + printCount);
-        String trialData = exchangeAverage + ", " + totalAverage;
+
+        String trialData = randomizeGen.getHashRuntimeAvg() + ", " + randomizeGen.getMerkleRuntimeAvg() + "," + exchangeAverage + "," + totalAverage;
         pw.println(trialData);
         pw.close();
     }
