@@ -19,7 +19,7 @@ public class Main {
     public static final ArrayList<Node> NETWORK = new ArrayList<>();
     public ArrayList<Block> BLOCKCHAIN = new ArrayList<>();
     public static Block currentBlock;
-    public static Quorum quorum;
+    public Quorum quorum;
     private int NETWORK_SIZE;
 //    private final int QUORUM_SIZE = 10;
 
@@ -29,14 +29,15 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Main main = new Main();
 
-        for(int i = 10; i<101; i+=10) {
-            System.out.println("Quorum size  " + i);
+        //Vary the quorum size from 200-1000 (10% of 2-10k)
+        for(int i = 5; i<51; i+=5) {
             //Create the network
             for (int y = 0; y < i; y++) {
                 NETWORK.add(new Node());
             }
-            for (int j = 0; j < 5; j++) {
-                System.out.println("Trial  " + j);
+            //Number of trials
+            for (int j = 0; j < 50; j++) {
+                System.out.println("Quorum size: " + i + ", Trial: " + j);
                 main.scalability(i);
             }
         }
@@ -51,8 +52,7 @@ public class Main {
     public void scalability(int quorumSize) throws Exception {
         this.NETWORK_SIZE = quorumSize;
         BLOCKCHAIN = new ArrayList<>();
-//        System.out.println("Blockchain size at start " + BLOCKCHAIN.size());
-        String filename = "AverageBlockAddTime" + quorumSize + ".csv";
+        String filename = "AverageBlockAddTime.csv";
         File file = new File(filename);
         if (!file.exists()) {
             file.createNewFile();
@@ -61,39 +61,24 @@ public class Main {
 
         long totalTimeSum = 0;
         long exchangeSum = 0;
-
-
         int printCount = 0;
 
 
-        randomizeGen randomizeGen = new randomizeGen(10, 10);
+        randomizeGen randomizeGen = new randomizeGen(10, 9);
         ArrayList<workflow> workflows = randomizeGen.getWorkflows();
-
-//        System.out.println("Workflows.size " + workflows.size());
 
         for (int i = 0; i<workflows.size(); i++){
             ArrayList<task> workflow = workflows.get(i).getWorkflow();
             Block[] workflowBlocks = new Block[workflow.size()];
             for(int j = 0; j < workflow.size(); j++) {
-//                System.out.println("Task: " + printCount);
-                task task = workflow.get(j);
-                ArrayList<String> provenanceRecord = task.toProvenanceRecord();
-
-                String parentTaskIDString = provenanceRecord.get(0);
-                parentTaskIDString = parentTaskIDString.replace("[", "");
-                parentTaskIDString = parentTaskIDString.replace("]", "");
-                parentTaskIDString = parentTaskIDString.strip();
-
-                String[] parentTaskIDs = parentTaskIDString.split(",");
-
-
+                ArrayList<String> provenanceRecord = workflow.get(j).toProvenanceRecord();
+                String[] parentTaskIDs = provenanceRecord.get(0).replace("[", "").replace("]", "").strip().split(",");
                 Block[] parentBlocks = new Block[parentTaskIDs.length];
                 for(int parentCount = 0; parentCount < parentTaskIDs.length; parentCount++){
                     if(Integer.parseInt(parentTaskIDs[parentCount].strip()) != -1) {
                         parentBlocks[parentCount] = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount].strip())];
                     }
                 }
-
 
                 //Create the quorum
                 this.quorum = new Quorum(this.NETWORK_SIZE);
@@ -121,18 +106,22 @@ public class Main {
                 exchangeSum += exchange;
 //                System.out.println("Block Add Time: " + totalTime);
                 printCount ++;
+                System.gc();
 
             }
         }
         long totalAverage = totalTimeSum/printCount + randomizeGen.getHashRuntimeAvg() + randomizeGen.getMerkleRuntimeAvg();
         long exchangeAverage = exchangeSum/printCount;
-        System.out.println();
-        System.out.println("Total time to add blocks: " + totalTimeSum);
-        System.out.println("Average time to add 1 block: " + totalAverage);
-        System.out.println("Blockchain size " + BLOCKCHAIN.size());
-        System.out.println("Print count " + printCount);
+//        System.out.println();
+//        System.out.println("Total time to add blocks: " + totalTimeSum);
+//        System.out.println("Average time to add 1 block: " + totalAverage);
+//        System.out.println("Blockchain size " + BLOCKCHAIN.size());
+//        System.out.println("Print count " + printCount);
 
-        String trialData = randomizeGen.getHashRuntimeAvg() + ", " + randomizeGen.getMerkleRuntimeAvg() + "," + exchangeAverage + "," + totalAverage;
+        String trialData = quorumSize + ", " +randomizeGen.getHashRuntimeAvg() + ", " + randomizeGen.getMerkleRuntimeAvg() + "," + exchangeAverage + "," + totalAverage;
+
+        System.out.println(trialData);
+
         pw.println(trialData);
         pw.close();
     }
