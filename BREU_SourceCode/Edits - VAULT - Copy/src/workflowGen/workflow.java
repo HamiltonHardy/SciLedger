@@ -78,6 +78,11 @@ public class workflow {
 //            }
             //merge any open tasks
             task merge = this.workflow.get(rand.nextInt(wSize - 1 - randIdx) + randIdx + 2);
+            if(counter == wfSize - 1){
+                int validSize = merge.getValidTree().size();
+                int invalidSize = merge.getInvalidTree().size();
+                System.out.println("In workflow: wf size: " + wfSize + " valid size " + validSize + " invalid size " + invalidSize + " counter " + counter);
+            }
             merge.addIdxParent(counter);
         }
         //get random task for next workflow branch
@@ -85,9 +90,13 @@ public class workflow {
 
         //Remove genesis, sort, reinsert genesis
         task genesis = workflow.get(0);
+        task last = workflow.get(workflow.size()-1);
         workflow.remove(genesis);
+        workflow.remove(last);
         workflow.sort(Comparator.comparing(o -> o.getIdxParent(0)));
         workflow.add(0, genesis);
+        workflow.add(last);
+        System.out.println("LAT in wflow valid " + last.getValidTree().size() + " invalid " + last.getInvalidTree().size() + " index " + (workflow.size()-1));
     }
 
 
