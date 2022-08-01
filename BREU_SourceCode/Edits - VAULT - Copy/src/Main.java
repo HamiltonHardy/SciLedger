@@ -29,21 +29,21 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Main main = new Main();
 
-//        //Vary the quorum size from 200-1000 (10% of 2-10k)
-//        for(int i = 5; i<51; i+=5) {
-//            //Create the network
-//            for (int y = 0; y < i; y++) {
-//                NETWORK.add(new Node());
-//            }
-//            //Number of trials
-//            for (int j = 0; j < 50; j++) {
-//                System.out.println("Quorum size: " + i + ", Trial: " + j);
-//                main.scalability(i);
-//            }
-//        }
+        //Vary the quorum size from 200-1000 (10% of 2-10k)
+        for(int i = 5; i<51; i+=5) {
+            //Create the network
+            for (int y = 0; y < i; y++) {
+                NETWORK.add(new Node());
+            }
+            //Number of trials
+            for (int j = 0; j < 50; j++) {
+                System.out.println("Quorum size: " + i + ", Trial: " + j);
+                main.scalability(i);
+            }
+        }
 
 
-            main.merkleExperiment();
+//            main.merkleExperiment();
     }
 
     //----------Experiments----------//
@@ -69,19 +69,10 @@ public class Main {
         randomizeGen randomizeGen = new randomizeGen(10, 9);
         ArrayList<workflow> workflows = randomizeGen.getWorkflows();
 
-        for (int i = 0; i<workflows.size(); i++){
-            ArrayList<task> workflow = workflows.get(i).getWorkflow();
+        for (workflow value : workflows) {
+            ArrayList<task> workflow = value.getWorkflow();
             Block[] workflowBlocks = new Block[workflow.size()];
-            for(int j = 0; j < workflow.size(); j++) {
-                ArrayList<String> provenanceRecord = workflow.get(j).toProvenanceRecord();
-                String[] parentTaskIDs = provenanceRecord.get(0).replace("[", "").replace("]", "").strip().split(",");
-                Block[] parentBlocks = new Block[parentTaskIDs.length];
-                for(int parentCount = 0; parentCount < parentTaskIDs.length; parentCount++){
-                    if(Integer.parseInt(parentTaskIDs[parentCount].strip()) != -1) {
-                        parentBlocks[parentCount] = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount].strip())];
-                    }
-                }
-
+            for (int j = 0; j < workflow.size(); j++) {
                 //Create the quorum
                 this.quorum = new Quorum(this.NETWORK_SIZE);
 
@@ -89,6 +80,21 @@ public class Main {
                 long start = System.nanoTime();
 
                 //Step 2: Create the block
+                //Get provenance record
+                ArrayList<String> provenanceRecord = workflow.get(j).toProvenanceRecord();
+                //Get parent Task IDs
+                String[] parentTaskIDs = provenanceRecord.get(0).replace("[", "").replace("]", "").strip().split(",");
+
+                //Create a list to store parent blocks
+                Block[] parentBlocks = new Block[parentTaskIDs.length];
+
+                //For each of the parents, it the value is not -1, get the parent block from the workflow and add to the parent blocks list
+                for (int parentCount = 0; parentCount < parentTaskIDs.length; parentCount++) {
+                    if (Integer.parseInt(parentTaskIDs[parentCount].strip()) != -1) {
+                        parentBlocks[parentCount] = workflowBlocks[Integer.parseInt(parentTaskIDs[parentCount].strip())];
+                    }
+                }
+
                 currentBlock = NETWORK.get(0).createBlock(provenanceRecord, parentBlocks);
 
                 //Step 4: Quorum signs the block and xchange signatures
@@ -106,21 +112,16 @@ public class Main {
                 long totalTime = (endTime - start);
                 totalTimeSum += totalTime;
                 exchangeSum += exchange;
-//                System.out.println("Block Add Time: " + totalTime);
-                printCount ++;
+                printCount++;
                 System.gc();
 
             }
         }
         long totalAverage = totalTimeSum/printCount + randomizeGen.getHashRuntimeAvg() + randomizeGen.getMerkleRuntimeAvg();
         long exchangeAverage = exchangeSum/printCount;
-//        System.out.println();
-//        System.out.println("Total time to add blocks: " + totalTimeSum);
-//        System.out.println("Average time to add 1 block: " + totalAverage);
-//        System.out.println("Blockchain size " + BLOCKCHAIN.size());
-//        System.out.println("Print count " + printCount);
 
-        String trialData = quorumSize + ", " +randomizeGen.getHashRuntimeAvg() + ", " + randomizeGen.getMerkleRuntimeAvg() + "," + exchangeAverage + "," + totalAverage;
+        //Quorum size, hashtime, merkle time, exchange time, total time
+        String trialData = quorumSize + ", " +randomizeGen.getHashRuntimeAvg() + ", " + randomizeGen.getMerkleRuntimeAvg() + ", " + exchangeAverage + ", " + totalAverage;
 
         System.out.println(trialData);
 
@@ -151,7 +152,7 @@ public class Main {
 
 
             //Creates a file for each workflow size
-            String fileName = "Merkle" + totalBlocksOnChain +".csv";
+            String fileName = "MerkleA" + totalBlocksOnChain +".csv";
             File file = new File(fileName);
             if (!file.exists()) {
                 file.createNewFile();
