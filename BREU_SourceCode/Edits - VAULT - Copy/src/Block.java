@@ -41,24 +41,6 @@ public class Block implements Serializable {
         return HASH;
     }
 
-    public String validGetTreeSize(){
-       return this.PROVENANCE_RECORD.get(1);
-    }
-
-
-    public String invalidGetTreeSize(){
-        return this.PROVENANCE_RECORD.get(2);
-    }
-
-    public String getValidMerkleRoot(){
-        return this.PROVENANCE_RECORD.get(3);
-    }
-
-
-    public String getInvalidMerkleRoot(){
-        return this.PROVENANCE_RECORD.get(4);
-    }
-
     public ArrayList<String> getPROVENANCE_RECORD() {
         return PROVENANCE_RECORD;
     }

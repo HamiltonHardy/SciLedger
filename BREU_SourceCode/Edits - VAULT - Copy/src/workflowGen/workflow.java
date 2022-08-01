@@ -15,9 +15,8 @@ public class workflow {
     ArrayList<task> valTree = new ArrayList<>();
     public long runtime = 0;
 
-    public workflow(int wfSize,int wfNum, String stpt, String spwf) {
+    public workflow(int wfSize,int wfNum) {
         this.wfSize = wfSize;
-        //make gen task
         //GENESIS BLOCK
         ArrayList<Integer> genesisParent = new ArrayList<>();
         genesisParent.add(-1);
@@ -26,29 +25,31 @@ public class workflow {
         //make the other tasks
         genTasks(wfNum);
 
-//        System.out.println("Merkle computation time: " + runtime);
+//        System.out.println("Workflow val and inval " + valTree.size()+ 1 + " " + invTree.size() + " " + workflow.size());
     }
 
     public void addTask(task task){
         //if task is invalid add to invalid tree and copy valid tree from last task
         long stTime = System.nanoTime();
-//        System.out.println("START TIME " + stTime);
         if(task.isInvalidated()){
             this.invTree.add(task);
             task.setInvalidTree(this.genMerkleTree(this.invTree));
+            task.setInvalidTreeSize(this.invTree.size());
             task.setValidTree(workflow.get(workflow.size()-2).getValidTree());
+            task.setValidTreeSize(this.valTree.size() + 1);
+//            System.out.println("Invalildated," + task.getTaskID() + "  val = and inval = " + task.getValidTreeSize() + " " + task.getInvalidTreeSize());
         }
         //if task is valid add to valid tree and copy invalid tree from last task
         else{
             this.valTree.add(task);
             task.setValidTree(this.genMerkleTree(this.valTree));
+            task.setValidTreeSize(this.valTree.size() + 1);
             task.setInvalidTree(workflow.get(workflow.size()-2).getInvalidTree());
+            task.setInvalidTreeSize(this.invTree.size());
+//            System.out.println("Valildated " + task.getTaskID() + " val = and inval = " + task.getValidTreeSize() + " " + task.getInvalidTreeSize());
         }
         this.workflow.add(task);
-//        System.out.println("Valid + invalid size = " + (this.valTree.size() + this.invTree.size()) + " VS size " + workflow.size());
         long stpTime = System.nanoTime();
-//        System.out.println("END TIME " + stpTime);
-//        System.out.println("Gen Merkle Tree computation time" + (stpTime-stTime));
         runtime += (stpTime-stTime);
     }
     private void genTasks(int wf){
@@ -57,7 +58,10 @@ public class workflow {
         int counter = 1;
         int randIdx;
 
+        //Add task 1
         this.workflow.add(new task("w" + wf, "t1", (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(0))));
+
+        //Add linear tasks
         while (counter < wSize) {
             counter++;
             addTask(new task("w" + wf, "t" + counter, (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(counter-1))));
@@ -69,20 +73,8 @@ public class workflow {
             randIdx = rand.nextInt(wSize - 2) + 1;
             counter++;
             addTask(new task("w" + wf, "t" + counter, (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(randIdx))));
-//            int branchLen = rand.nextInt(MAXWFSIZE-counter+1);
-//            //for a new non linear task add a random number of linear tasks
-//            for (int j = 0; j < branchLen; j++) {
-//                counter++;
-//                if(counter>=MAXWFSIZE) break;
-//                addTask(new task("w" + wf, "t" + counter, (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(counter-1))));
-//            }
             //merge any open tasks
             task merge = this.workflow.get(rand.nextInt(wSize - 1 - randIdx) + randIdx + 2);
-            if(counter == wfSize - 1){
-                int validSize = merge.getValidTree().size();
-                int invalidSize = merge.getInvalidTree().size();
-                System.out.println("In workflow: wf size: " + wfSize + " valid size " + validSize + " invalid size " + invalidSize + " counter " + counter);
-            }
             merge.addIdxParent(counter);
         }
         //get random task for next workflow branch
@@ -96,7 +88,7 @@ public class workflow {
         workflow.sort(Comparator.comparing(o -> o.getIdxParent(0)));
         workflow.add(0, genesis);
         workflow.add(last);
-        System.out.println("LAT in wflow valid " + last.getValidTree().size() + " invalid " + last.getInvalidTree().size() + " index " + (workflow.size()-1));
+//        System.out.println("last size valid " + last.getValidTreeSize() + " invalid " + last.getInvalidTreeSize());
     }
 
 

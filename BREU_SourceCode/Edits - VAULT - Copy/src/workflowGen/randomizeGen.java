@@ -5,10 +5,6 @@ import java.util.*;
 
 public class randomizeGen {
     final int MXWFS;
-    //Scalability
-//    final static int MAXWFSIZE = 10;
-
-    //Merkle
     final int MAXWFSIZE;
     String startPoint;
     ArrayList<workflow> workflows = new ArrayList<>();
@@ -17,15 +13,12 @@ public class randomizeGen {
     public randomizeGen(int maxWorkflows, int MAXWFSIZE) {
         this.MAXWFSIZE = MAXWFSIZE;
         MXWFS = maxWorkflows;
-        workflows.add(new workflow(MAXWFSIZE,0,null,null));
-        Random rand = new Random();
+        workflows.add(new workflow(MAXWFSIZE,0));
         for(int i = 1; i< MXWFS; i++) {
-            workflow w = new workflow(MAXWFSIZE,i,startPoint,String.valueOf(rand.nextInt(i)));
+            workflow w = new workflow(MAXWFSIZE,i);
             workflows.add(w);
             startPoint = w.forNextWf.getTaskID();
         }
-//        System.out.println("Hash AVG runtime: " + getHashRuntimeAvg());
-//        System.out.println("Merkle AVG runtime: " + getMerkleRuntimeAvg());
     }
 
     private long getHashRuntimes(){

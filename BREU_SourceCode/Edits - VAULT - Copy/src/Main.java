@@ -135,11 +135,9 @@ public class Main {
         //Trial for 1, 2, 3, 4, 5k blocks + genesis
         for(int i = 1; i<6; i++) {
             int totalBlocksOnChain = i * 1000;
-            //int totalBlocksOnChain = 20;
             //Creates one giant workflow
             randomizeGen randomizeGen = new randomizeGen(1, totalBlocksOnChain);
             ArrayList<task> workflow = randomizeGen.getWorkflows().get(0).getWorkflow();
-            System.out.println(workflow.size());
 
             for(int j = 1; j < workflow.size(); j++) {
                 ArrayList<String> provenanceRecord = workflow.get(j).toProvenanceRecord();
@@ -150,7 +148,7 @@ public class Main {
 
 
             //Creates a file for each workflow size
-            String fileName = "Merkle2" + totalBlocksOnChain +".csv";
+            String fileName = "Merkle" + totalBlocksOnChain +".csv";
             File file = new File(fileName);
             if (!file.exists()) {
                 file.createNewFile();
@@ -170,14 +168,14 @@ public class Main {
                 //get the block you want to verify and the last block within the workflow
                 Block blockToVerify = this.BLOCKCHAIN.get(randomBlockIndex);
                 Block lastBlock = this.BLOCKCHAIN.get(this.BLOCKCHAIN.size()-1);
-                //get height of valid merkle tree for the block you are verifying
-                int validMerkleSize = Integer.parseInt(blockToVerify.validGetTreeSize());
 
-                //get the height of the valid and invalid merkle tree for the last block in the workflow
-                int lastValidMerkleSize = Integer.parseInt(lastBlock.validGetTreeSize());
-                int lastInvalidMerkleSize = Integer.parseInt(lastBlock.invalidGetTreeSize());
+                int validMerkleSize = Integer.parseInt(blockToVerify.getPROVENANCE_RECORD().get(1));
 
-                System.out.println("Last valid " + lastValidMerkleSize + " last invalid " + lastInvalidMerkleSize + " size " + this.BLOCKCHAIN.size());
+                int lastValidMerkleSize = Integer.parseInt(lastBlock.getPROVENANCE_RECORD().get(1));
+                int lastInvalidMerkleSize = Integer.parseInt(lastBlock.getPROVENANCE_RECORD().get(2));
+
+                System.out.println("Val, last val, last inval " + validMerkleSize + " " + lastValidMerkleSize + " " + lastInvalidMerkleSize);
+
 
                 //Chart A - Exists and Valid
                 int siblingOrNot = (int) (Math.random() * 2 + 2);
@@ -186,14 +184,12 @@ public class Main {
                 //***Should alt between 2 and 3
                 int notInLastInvalidCount = (int) Math.ceil(Math.log(lastInvalidMerkleSize) / Math.log(2) + siblingOrNot);
                 int a1Counts =  inSelfCount + notInLastInvalidCount;
-
                 //Trial A2 - Check for existence in valid tree (last)
                 int a2Counts = (int) Math.ceil(Math.log(lastValidMerkleSize) / Math.log(2) + 1);
 
                 //Chart B - Exists
                 //Trial B1 - Check for existence in valid tree (self) (first part of a1)
                 int b1Counts = inSelfCount;
-
                 //Trial B2 - Check for existence (brute force, find self)
                 String b2Counts = "error";
                 for(int y = 1; y < totalBlocksOnChain; y++){
@@ -218,7 +214,7 @@ public class Main {
 
                 String taskID = blockToVerify.getPROVENANCE_RECORD().get(6);
                 String verificationCounts = totalBlocksOnChain + ", " + taskID + ", " + a1Counts + ", " + a2Counts + ", " + b1Counts + ", " + b2Counts + ", " + c1Counts + ", " + c2Counts;
-                System.out.println(verificationCounts);
+                System.out.println("Verification counts " +verificationCounts);
                 pw.println(verificationCounts);
 
             }
