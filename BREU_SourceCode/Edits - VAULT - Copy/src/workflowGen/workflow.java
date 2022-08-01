@@ -24,8 +24,6 @@ public class workflow {
         this.workflow.add(new task("w" + wfNum, "0", false, genesisParent));
         //make the other tasks
         genTasks(wfNum);
-
-//        System.out.println("Workflow val and inval " + valTree.size()+ 1 + " " + invTree.size() + " " + workflow.size());
     }
 
     public void addTask(task task){
@@ -37,7 +35,6 @@ public class workflow {
             task.setInvalidTreeSize(this.invTree.size());
             task.setValidTree(workflow.get(workflow.size()-2).getValidTree());
             task.setValidTreeSize(this.valTree.size() + 1);
-//            System.out.println("Invalildated," + task.getTaskID() + "  val = and inval = " + task.getValidTreeSize() + " " + task.getInvalidTreeSize());
         }
         //if task is valid add to valid tree and copy invalid tree from last task
         else{
@@ -46,7 +43,6 @@ public class workflow {
             task.setValidTreeSize(this.valTree.size() + 1);
             task.setInvalidTree(workflow.get(workflow.size()-2).getInvalidTree());
             task.setInvalidTreeSize(this.invTree.size());
-//            System.out.println("Valildated " + task.getTaskID() + " val = and inval = " + task.getValidTreeSize() + " " + task.getInvalidTreeSize());
         }
         this.workflow.add(task);
         long stpTime = System.nanoTime();
@@ -58,7 +54,7 @@ public class workflow {
         int counter = 1;
         int randIdx;
 
-        //Add task 1
+        //Add first tasks
         this.workflow.add(new task("w" + wf, "t1", (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(0))));
 
         //Add linear tasks
@@ -67,8 +63,7 @@ public class workflow {
             addTask(new task("w" + wf, "t" + counter, (rand.nextDouble() < PERINV), new ArrayList<>(Arrays.asList(counter-1))));
         }
 
-        //Add Branching Tasks
-        //loop through remaining nonlinear tasks
+        //Add Branching Tasks: loop through remaining nonlinear tasks
         while(counter<this.wfSize) {
             randIdx = rand.nextInt(wSize - 2) + 1;
             counter++;
@@ -80,7 +75,7 @@ public class workflow {
         //get random task for next workflow branch
         forNextWf = this.workflow.get((int) (Math.random() * workflow.size()));
 
-        //Remove genesis, sort, reinsert genesis
+        //Remove genesis and last, sort, reinsert genesis and last
         task genesis = workflow.get(0);
         task last = workflow.get(workflow.size()-1);
         workflow.remove(genesis);
@@ -88,7 +83,6 @@ public class workflow {
         workflow.sort(Comparator.comparing(o -> o.getIdxParent(0)));
         workflow.add(0, genesis);
         workflow.add(last);
-//        System.out.println("last size valid " + last.getValidTreeSize() + " invalid " + last.getInvalidTreeSize());
     }
 
 
@@ -106,23 +100,17 @@ public class workflow {
 
     public ArrayList<String> genMerkleTree(ArrayList<task> wf){
         ArrayList<String> tree = new ArrayList<>();
-        // Start by adding all the hashes of the transactions as leaves of the
-        // tree.
+        // Start by adding all the hashes of the transactions as leaves of the tree.
         for (workflowGen.task task : wf) {
-            //System.out.println(task.hash());
             tree.add(task.hash());
         }
-//        System.out.println();
         int levelOffset = 0; // Offset in the list where the currently processed
         // level starts.
-        // Step through each level, stopping when we reach the root (levelSize
-        // == 1).
+        // Step through each level, stopping when we reach the root (levelSize== 1).
         for (int levelSize = wf.size(); levelSize > 1; levelSize = (levelSize + 1) / 2) {
             // For each pair of nodes on that level:
             for (int left = 0; left < levelSize; left += 2) {
-                // The right hand node can be the same as the left hand, in the
-                // case where we don't have enough
-                // transactions.
+                // The right hand node can be the same as the left hand, in thecase where we don't have enough transactions.
                 int right = Math.min(left + 1, levelSize - 1);
                 String tleft = tree.get(levelOffset + left);
 

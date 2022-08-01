@@ -41,6 +41,8 @@ public class Main {
 //                main.scalability(i);
 //            }
 //        }
+
+
             main.merkleExperiment();
     }
 
@@ -135,14 +137,15 @@ public class Main {
         //Trial for 1, 2, 3, 4, 5k blocks + genesis
         for(int i = 1; i<6; i++) {
             int totalBlocksOnChain = i * 1000;
-            //Creates one giant workflow
+            //Get one giant workflow
             randomizeGen randomizeGen = new randomizeGen(1, totalBlocksOnChain);
             ArrayList<task> workflow = randomizeGen.getWorkflows().get(0).getWorkflow();
 
+            //Build block chain with all tasks from giant workflow
             for(int j = 1; j < workflow.size(); j++) {
                 ArrayList<String> provenanceRecord = workflow.get(j).toProvenanceRecord();
+                //Dummy parent block variable
                 Block[] parentBlocks = new Block[1];
-                //Append block to blockchain
                 this.BLOCKCHAIN.add(NETWORK.get(0).createBlock(provenanceRecord, parentBlocks));
             }
 
@@ -157,31 +160,37 @@ public class Main {
                 file.createNewFile();
             }
             PrintWriter pw = new PrintWriter(new FileOutputStream(new File(fileName), true));
-            //Set values for random later
+
+            //Set values for random number generator
             int max = totalBlocksOnChain-1;
             int min = 1;
             int range = max - min + 1;
 
-            System.out.println("Starting experiment with " + totalBlocksOnChain + " tasks-----------------------------------------------------------------");
+            System.out.println("------------------------------------------Starting experiment with " + totalBlocksOnChain + " tasks--------------------------------------");
+            //Begin experiment
+
+            //Get the last block in the workflow and get size of its valid and invalid merkle trees
+            Block lastBlock = this.BLOCKCHAIN.get(this.BLOCKCHAIN.size()-1);
+            int lastValidMerkleSize = Integer.parseInt(lastBlock.getPROVENANCE_RECORD().get(1));
+            int lastInvalidMerkleSize = Integer.parseInt(lastBlock.getPROVENANCE_RECORD().get(2));
+
+            System.out.println("Last valid, last invalid " + lastValidMerkleSize + " " + lastInvalidMerkleSize);
+
+            //Run 50 trials
             for (int j = 0; j < 50; j++) {
+                //Randomly determine if this block within the tree has non-existence checked with sibling or not. Value is either 2 or 3
+                int siblingOrNot = (int) (Math.random() * 2 + 2);
+
+                //Get a random block to verify and the size of its valid merkle tree
                 int randomBlockIndex = (int)(Math.random() * range) + min;
-                //get the block you want to verify and the last block within the workflow
                 Block blockToVerify = this.BLOCKCHAIN.get(randomBlockIndex);
-                Block lastBlock = this.BLOCKCHAIN.get(this.BLOCKCHAIN.size()-1);
-
                 int validMerkleSize = Integer.parseInt(blockToVerify.getPROVENANCE_RECORD().get(1));
-
-                int lastValidMerkleSize = Integer.parseInt(lastBlock.getPROVENANCE_RECORD().get(1));
-                int lastInvalidMerkleSize = Integer.parseInt(lastBlock.getPROVENANCE_RECORD().get(2));
-
-                System.out.println("Val, last val, last inval " + validMerkleSize + " " + lastValidMerkleSize + " " + lastInvalidMerkleSize);
+                System.out.println("Self valid " + validMerkleSize);
 
 
                 //Chart A - Exists and Valid
-                int siblingOrNot = (int) (Math.random() * 2 + 2);
                 //Trial A1 - Check for existence in valid tree (self) and non-existence in invalid tree (last)
                 int inSelfCount = (int) Math.ceil(Math.log(validMerkleSize) / Math.log(2) + 1);
-                //***Should alt between 2 and 3
                 int notInLastInvalidCount = (int) Math.ceil(Math.log(lastInvalidMerkleSize) / Math.log(2) + siblingOrNot);
                 int a1Counts =  inSelfCount + notInLastInvalidCount;
                 //Trial A2 - Check for existence in valid tree (last)
@@ -200,15 +209,11 @@ public class Main {
                 }
 
                 //Chart C - Non-Existence
-                siblingOrNot = (int) (Math.random() * 2 + 2);
-                // Trial C1 - brute force, check all
-
-                int c1Counts = totalBlocksOnChain;
-
-                //Trial C2 - Check for non-existence in valid tree (last) and invalid tree (last)
-                //*** Should alt between 2 and 3
+                //Trial C1 - Check for non-existence in valid tree (last) and invalid tree (last)
                 int notInLastValidCount = (int) Math.ceil(Math.log(lastValidMerkleSize) / Math.log(2) + siblingOrNot);
-                int c2Counts = notInLastValidCount + notInLastInvalidCount;
+                int c1Counts = notInLastValidCount + notInLastInvalidCount;
+                // Trial C2 - brute force, check all
+                int c2Counts = totalBlocksOnChain;
 
 
 

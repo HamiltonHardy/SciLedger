@@ -4,7 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import de.svenjacobs.loremipsum.LoremIpsum;
 
@@ -33,8 +32,6 @@ public class task {
         validTree.add("-1");
         this.invalidTree = new ArrayList<>();
         invalidTree.add("-1");
-        this.validTreeSize = -1;
-        this.invalidTreeSize = -1;
     }
 
     public int getIdxParent(int index) {
@@ -46,10 +43,6 @@ public class task {
 
             return idxParent.get(index);
         }
-    }
-
-    public ArrayList<Integer> getIdxParent() {
-            return idxParent;
     }
 
     public String getLoremHash(int size){
@@ -80,14 +73,6 @@ public class task {
 
     public void setInvalidTreeSize(int invalidTreeSize){
         this.invalidTreeSize = invalidTreeSize;
-    }
-
-    public int getValidTreeSize() {
-        return validTreeSize;
-    }
-
-    public int getInvalidTreeSize() {
-        return invalidTreeSize;
     }
 
     public boolean isInvalidated(){

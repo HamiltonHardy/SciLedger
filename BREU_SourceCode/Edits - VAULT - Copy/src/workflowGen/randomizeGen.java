@@ -49,5 +49,3 @@ public class randomizeGen {
 
 }
 
-//verification
-//exclude selecting a quorum

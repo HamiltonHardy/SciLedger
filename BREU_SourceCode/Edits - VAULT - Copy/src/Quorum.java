@@ -1,8 +1,6 @@
 
-import javax.xml.crypto.NodeSetData;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * Quorum Class: Creates the quorum to approve transactions. The quorum is randomly selected from the blockchain
@@ -21,26 +19,6 @@ public class Quorum {
         this.SIZE = quorumSize;
         this.NODES = Main.NETWORK;
     }
-
-//    /**
-//     * Randomly selects the quorum members.
-//     * @return Arraylist containing the nodes selected for the quorum.
-//     */
-//    public ArrayList<Node> selectQuorum() {
-//
-//        ArrayList<Node> quorum = new ArrayList<>();
-//        Random rand = new Random();
-//
-//        for (int i = 0; i < this.SIZE; i++) {
-//            Node node = Main.NETWORK.get(rand.nextInt(Main.NETWORK.size()));
-//            //Chooses a new node if the originally selected node is already in the quorum
-//            while (quorum.contains(node)) {
-//                node = Main.NETWORK.get(rand.nextInt(Main.NETWORK.size()));
-//            }
-//            quorum.add(node);
-//        }
-//        return quorum;
-//    }
 
     /**
      * Function simulates each member of the quorum signing the block and then every other member of the quorum
